@@ -1,5 +1,14 @@
 package codeurjc_students.ATRA.security.jwt;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
 
 	private Status status;
@@ -10,42 +19,9 @@ public class AuthResponse {
 		SUCCESS, FAILURE
 	}
 
-	public AuthResponse() {
-	}
-
 	public AuthResponse(Status status, String message) {
 		this.status = status;
 		this.message = message;
-	}
-
-	public AuthResponse(Status status, String message, String error) {
-		this.status = status;
-		this.message = message;
-		this.error = error;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public String getError() {
-		return error;
-	}
-
-	public void setError(String error) {
-		this.error = error;
 	}
 
 	@Override
