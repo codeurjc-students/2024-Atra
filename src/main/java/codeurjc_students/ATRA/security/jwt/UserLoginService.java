@@ -47,13 +47,13 @@ public class UserLoginService {
 		String username = loginRequest.getUsername();
 		UserDetails user = userDetailsService.loadUserByUsername(username);
 
-		Boolean accessTokenValid = jwtTokenProvider.validateToken(accessToken);
-		Boolean refreshTokenValid = jwtTokenProvider.validateToken(refreshToken);
+		boolean accessTokenValid = jwtTokenProvider.validateToken(accessToken);
+		boolean refreshTokenValid = jwtTokenProvider.validateToken(refreshToken);
 
 		HttpHeaders responseHeaders = new HttpHeaders();
 		Token newAccessToken;
 		Token newRefreshToken;
-		if (!accessTokenValid && !refreshTokenValid) {
+		if (accessTokenValid == refreshTokenValid) {
 			newAccessToken = jwtTokenProvider.generateToken(user);
 			newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
 			addAccessTokenCookie(responseHeaders, newAccessToken);
@@ -65,13 +65,6 @@ public class UserLoginService {
 			addAccessTokenCookie(responseHeaders, newAccessToken);
 		}
 
-		if (accessTokenValid && refreshTokenValid) {
-			newAccessToken = jwtTokenProvider.generateToken(user);
-			newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
-			addAccessTokenCookie(responseHeaders, newAccessToken);
-			addRefreshTokenCookie(responseHeaders, newRefreshToken);
-		}
-
 		AuthResponse loginResponse = new AuthResponse(AuthResponse.Status.SUCCESS,
 				"Auth successful. Tokens are created in cookie.");
 		return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
@@ -81,7 +74,7 @@ public class UserLoginService {
 		
 		String refreshToken = SecurityCipher.decrypt(encryptedRefreshToken);
 		
-		Boolean refreshTokenValid = jwtTokenProvider.validateToken(refreshToken);
+		boolean refreshTokenValid = jwtTokenProvider.validateToken(refreshToken);
 		
 		if (!refreshTokenValid) {
 			AuthResponse loginResponse = new AuthResponse(AuthResponse.Status.FAILURE,
@@ -111,9 +104,8 @@ public class UserLoginService {
 
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
 
-		HttpSession session = request.getSession(false);
 		SecurityContextHolder.clearContext();
-		session = request.getSession(false);
+		HttpSession session = request.getSession(false);
 		if (session != null) {
 			session.invalidate();
 		}
