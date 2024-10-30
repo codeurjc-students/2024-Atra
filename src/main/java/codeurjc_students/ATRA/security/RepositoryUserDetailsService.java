@@ -14,6 +14,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class implements UserDetailsService. This means it is used when authenticating a user to get the user's data.
+ * When authenticating a user, Spring compares the user/password in the request to those in the database using an AuthenticationManager.
+ * However, it does not have direct access to the database.
+ * Instead, it uses a UserDetailsService to get the user's data from their username.
+ * This is the implementation of UserDetailsService used for this project.
+ */
 @Service
 public class RepositoryUserDetailsService implements UserDetailsService {
 

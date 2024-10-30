@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * POJO holding String attributes for status, message and error. Used as the body of ResponseEntity during authentication.
+ */
 @Setter
 @Getter
 @NoArgsConstructor

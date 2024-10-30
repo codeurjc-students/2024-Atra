@@ -8,6 +8,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * POJO providing encrypting and decrypting functionalities.
+ */
 public class SecurityCipher {
 
 	private static final String KEYVALUE = "secureCDCKey";

@@ -4,6 +4,9 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+/**
+ * POJO responsible for creating cookies to hold tokens.
+ */
 @Component
 public class JwtCookieManager {
 

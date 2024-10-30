@@ -2,6 +2,9 @@ package codeurjc_students.ATRA.security.jwt;
 
 import java.time.LocalDateTime;
 
+/**
+ * Data class that holds a token's data
+ */
 public class Token {
 
 	private TokenType tokenType;

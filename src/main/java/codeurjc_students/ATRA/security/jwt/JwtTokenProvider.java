@@ -20,6 +20,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * POJO that provides functionality regarding JWTs.
+ * Allows creation and validation of tokens, as well as methods to extract a token from a HttpServletRequest, and to extract user data from a token (username/Authentication)
+ */
 @Component
 public class JwtTokenProvider {
 	
@@ -43,6 +47,11 @@ public class JwtTokenProvider {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
 	}
 
+	/**
+	 * Extracts a token from a request.
+	 * @param req the request from which to extract a token
+	 * @return a String holding the token or null if there was none
+	 */
 	public String resolveToken(HttpServletRequest req) {
 		String bearerToken = req.getHeader("Authorization");
 		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

@@ -10,6 +10,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * These two classes might not be necessary, seeing as CSRF is disabled
+ */
 @Configuration
 public class CSRFHandlerConfiguration implements WebMvcConfigurer {
 

@@ -1,5 +1,8 @@
 package codeurjc_students.ATRA.security.jwt;
 
+/**
+ * Custom class holding the username and password involved in a request.
+ */
 public class LoginRequest {
 
 	private String username;

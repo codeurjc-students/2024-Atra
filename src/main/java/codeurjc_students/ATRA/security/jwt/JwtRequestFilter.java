@@ -19,6 +19,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * A Spring Filter. Filters intercept requests and responses to do stuff to them before they are processed/sent.
+ * It intercepts requests, and checks if they have a valid Access token. If they do, it automatically "logs the user in".
+ */
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 	

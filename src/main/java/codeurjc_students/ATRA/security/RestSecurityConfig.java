@@ -22,6 +22,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.security.SecureRandom;
 
+/**
+ * Configures security elements. Mainly:
+ * 	1. Configures and exposes an AuthenticationManager. It will use RepositoryUserDetailsService to access user data, and a generic PasswordEncoder
+ * 	2. Configures access permissions as well as security settings inside securityFilterChain, such as disabling CSRF and session management.
+ */
 @Configuration
 public class RestSecurityConfig {
 
@@ -73,7 +78,7 @@ public class RestSecurityConfig {
 			// Disable Form login Authentication
 			.formLogin(AbstractHttpConfigurer::disable) //formLogin -> formLogin.disable()
 
-			// Avoid creating session
+			// Avoid creating session, since we are using JWT, which is stateless
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 			// Add JWT Token filter
