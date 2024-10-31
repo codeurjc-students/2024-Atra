@@ -1,6 +1,8 @@
 package codeurjc_students.ATRA.security.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +15,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -31,6 +36,8 @@ public class JwtTokenProvider {
 	
 	@Value("${jwt.secret}")
 	private String jwtSecret;
+
+	private SecretKey secretKey;
 	
 	private static long JWT_EXPIRATION_IN_MS = 5400000;
 	private static Long REFRESH_TOKEN_EXPIRATION_MSEC = 10800000l;
@@ -38,13 +45,21 @@ public class JwtTokenProvider {
 	@Autowired
 	private UserDetailsService userDetailsService;
 
+	/**
+	 * Generate a HMAC key and store it in an attribute. This is necessary for Jwts to work properly.
+	 */
+	private void setSigningKey() {
+		byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+		secretKey = Keys.hmacShaKeyFor(keyBytes);  // Generate HMAC key
+	}
+
 	public Authentication getAuthentication(String token) {
 		UserDetails userDetails = userDetailsService.loadUserByUsername(getUsername(token));
 		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 	}
 
 	public String getUsername(String token) {
-		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getSubject();
 	}
 
 	/**
@@ -62,7 +77,10 @@ public class JwtTokenProvider {
 
 	public boolean validateToken(String token) {
 		try {
-			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+			Jwts.parser()
+					.verifyWith(secretKey) 		//define what key to decrypt with
+					.build()					//create the parser (it was a builder)
+					.parseSignedClaims(token); 	//verify it is valid (and do some other stuff we don't care about)
 			return true;
 		} catch (SignatureException ex) {
 			LOG.debug("Invalid JWT Signature");
@@ -79,43 +97,30 @@ public class JwtTokenProvider {
 	}
 
 	public Token generateToken(UserDetails user) {
-
-		Claims claims = Jwts.claims().setSubject(user.getUsername());
-
-		claims.put("auth", user.getAuthorities().stream().map(s -> new SimpleGrantedAuthority("ROLE_"+s))
-				.filter(Objects::nonNull).collect(Collectors.toList()));
-
-		Date now = new Date();
-		Long duration = now.getTime() + JWT_EXPIRATION_IN_MS;
-		Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_IN_MS);
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(now);
-		calendar.add(Calendar.HOUR_OF_DAY, 8);
-
-		String token = Jwts.builder().setClaims(claims).setSubject((user.getUsername())).setIssuedAt(new Date())
-				.setExpiration(expiryDate).signWith(SignatureAlgorithm.HS256, jwtSecret).compact();
-
-		return new Token(Token.TokenType.ACCESS, token, duration,
-				LocalDateTime.ofInstant(expiryDate.toInstant(), ZoneId.systemDefault()));
-
+		return buildToken(user, true);
 	}
 
 	public Token generateRefreshToken(UserDetails user) {
+		return buildToken(user, false);
+	}
 
-		Claims claims = Jwts.claims().setSubject(user.getUsername());
+	private Token buildToken(UserDetails user, boolean isAccess){
+		ClaimsBuilder claims = Jwts.claims().subject(user.getUsername());
 
-		claims.put("auth", user.getAuthorities().stream().map(s -> new SimpleGrantedAuthority("ROLE_"+s))
+		claims.add("auth", user.getAuthorities().stream().map(s -> new SimpleGrantedAuthority("ROLE_"+s))
 				.filter(Objects::nonNull).collect(Collectors.toList()));
+
 		Date now = new Date();
-		Long duration = now.getTime() + REFRESH_TOKEN_EXPIRATION_MSEC;
-		Date expiryDate = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_MSEC);
+		Long duration = now.getTime() + (isAccess ? JWT_EXPIRATION_IN_MS : REFRESH_TOKEN_EXPIRATION_MSEC);
+		Date expiryDate = new Date(now.getTime() + (isAccess ? JWT_EXPIRATION_IN_MS : REFRESH_TOKEN_EXPIRATION_MSEC));
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(now);
 		calendar.add(Calendar.HOUR_OF_DAY, 8);
-		String token = Jwts.builder().setClaims(claims).setSubject((user.getUsername())).setIssuedAt(new Date())
-				.setExpiration(expiryDate).signWith(SignatureAlgorithm.HS256, jwtSecret).compact();
 
-		return new Token(Token.TokenType.REFRESH, token, duration,
+		String token = Jwts.builder().claims(claims.build()).subject((user.getUsername())).issuedAt(new Date())
+				.expiration(expiryDate).signWith(secretKey).compact();
+
+		return new Token((isAccess ? Token.TokenType.ACCESS : Token.TokenType.REFRESH), token, duration,
 				LocalDateTime.ofInstant(expiryDate.toInstant(), ZoneId.systemDefault()));
 
 	}
