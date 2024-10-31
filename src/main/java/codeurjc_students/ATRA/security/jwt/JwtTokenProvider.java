@@ -3,6 +3,7 @@ package codeurjc_students.ATRA.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,8 @@ public class JwtTokenProvider {
 
 	private SecretKey secretKey;
 	
-	private static long JWT_EXPIRATION_IN_MS = 5400000;
-	private static Long REFRESH_TOKEN_EXPIRATION_MSEC = 10800000l;
+	private static long JWT_EXPIRATION_IN_MS = 5400000; //90 minutes
+	private static Long REFRESH_TOKEN_EXPIRATION_MSEC = 10800000l; // 180 minutes
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -48,8 +49,9 @@ public class JwtTokenProvider {
 	/**
 	 * Generate a HMAC key and store it in an attribute. This is necessary for Jwts to work properly.
 	 */
-	private void setSigningKey() {
-		byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+	@PostConstruct
+	public void setSigningKey() {
+		byte[] keyBytes = jwtSecret.getBytes(); //Base64.getDecoder().decode(jwtSecret);
 		secretKey = Keys.hmacShaKeyFor(keyBytes);  // Generate HMAC key
 	}
 
