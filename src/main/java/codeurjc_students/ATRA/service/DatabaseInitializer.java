@@ -4,6 +4,7 @@ import codeurjc_students.ATRA.model.User;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,11 +14,11 @@ public class DatabaseInitializer {
     private UserService userService;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private PasswordEncoder passwordEncoder;
 
     @PostConstruct
     public void init() {
-        User user = new User("pepe", "pass");
+        User user = new User("pepe", passwordEncoder.encode("pass"));
 
         userService.save(user);
     }
