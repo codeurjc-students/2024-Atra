@@ -38,20 +38,18 @@ public class RestSecurityConfig {
 	private JwtRequestFilter jwtRequestFilter;
 
 	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService)
-				.passwordEncoder(NoOpPasswordEncoder.getInstance()/*passwordEncoder()*/); //NoOpPasswordEncoder is for testing purposes
+				.passwordEncoder(passwordEncoder); //NoOpPasswordEncoder is for testing purposes
 	}
 
 	//Expose AuthenticationManager as a Bean to be used in other services
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
-	}
-
-	//@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder(10, new SecureRandom());
 	}
 
 	@Bean
