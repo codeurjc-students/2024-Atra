@@ -26,6 +26,9 @@ public class UserService {
 	public boolean exists(long id) {
 		return repository.existsById(id);
 	}
+	public boolean existsByUsername(String username) {
+		return repository.findByUsername(username).isPresent();
+	}
 
 	public List<User> findAll() {
 		return repository.findAll();

@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@NoArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -24,6 +23,12 @@ public class User {
 	private String username;
 	private String password;
 
+	private String displayname;
+	private String email;
+
+	//private List<Route> routes;
+	//private List<Mural> murals;
+
 	//<editor-fold desc="private List<String> roles">
 	@Column(name = "role")
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -31,11 +36,19 @@ public class User {
 	private List<String> roles;
 	//</editor-fold>
 
+	public User(){
+		setDefaultRoles();
+	}
 	public User(String username, String password){
 		this.username = username;
 		this.password = password;
+		setDefaultRoles();
 	}
 	public String getEncodedPassword() {
 		return password;
+	}
+
+	private void setDefaultRoles(){
+		this.roles = List.of("USER");
 	}
 }
