@@ -86,6 +86,12 @@
 		</dependency>
 		<!-- </editor-fold>  -->
 
+		<dependency>
+			<groupId>io.jenetics</groupId>
+			<artifactId>jpx</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
