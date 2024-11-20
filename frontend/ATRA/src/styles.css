@@ -1,1 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+.black-bg {
+  background-color: black !important;
+}
+
+.red-bg {
+  background-color: red !important;
+}
+
+.green-bg {
+  background-color: green !important;
+}
+
+.yellow-bg {
+  background-color: yellow !important;
+}
+
+.blue-bg {
+  background-color: blue !important;
+}
+
+.violet-bg {
+  background-color: violet !important;
+}
+
+label {
+  display: inline-block;
+}
