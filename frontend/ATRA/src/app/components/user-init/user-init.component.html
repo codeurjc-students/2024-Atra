@@ -1,0 +1,25 @@
+<div class="card col-md-10">
+  <div class="card-header"><h5 class="card-title">Alternatively, you can:</h5></div>
+  <div class="card-body">
+    <div class="d-flex flex-column gap-2 align-items-center">
+      <button type="button" class="btn btn-primary col-md-6" data-bs-toggle="modal" data-bs-target="#loginModal"   >log in</button>
+      <button type="button" class="btn btn-primary col-md-6" data-bs-toggle="modal" data-bs-target="#registerModal">sign up</button>
+      <p>or</p>
+      <button type="button" class="btn btn-primary col-md-6" data-bs-toggle="modal" data-bs-target="#prevSessModal">upload a previous session</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modals -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <app-login></app-login>
+  </div>
+</div>
+
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <app-register></app-register>
+  </div>
+</div>

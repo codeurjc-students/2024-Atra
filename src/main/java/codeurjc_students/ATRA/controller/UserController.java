@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.NewUserDTO;
+import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.service.UserService;
 
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 
 @RestController
@@ -20,8 +23,16 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-    public User getUser(){
-        return null;
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id){
+        Optional<User> userOpt = userService.findById(id);
+        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(userService.toDTO(userOpt.get()));
+    }
+
+    @GetMapping("/IsUsernameTaken")
+    public ResponseEntity<Boolean> isUsernameTaken(@RequestParam String username){
+        return ResponseEntity.ok(userService.existsByUsername(username));
     }
 
     @PostMapping

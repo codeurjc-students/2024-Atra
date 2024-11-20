@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.repository.UserRepository;
 
@@ -41,4 +42,15 @@ public class UserService {
 	public void delete(long id) {
 		repository.deleteById(id);
 	}
+
+    public UserDTO toDTO(User user) {
+		UserDTO dto = new UserDTO();
+		dto.setId(user.getId());
+		dto.setDisplayname(user.getDisplayname());
+		dto.setUsername(user.getUsername());
+		dto.setRoles(user.getRoles());
+
+		dto.setEmail(user.getEmail());
+		return dto;
+    }
 }
