@@ -6,6 +6,7 @@ import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ReactiveForm
 import { Router } from '@angular/router';
 import { map, of } from 'rxjs';
 import { UserService } from '../../services/user.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -26,7 +27,8 @@ export class RegisterComponent implements OnInit{
     private fb: FormBuilder,
     private userService: UserService,
     //private http:HttpClient,
-    //private router: Router
+    //private router: Router,
+    protected activeModal: NgbActiveModal
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +85,8 @@ export class RegisterComponent implements OnInit{
 
   requiredArePresentAndValid(): boolean {
      const arePresent = this.registerForm?.get("username")?.value && this.registerForm?.get("password")?.value && this.registerForm?.get("confirm")?.value;
+     console.log("Are Present: " + arePresent)
+     console.log("Are Valid: " + this.registerForm.valid)
     return arePresent && this.registerForm.valid;
   }
 

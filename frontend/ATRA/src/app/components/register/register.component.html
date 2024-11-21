@@ -1,69 +1,60 @@
 
-<div class="modal-content green-bg">
-  <div class="modal-header">
-    <h1 class="modal-title" id="registerModalLabel">Register a new account</h1>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-  </div>
 
-  <form [formGroup]="registerForm">
-
-    <div *ngIf="step==='required'">
-      <div id="bodyRequired" class="modal-body d-flex flex-column align-items-center justify-content-center">
-
-        <div id="usernameContainer" class="form-floating mb-3 w-100">
-          <input id="username" name="username" type="text" placeholder="Username" class="form-control" formControlName="username" required>
-          <label for="username" class="mr-3 text-muted">Username</label>
-
-          <small class="text-danger d-block" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.value===''">Debes introducir un nombre de usuario</small>
-          <small class="text-danger d-block" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.errors?.['isTaken']">Ese nombre de usuario es inválido</small>
-        </div>
-        <div id="passwordContainer" class="form-floating mb-3 w-100">
-          <input id="password" placeholder="Password" type="password" class="form-control" formControlName="password" required>
-          <label for="password" class="mr-3 text-muted">Password</label>
-
-          <small class="text-danger d-block" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.value===''">Debes introducir una contraseña</small>
-          <small class="text-danger d-block" *ngIf="registerForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
-
-        </div>
-        <div id="confirmContainer" class="form-floating mb-3 w-100">
-          <input id="confirm" placeholder="Confirm Password" type="password" class="form-control" formControlName="confirm" required>
-          <label for="confirm" class="mr-3 text-muted">Confirm Password</label>
-
-          <small class="text-danger d-block" *ngIf="registerForm.get('confirm')?.touched && registerForm.get('confirm')?.value===''">Debes introducir una contraseña</small>
-          <small class="text-danger d-block" *ngIf="registerForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
-        </div>
-      </div>
-      <div id="footerRequired" class="modal-footer">
-        <form class="form-group d-flex align-items-center justify-content-center">
-          <button type="button" class="btn btn-danger mx-2" >Cancelar</button>
-          <button type="button" class="btn btn-primary mx-2" (click)="next()">Siguiente</button>
-        </form>
-      </div>
-    </div>
-
-    <div *ngIf="step==='optional'">
-      <div id="bodyOptional" class="modal-body d-flex flex-column align-items-center justify-content-center">
-          <div id="diaplaynameContainer" class="form-floating mb-3 w-100">
-            <input id="displayname" placeholder="Displayname" class="form-control" formControlName="displayname">
-            <label for="displayname" class="mr-3 text-muted">Displayname</label>
-          </div>
-          <div id="emailContainer" class="form-floating mb-3 w-100">
-            <input id="email" placeholder="Email" type="email" class="form-control" formControlName="email">
-            <label for="email" class="mr-3 text-muted">Email</label>
-
-            <small class="text-danger" *ngIf="registerForm.get('email')?.errors?.['email']">El formato del email parece incorrecto</small>
-          </div>
-      </div>
-
-      <div id="footerOptional" class="modal-footer">
-        <form class="form-group d-flex align-items-center justify-content-center">
-          <button type="button" class="btn btn-danger mx-2" (click)="previous()">Anterior</button>
-          <button type="button" class="btn btn-primary mx-2" (click)="onSubmit()">Crear Cuenta</button>
-        </form>
-      </div>
-    </div>
-  </form>
+<div class="modal-header">
+  <h1 class="modal-title" id="registerModalLabel">Register a new account</h1>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss('Cross click')" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
+
+<form [formGroup]="registerForm">
+  <div *ngIf="step==='required'">
+    <div id="bodyRequired" class="modal-body d-flex flex-column align-items-center justify-content-center">
+      <div id="usernameContainer" class="form-floating mb-3 w-100">
+        <input id="username" name="username" type="text" placeholder="Username" class="form-control" formControlName="username" required>
+        <label for="username" class="mr-3 text-muted">Username</label>
+        <small class="text-danger d-block" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.value===''">Debes introducir un nombre de usuario</small>
+        <small class="text-danger d-block" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.errors?.['isTaken']">Ese nombre de usuario es inválido</small>
+      </div>
+      <div id="passwordContainer" class="form-floating mb-3 w-100">
+        <input id="password" placeholder="Password" type="password" class="form-control" formControlName="password" required>
+        <label for="password" class="mr-3 text-muted">Password</label>
+        <small class="text-danger d-block" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.value===''">Debes introducir una contraseña</small>
+        <small class="text-danger d-block" *ngIf="registerForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
+      </div>
+      <div id="confirmContainer" class="form-floating mb-3 w-100">
+        <input id="confirm" placeholder="Confirm Password" type="password" class="form-control" formControlName="confirm" required>
+        <label for="confirm" class="mr-3 text-muted">Confirm Password</label>
+        <small class="text-danger d-block" *ngIf="registerForm.get('confirm')?.touched && registerForm.get('confirm')?.value===''">Debes introducir una contraseña</small>
+        <small class="text-danger d-block" *ngIf="registerForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
+      </div>
+    </div>
+    <div id="footerRequired" class="modal-footer">
+      <form class="form-group d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-danger mx-2" (click)="activeModal.close('Close click')">Cancelar</button>
+        <button type="button" class="btn btn-primary mx-2" (click)="next()">Siguiente</button>
+      </form>
+    </div>
+  </div>
+  <div *ngIf="step==='optional'">
+    <div id="bodyOptional" class="modal-body d-flex flex-column align-items-center justify-content-center">
+        <div id="diaplaynameContainer" class="form-floating mb-3 w-100">
+          <input id="displayname" placeholder="Displayname" class="form-control" formControlName="displayname">
+          <label for="displayname" class="mr-3 text-muted">Displayname</label>
+        </div>
+        <div id="emailContainer" class="form-floating mb-3 w-100">
+          <input id="email" placeholder="Email" type="email" class="form-control" formControlName="email">
+          <label for="email" class="mr-3 text-muted">Email</label>
+          <small class="text-danger" *ngIf="registerForm.get('email')?.errors?.['email']">El formato del email parece incorrecto</small>
+        </div>
+    </div>
+    <div id="footerOptional" class="modal-footer">
+      <form class="form-group d-flex align-items-center justify-content-center">
+        <button type="button" class="btn btn-danger mx-2" (click)="previous()">Anterior</button>
+        <button type="button" class="btn btn-primary mx-2" (click)="onSubmit()">Crear Cuenta</button>
+      </form>
+    </div>
+  </div>
+</form>
+
 
 <!--
 <script src="../js/login.js"></script>

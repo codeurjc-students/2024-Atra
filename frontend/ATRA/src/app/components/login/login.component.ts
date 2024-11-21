@@ -1,9 +1,10 @@
 import { UserService } from './../../services/user.service';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserInitComponent } from '../user-init/user-init.component';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 //import { ModalDismissReasons, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -16,7 +17,13 @@ import { UserInitComponent } from '../user-init/user-init.component';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private userService: UserService, private router: Router){}
+
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private router: Router,
+    protected activeModal: NgbActiveModal
+  ){}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -28,23 +35,18 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log("a")
     if (this.loginForm.invalid) {
       alert("Something went wrong, the form is not valid")
       return
     }
-    console.log("b")
+    this.activeModal.close();
     this.userService.login(this.loginForm.get("username")?.value, this.loginForm.get("password")?.value).subscribe({
       next: (response) => {
-        // If the login is successful, navigate to /home
         console.log('Login successful', response);
-        //dismissModal();
         this.router.navigate(['/home']);
       },
       error: (error) => {
-        // If the login fails, show an error alert
         console.error('Login failed', error);
-        //dismissModal();
         alert('Login failed. Please check your credentials and try again.');
       }
     });
