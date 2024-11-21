@@ -1,8 +1,9 @@
 <div class="card col-md-10">
+
   <div class="card-header"><h5 class="card-title">Start by uploading a GPX file</h5></div>
   <div class="card-body">
     <div class="d-flex flex-column gap-2 align-items-center">
-      <button type="button" class="btn btn-primary col-md-6" data-bs-toggle="modal" data-bs-target="#loginModal">log in</button>
+      <input type="file" class="btn btn-primary col-md-6" accept=".gpx" (change)="onFileSelected($event)">
     </div>
   </div>
 

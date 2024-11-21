@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -23,8 +25,8 @@ public class ActivityController {
     }
 
     @PostMapping
-    public ResponseEntity<Activity> createActivity(Principal principal){
-        activityService.newActivity("target\\classes\\static\\track.gpx", principal.getName());
+    public ResponseEntity<Activity> createActivity(@RequestParam("file") MultipartFile file, Principal principal){
+        activityService.newActivity(file, principal.getName());
         return ResponseEntity.ok().build();
     }
 

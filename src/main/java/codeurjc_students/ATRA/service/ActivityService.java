@@ -8,10 +8,12 @@ import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.WayPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -49,10 +51,10 @@ public class ActivityService {
 	}
 
 
-	public Activity newActivity(String pathString, String username){
+	public Activity newActivity(MultipartFile file, String username){
 		final GPX gpx;
         try {
-            gpx = GPX.read(Paths.get(pathString));
+			gpx = GPX.Reader.DEFAULT.read(file.getInputStream());
         } catch (IOException e) {throw new RuntimeException(e);}
 		List<WayPoint> pts = gpx.getTracks().get(0).getSegments().get(0).getPoints();
 
