@@ -6,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-user-init',
   standalone: true,
-  imports: [LoginComponent, RegisterComponent],
+  imports: [],
   templateUrl: './user-init.component.html',
   styleUrl: './user-init.component.css'
 })
