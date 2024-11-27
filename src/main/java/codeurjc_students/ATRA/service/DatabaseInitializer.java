@@ -18,7 +18,7 @@ public class DatabaseInitializer {
 
     @PostConstruct
     public void init() {
-        User user = new User("pepe", passwordEncoder.encode("pass"));
+        User user = new User("asd", passwordEncoder.encode("asd"));
         user.setDisplayname("pepito");
 
         userService.save(user);
