@@ -1,0 +1,26 @@
+.navbar-icons {
+  display: flex;
+  gap: 10px;
+}
+
+.icon-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 70px;
+  background-color: #555;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.icon-link:hover {
+  background-color: #777;
+}
+
+.icon-link i {
+  font-size: 20px;
+}
