@@ -26,6 +26,10 @@ public class ActivityController {
 
     @PostMapping
     public ResponseEntity<Activity> createActivity(@RequestParam("file") MultipartFile file, Principal principal){
+        if (principal==null) {
+            return  ResponseEntity.badRequest().build();
+        }
+
         activityService.newActivity(file, principal.getName());
         return ResponseEntity.ok().build();
     }

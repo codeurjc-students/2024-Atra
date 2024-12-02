@@ -33,6 +33,10 @@ export class UserService {
     //)
   }
 
+  isLoggedIn() {
+    return this.http.get<boolean>("/api/users/IsLoggedIn")
+  }
+
   createUser(user: User) {
     this.http.post("/api/users",
       {

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Optional;
 
 
@@ -33,6 +34,11 @@ public class UserController {
     @GetMapping("/IsUsernameTaken")
     public ResponseEntity<Boolean> isUsernameTaken(@RequestParam String username){
         return ResponseEntity.ok(userService.existsByUsername(username));
+    }
+
+    @GetMapping("/IsLoggedIn")
+    public ResponseEntity<Boolean> isLoggedIn(Principal principal){
+        return ResponseEntity.ok(principal != null);
     }
 
     @PostMapping

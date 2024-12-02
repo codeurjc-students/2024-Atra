@@ -1,3 +1,4 @@
+import { UserService } from './../../services/user.service';
 import { ActivityService } from './../../services/activity.service';
 import { Component } from '@angular/core';
 
@@ -9,7 +10,7 @@ import { Component } from '@angular/core';
   styleUrl: './anon-init.component.css'
 })
 export class AnonInitComponent {
-  constructor(private activityService: ActivityService){}
+  constructor(private activityService: ActivityService, private userService: UserService){}
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -17,11 +18,29 @@ export class AnonInitComponent {
     if (input.files?.length) {
       const file = input.files[0]; // Access the first selected file
       console.log("file name: " + file.name); // Example: Print file name
-      console.log("file type: " + file.type); // Example: Print file name
 
-      this.activityService.uploadGPX(file);
+      if (!file.name.toLowerCase().endsWith(".gpx")){
+        alert("File upload failed. The file must be a gpx file!")
+        return
+      }
+      this.userService.isLoggedIn().subscribe({
+        next: (response) => {
+          if (!response) {
+            alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without a login")
+            return
+          } else {
+            this.activityService.uploadGPX(file);
+          }
+        },
+        error: (error) => {
+          console.error('Error ', error);
+          alert('Login failed. Please check your credentials and try again.');
+        }
+      });
+
+
+
 
     }
   }
-
 }
