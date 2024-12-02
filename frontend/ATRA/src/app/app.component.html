@@ -2,14 +2,14 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand ml-2" routerLink="/">ATRA</a>
     <div class="navbar-icons">
-      <a routerLink="/home" class="icon-link">
+      <a routerLink="/me/home" class="icon-link" [class.active]="this.isPrivateRoute()">
         <img src="../assets/running.svg" class="v-75 w-75">
       </a>
       <a routerLink="/social" class="icon-link">
         <i class="fa-solid fa-user-group"></i>
         <!-- <i class="fa-solid fa-people-group"></i> -->
       </a>
-      <a routerLink="/murals" class="icon-link">
+      <a routerLink="/mural/home" class="icon-link" [class.active]="this.isMuralRoute()">
         <i class="fa-regular fa-image fa-xl"></i>
         <!-- <i class="fa-solid fa-people-group"></i> -->
       </a>
@@ -19,13 +19,13 @@
     <div class="sidebar green-bg" *ngIf="showSideBar">
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
-          <a routerLink="/home" class="icon-link">
+          <a [routerLink]="[urlStart, 'home']" [routerLinkActive]="'active'" class="icon-link">
             <i class="fa-solid fa-house"></i>
           </a>
-          <a routerLink="/activity-view" class="icon-link">
+          <a [routerLink]="[urlStart, 'activity-view']"  [routerLinkActive]="'active'" class="icon-link">
             <img src="../assets/study.svg" class="v-75 w-75">
           </a>
-          <a routerLink="/activity-comparison" class="icon-link">
+          <a [routerLink]="[urlStart, 'activity-comparison']" [routerLinkActive]="'active'" class="icon-link">
             <img src="../assets/compare.svg" class="v-100 w-100">
           </a>
 

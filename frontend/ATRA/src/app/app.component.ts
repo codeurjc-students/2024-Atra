@@ -12,8 +12,10 @@ import { CommonModule } from '@angular/common';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit{
+
   title = 'ATRA';
   showSideBar: boolean = true;
+  urlStart: string = '/me';
 
   constructor(private router: Router){}
 
@@ -21,12 +23,14 @@ export class AppComponent implements OnInit{
     this.router.events.subscribe(
       (event) => {
         if (event instanceof NavigationEnd) {
-          console.log(this.router.url)
-          this.showSideBar = this.router.url === "/"
+          this.showSideBar = this.router.url !== "/"
+          this.urlStart = '/' + this.router.url.split("/")[1]
+
         }
       }
     )
   }
 
-
+  isPrivateRoute(){return this.router.url.startsWith("/me/")}
+  isMuralRoute(){return this.router.url.startsWith("/mural/")}
 }

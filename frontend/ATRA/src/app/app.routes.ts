@@ -11,8 +11,10 @@ export const routes: Routes = [
   {path: '', component: WelcomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
-  {path: 'home', component: HomeComponent},
-  {path: 'activity-comparison', component: ComparisonComponent},
-  {path: 'activity-view', component: ActivityComponent},
-  {path: 'murals', component: MuralsComponent}
+  {path: 'me/home', component: HomeComponent},
+  {path: 'me/activity-comparison', component: ComparisonComponent},
+  {path: 'me/activity-view', component: ActivityComponent},
+  {path: 'mural/home', component: MuralsComponent},
+  {path: 'mural/activity-comparison', component: ComparisonComponent},
+  {path: 'mural/activity-view', component: ActivityComponent},
 ];
