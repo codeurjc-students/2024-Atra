@@ -1,4 +1,4 @@
-<div class="vh-100">
+<div class="d-flex flex-column vh-100">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand ml-2" routerLink="/">ATRA</a>
     <div class="navbar-icons">
@@ -15,8 +15,8 @@
       </a>
     </div>
   </nav>
-  <div class="d-flex vh-100">
-    <div class="sidebar green-bg" *ngIf="showSideBar">
+  <div class="d-flex flex-grow-1  blue-bg">
+    <div class="sidebar green-bg d-flex flex-column justify-content-between" *ngIf="showSideBar">
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
           <a [routerLink]="[urlStart, 'home']" [routerLinkActive]="'active'" class="icon-link">
@@ -28,7 +28,17 @@
           <a [routerLink]="[urlStart, 'activity-comparison']" [routerLinkActive]="'active'" class="icon-link">
             <img src="../assets/compare.svg" class="v-100 w-100">
           </a>
-
+        </li>
+      </ul>
+      <ul class="nav flex-column mx-2">
+        <li class="nav-item">
+          <a (click)="fileInput.click()" class="icon-link">
+            <i class="fa-solid fa-upload"></i>
+          </a>
+          <input type="file" #fileInput style="display: none" (change)="onFileChange($event)">
+          <a (click)="linkWithStrava()" class="icon-link">
+            <i class="fa-brands fa-strava"></i>
+          </a>
         </li>
       </ul>
     </div>

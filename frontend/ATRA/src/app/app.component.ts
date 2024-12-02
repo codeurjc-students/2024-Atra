@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { RegisterComponent } from "./components/register/register.component";
 import { CommonModule } from '@angular/common';
+import { ActivityService } from './services/activity.service';
 
 
 @Component({
@@ -12,12 +13,11 @@ import { CommonModule } from '@angular/common';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit{
-
   title = 'ATRA';
   showSideBar: boolean = true;
   urlStart: string = '/me';
 
-  constructor(private router: Router){}
+  constructor(private router: Router, private activityService: ActivityService){}
 
   ngOnInit(){
     this.router.events.subscribe(
@@ -33,4 +33,7 @@ export class AppComponent implements OnInit{
 
   isPrivateRoute(){return this.router.url.startsWith("/me/")}
   isMuralRoute(){return this.router.url.startsWith("/mural/")}
+  onFileChange(event: Event) {this.activityService.uploadActivity(event)}
+
+  linkWithStrava() {alert("This function is yet to be implemented")}
 }
