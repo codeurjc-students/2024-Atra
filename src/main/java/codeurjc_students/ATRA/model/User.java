@@ -28,6 +28,8 @@ public class User {
 
 	//private List<Route> routes;
 	//private List<Mural> murals;
+	@ElementCollection
+	private List<Long> activities = new ArrayList<>();
 
 	//<editor-fold desc="private List<String> roles">
 	@Column(name = "role")
@@ -50,5 +52,13 @@ public class User {
 
 	private void setDefaultRoles(){
 		this.roles = List.of("USER");
+	}
+
+	public void addActivity(Activity activity) {
+		activities.add(activity.getId());
+	}
+
+	public void addActivity(Long id) {
+		activities.add(id);
 	}
 }

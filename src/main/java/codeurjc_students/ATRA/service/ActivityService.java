@@ -15,6 +15,7 @@ import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
@@ -51,11 +52,27 @@ public class ActivityService {
 	}
 
 
+
 	public Activity newActivity(MultipartFile file, String username){
 		final GPX gpx;
         try {
 			gpx = GPX.Reader.DEFAULT.read(file.getInputStream());
         } catch (IOException e) {throw new RuntimeException(e);}
+
+		return newActivity(gpx, username);
+    }
+
+	public Activity newActivity(Path path, String username){
+		GPX gpx;
+        try {
+			gpx = GPX.read(path);
+		} catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+		return newActivity(gpx, username);
+    }
+
+	private Activity newActivity(GPX gpx, String username){
 		List<WayPoint> pts = gpx.getTracks().get(0).getSegments().get(0).getPoints();
 
 
@@ -76,7 +93,7 @@ public class ActivityService {
 		}
 		activityRepository.save(activity);
 		return activity;
-    }
+	}
 
 	private void addWayPoint(Activity activity, WayPoint pt) {
 		//processes the WayPoint and adds it to activity in ATRA format
