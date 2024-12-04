@@ -4,17 +4,23 @@ import { RegisterComponent } from './components/register/register.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { HomeComponent } from './components/home/home.component';
 import { MuralsComponent } from './components/murals/murals.component';
-import { ActivityComponent } from './components/activity/activity.component';
+import { ActivitySelectComponent } from './components/activity-select/activity-select.component';
 import { ComparisonComponent } from './components/comparison/comparison.component';
+import { ActivityComponent } from './components/activity/activity.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
   {path: 'me/home', component: HomeComponent},
-  {path: 'me/activity-comparison', component: ComparisonComponent},
-  {path: 'me/activity-view', component: ActivityComponent},
+  {path: 'me/activity-comparison', component: ActivitySelectComponent},
+  {path: 'me/activity-comparison/:id', component: ComparisonComponent}, // this with extra ones in query parameters. Alt would be me/activity-comparison?ids=1,2
+                                                                        // this depends on wether I want to differentiate the elements being compared. If there is one important one
+                                                                        // being compared against others, it should be /:id?ids=1,2. If all take the same importance, it should be
+                                                                        // /activity-comparison?ids=1,2,
+  {path: 'me/activity-view', component: ActivitySelectComponent},
+  {path: 'me/activity-view/:id', component: ActivityComponent}, //
   {path: 'mural/home', component: MuralsComponent},
   {path: 'mural/activity-comparison', component: ComparisonComponent},
-  {path: 'mural/activity-view', component: ActivityComponent},
+  {path: 'mural/activity-view', component: ActivitySelectComponent},
 ];
