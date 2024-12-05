@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
+import { Activity } from '../models/activity.model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,5 +53,18 @@ export class ActivityService {
         }
       }
     });
+  }
+
+  getAuthenticatedUserActivities(){
+    return this.http.get<Activity[]>("/api/activities")
+  }
+
+  process(value: any[]): Activity[] {
+    var result: Activity[] = [];
+    value.forEach(activity => {
+      result.push(new Activity(activity));
+    });
+
+    return result;
   }
 }

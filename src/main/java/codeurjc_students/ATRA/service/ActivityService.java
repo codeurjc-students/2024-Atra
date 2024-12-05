@@ -7,6 +7,7 @@ import codeurjc_students.ATRA.repository.ActivityRepository;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.WayPoint;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,4 +134,12 @@ public class ActivityService {
 		activity.addDataPoint(dataPoint);
 	}
 
+	public List<Activity> get(List<Long> ids) {
+		List<Activity> result = new ArrayList<>();
+		for (var id : ids) {
+			Optional<Activity> opt = this.findById(id);
+            opt.ifPresent(result::add);
+		}
+		return result;
+	}
 }

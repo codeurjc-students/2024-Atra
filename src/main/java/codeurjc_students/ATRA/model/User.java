@@ -61,4 +61,8 @@ public class User {
 	public void addActivity(Long id) {
 		activities.add(id);
 	}
+
+	public boolean hasActivity(Long id) {
+		return activities.contains(id);
+	}
 }

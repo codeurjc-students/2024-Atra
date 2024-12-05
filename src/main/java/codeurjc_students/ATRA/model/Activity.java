@@ -30,6 +30,7 @@ public class Activity {
 	private Instant startTime;
 
 	private Long user;
+	private Long route;
 
 	@ElementCollection
 	private List<DataPoint> dataPoints = new ArrayList<>();
