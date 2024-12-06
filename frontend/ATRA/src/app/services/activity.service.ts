@@ -56,7 +56,7 @@ export class ActivityService {
   }
 
   getAuthenticatedUserActivities(){
-    return this.http.get<Activity[]>("/api/activities")
+    return this.http.get<any[]>("/api/activities");
   }
 
   process(value: any[]): Activity[] {
@@ -66,5 +66,9 @@ export class ActivityService {
     });
 
     return result;
+  }
+
+  get(id: string){
+    return this.http.get<any[]>("/api/activities/" + id);
   }
 }

@@ -29,6 +29,12 @@ public class ActivityController {
         return null;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ActivityDTO> getActivity(@PathVariable("id") Long id, Principal principal){
+        ResponseEntity<List<ActivityDTO>> activities = getActivities(id, principal);
+        return ResponseEntity.status(activities.getStatusCode()).body(activities.getBody().get(0));
+    }
+
     @GetMapping
     public ResponseEntity<List<ActivityDTO>> getActivities(@RequestParam(value="id", required = false) Long id, Principal principal){
         List<Activity> activities = new ArrayList<>();
