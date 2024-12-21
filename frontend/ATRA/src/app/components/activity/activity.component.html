@@ -12,7 +12,7 @@
           <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
       </li>
       <li class="nav-item" role="presentation">
-          <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities" type="button" role="tab" aria-controls="activities" aria-selected="false">Activities</button>
+          <button class="nav-link" id="study-tab" data-bs-toggle="tab" data-bs-target="#study" type="button" role="tab" aria-controls="study" aria-selected="false">Study</button>
       </li>
       <li class="nav-item" role="presentation">
           <button class="nav-link" id="segments-tab" data-bs-toggle="tab" data-bs-target="#segments" type="button" role="tab" aria-controls="segments" aria-selected="false">Segments</button>
@@ -37,11 +37,113 @@
 
                 </div>
               </div>
+          </div>
 
+
+
+          <div class="tab-pane fade" id="study" role="tabpanel" aria-labelledby="study-tab">
+            <div class="container mt-3">
+              <!-- Top Section: Dropdown and Containers -->
+              <div class="row mb-3">
+                <!-- Dropdown -->
+                <div class="col-12">
+                  <div class="d-flex align-items-center mb-3">
+                    <label for="metricSelect" class="form-label me-2 fw-bold">Metric:</label>
+                    <select class="form-select w-auto" id="metricSelect" [(ngModel)]="selectedMetric">
+                      <option *ngFor="let metric of metrics" [value]="metric">{{ metric }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <!-- Goals Container -->
+                <div class="col-4">
+                  <div class="card h-100">
+                    <div class="card-header fw-bold">Goals</div>
+                    <div class="card-body">
+                      <form>
+                        <div class="mb-3">
+                          <label for="worstAcceptable" class="form-label">Worst Acceptable</label>
+                          <input type="number" class="form-control" id="worstAcceptable" [(ngModel)]="goals.worst" name="worstAcceptable" />
+                        </div>
+                        <div class="mb-3">
+                          <label for="bestAcceptable" class="form-label">Best Acceptable</label>
+                          <input type="number" class="form-control" id="bestAcceptable" [(ngModel)]="goals.best" name="bestAcceptable" />
+                        </div>
+                        <div class="mb-3">
+                          <label for="goal" class="form-label">Goal</label>
+                          <input type="number" class="form-control" id="goal" [(ngModel)]="goals.target" name="goal" />
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Ratings Container -->
+                <div class="col-8">
+                  <div class="card h-100">
+                    <div class="card-header fw-bold">Ratings</div>
+                    <div class="card-body overflow-auto">
+                      <div class="row">
+                        <div class="col-6" *ngFor="let rating of ratings">
+                          <p class="mb-1"><strong>{{ rating.name }}:</strong> {{ rating.value }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Section: Graphs -->
+              <div class="row">
+                <div class="col-4">
+                  <div class="card">
+                    <div class="card-body text-center">Graph 1
+                      <ngx-charts-line-chart
+                        [view]="[1000,400]"
+                        [results]="[{'name':currentMetric, 'series':dataset}]"
+                        [xAxisLabel]="'x-axis'"
+                        [legendTitle]="'legend'"
+                        [yAxisLabel]="'y-axis'"
+                        [legend]="true"
+                        [showXAxisLabel]="true"
+                        [showYAxisLabel]="true"
+                        [xAxis]="true"
+                        [yAxis]="true"
+                        [gradient]="true">
+                    </ngx-charts-line-chart>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="card">
+                    <div class="card-body text-center">Graph 2</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="card">
+                    <div class="card-body text-center">Graph 3</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="tab-pane fade" id="activities" role="tabpanel" aria-labelledby="activities-tab">
-              <p>Activities content goes here...</p>
-          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           <div class="tab-pane fade" id="segments" role="tabpanel" aria-labelledby="segments-tab">
               <p>Segments content goes here...</p>
           </div>

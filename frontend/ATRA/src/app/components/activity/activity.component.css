@@ -41,3 +41,8 @@
 .tab-pane {
   height: 100%;
 }
+
+.tab-pane:not(.show) {
+  display: none !important;
+}
+

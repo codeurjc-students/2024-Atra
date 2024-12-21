@@ -2,6 +2,7 @@ import { DataPoint } from "./datapoint.model";
 import { User } from './user.model';
 
 export class Activity {
+
     id: number;
 
     name:string;
@@ -19,11 +20,11 @@ export class Activity {
 
     streams: {
       time : string[],
-      distance : number[],
-      position : number[],
-      altitude : number[],
-      heartrate : number[],
-      cadence : number[],
+      distance : string[],
+      position : string[],
+      altitude : string[],
+      heartrate : string[],
+      cadence : string[],
       other: any[]
     }
     other:any;
@@ -55,11 +56,26 @@ export class Activity {
     result.push({name:"Total distance", value:""+this.totalDistance})
     result.push({name:"Route", value:""+this.route})
 
-
-
-
-
     return result
+  }
+
+  getMetricData(metric: string, activity: Activity): { name: string, value: number; }[] {
+    var metricData: string[] = [];
+    const time = activity.streams.time;
+    switch (metric) {
+      //case ("time") : metricData = activity.streams.time; break;
+      case ("distance") : metricData = activity.streams.distance; break;
+      //case ("position") : metricData = activity.streams.position; break;
+      case ("altitude") : metricData = activity.streams.altitude; break;
+      case ("heartrate") : metricData = activity.streams.heartrate; break;
+      case ("cadence") : metricData = activity.streams.cadence; break;
+      case ("other") : metricData = activity.streams.other; break;
+    }
+    for (const datapoint of  metricData) {
+
+    }
+
+    return [{ name: "1", value: 1 }, { name: "2", value: 2 }]
   }
 
 }
