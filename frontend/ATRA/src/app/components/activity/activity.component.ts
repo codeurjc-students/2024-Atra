@@ -31,7 +31,6 @@ export class ActivityComponent implements OnInit, AfterViewInit{
        this.view = [800, 375]
        return
     }
-    console.log([containerWidth, containerHeight])
     this.view = [containerWidth*0.8, containerHeight*0.8];
   }
 
