@@ -3,11 +3,15 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
 import { Activity } from '../models/activity.model';
+import { ActivityStreams } from '../models/activity-streams.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ActivityService {
+
+  validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
+
   constructor(private http: HttpClient, private router: Router, private userService: UserService) {}
 
   uploadActivity(event: Event) {
@@ -24,7 +28,7 @@ export class ActivityService {
       this.userService.isLoggedIn().subscribe({
         next: (response) => {
           if (!response) {
-            alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without a login")
+            alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without login")
             return
           } else {
             this.uploadGPX(file);
@@ -70,5 +74,86 @@ export class ActivityService {
 
   get(id: string){
     return this.http.get<any[]>("/api/activities/" + id);
+  }
+
+
+  // internal logic and services
+
+  getGraphData(metric: string, activity: Activity, xAxis: string): { name: string, value: number; }[] {
+    var metricData: string[];
+    const time = activity.streams.time;
+    const distance = activity.streams.distance
+
+
+    if (!(Object.keys(new ActivityStreams())).includes(metric)) {
+      throw new Error(`Given metric '${metric}' is not a key of ActivityStreams`)
+    }
+    metricData = activity.streams[metric as keyof ActivityStreams]
+
+    const processedData: {name: string; value: number;}[] = []
+    const startTime = new Date(time[0]);
+    for (var i=0;i<metricData.length;i++) {
+      const currentTime = new Date(time[i])
+
+      switch(xAxis) {
+        case "timeElapsed": processedData.push({name:this.getTime(currentTime, startTime),value:parseFloat(metricData[i])}); break;
+        case "timeOfDay": processedData.push({name:currentTime.getHours().toString()+":"+currentTime.getMinutes().toString()+":"+currentTime.getSeconds().toString(),value:parseFloat(metricData[i])}); break;
+        case "totalDistance": processedData.push({name:parseFloat(distance[i]).toFixed(2),value:parseFloat(metricData[i])}); break;
+        default: {
+          console.log("xAxisRepresents has a bad value. Defaulting to timeElapsed")
+          processedData.push({name:this.getTime(currentTime, startTime),value:parseFloat(metricData[i])})
+        }
+      }
+    }
+
+    return processedData //[{ name: "1", value: 2 }, { name: "2", value: 2 },{ name: "3", value: 3 }]
+  }
+
+  getMetric(metric: string, activity:Activity){
+    const processedData: string[] = []
+    if (metric=="timeElapsed") {
+      const startTime = new Date(activity.streams.time[0]);
+
+      for (var i=0;i<activity.streams.time.length;i++) {
+        const currentTime = new Date(activity.streams.time[i])
+        processedData.push(this.getTime(currentTime, startTime))
+      }
+      return processedData
+
+    } else if (metric=="timeOfDay") {
+      for (var i=0;i<activity.streams.time.length;i++) {
+        const currentTime = new Date(activity.streams.time[i])
+        processedData.push(currentTime.getHours().toString()+":"+currentTime.getMinutes().toString()+":"+currentTime.getSeconds().toString())
+      }
+      return processedData
+    } else if (metric=="totalDistance"){
+      for (var i=0;i<activity.streams.time.length;i++)
+        parseFloat(activity.streams.distance[i]).toFixed(2)
+    }
+    return activity.getStream(metric)
+  }
+
+
+  getTime(date1:Date, date2:Date): string{
+    // Time Difference in Milliseconds
+    const milliDiff: number = date1.getTime() - date2.getTime();
+    // Total number of seconds in the difference
+    const totalSeconds = Math.floor(milliDiff / 1000);
+    // Total number of minutes in the difference
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    // Total number of hours in the difference
+    const totalHours = Math.floor(totalMinutes / 60);
+    // Getting the number of seconds left in one minute
+    const remSeconds = totalSeconds % 60;
+    // Getting the number of minutes left in one hour
+    const remMinutes = totalMinutes % 60;
+
+    const hoursString = totalHours != 0 ? totalHours.toString()+":":""
+    const minsString = (remMinutes < 10 && totalHours!=0) ? "0"+remMinutes.toString():remMinutes.toString()
+    const secsString = remSeconds < 10 ? "0"+remSeconds.toString():remSeconds.toString()
+
+
+    return `${hoursString}${minsString}:${secsString}`
+
   }
 }
