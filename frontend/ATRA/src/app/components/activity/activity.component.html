@@ -169,28 +169,33 @@
   </div>
 
   <div class="modal-body">
-    <div>
-      X axis is
-      <select [(ngModel)]="xAxisRepresents" (change)="updateChart()">
-        <option value="timeElapsed">Time Elapsed</option>
-        <option value="timeOfDay">Time of day</option>
-        <option value="totalDistance">Total distance</option>
-      </select>
-    </div>
-    <div>
-      Show
-      <ul>
+    <div *ngIf="selectedChart!=='histogram'">
+      <div>
+        X axis is
+        <select [(ngModel)]="xAxisRepresents" (change)="updateChart()" >
+          <option value="timeElapsed">Time Elapsed</option>
+          <option value="timeOfDay">Time of day</option>
+          <option value="totalDistance">Total distance</option>
+        </select>
+      </div>
+      <div>
+        Show
+        <ul>
 
-        <li><input type="checkbox" [checked]="this.extrasSet.has('goal')" (change)="updateExtras('goal')"> Show Goal</li>
-        <li><input type="checkbox" [checked]="this.extrasSet.has('upperLimit')" (change)="updateExtras('upperLimit')"> Show Upper Limit </li>
-        <li><input type="checkbox" [checked]="this.extrasSet.has('lowerLimit')" (change)="updateExtras('lowerLimit')"> Show Lower Limit</li>
-      </ul>
+          <li><input type="checkbox" [checked]="this.extrasSet.has('goal')" (change)="updateExtras('goal')"> Show Goal</li>
+          <li><input type="checkbox" [checked]="this.extrasSet.has('upperLimit')" (change)="updateExtras('upperLimit')"> Show Upper Limit </li>
+          <li><input type="checkbox" [checked]="this.extrasSet.has('lowerLimit')" (change)="updateExtras('lowerLimit')"> Show Lower Limit</li>
+        </ul>
+      </div>
+    </div>
+    <div *ngIf="selectedChart==='histogram'">
+      <label for="partitionNum" class="mx-2">Number of partitions</label>
+      <input type="number" name="partitionNum" id="partitionNum" [(ngModel)]="partitionNum" (change)="updateChart()">
     </div>
   </div>
 
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
-    <button type="button" class="btn btn-primary">Save changes</button>
   </div>
 </ng-template>
 

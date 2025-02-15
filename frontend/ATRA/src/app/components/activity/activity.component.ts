@@ -27,7 +27,7 @@ export class ActivityComponent implements OnInit {
   view: [number, number] = [400, 400];
 
   //Chart selection
-  charts: Record<string, boolean> = {"line":true, "histogram":false, "scatter":false, "boxplot":false};
+  charts: Record<string, boolean> = {"line":true, "histogram":false}; //"scatter":false, "boxplot":false
   chartsKeys = Object.keys(this.charts);
   selectedChart: string = this.chartsKeys[0];
 
@@ -39,6 +39,7 @@ export class ActivityComponent implements OnInit {
   stats !: {name:string, value:string}[];
   dataset : {name:string, value:number}[] = [];
   displayData: {name:string, series:{name:string, value:number}[]} [] | { name: string; value: number }[] = [];
+  partitionNum: number= 5
 
   //Metrics
   metrics: string[] = ActivityStreams.getGraphableKeys();
@@ -95,7 +96,7 @@ export class ActivityComponent implements OnInit {
   updateChart() {
     console.log(this.selectedMetric)
     this.displayData = []
-    this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, 20)
+    this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
     this.displayData = this.graphService.getDisplayData(this.dataset, this.selectedMetric, this.selectedChart)
     this.pushExtras()
     this.updateRatings()
@@ -135,7 +136,9 @@ export class ActivityComponent implements OnInit {
       this.charts[key] = false
     }
     this.charts[newChart] = true
-    this.xAxisRepresents = "distribution"
+
+    this.xAxisRepresents = newChart==="histogram" ? "distribution":"timeElapsed"
+
     this.updateChart()
   }
 
