@@ -79,35 +79,7 @@ export class ActivityService {
 
   // internal logic and services
 
-  getGraphData(metric: string, activity: Activity, xAxis: string): { name: string, value: number; }[] {
-    var metricData: string[];
-    const time = activity.streams.time;
-    const distance = activity.streams.distance
 
-
-    if (!(Object.keys(new ActivityStreams())).includes(metric)) {
-      throw new Error(`Given metric '${metric}' is not a key of ActivityStreams`)
-    }
-    metricData = activity.streams[metric as keyof ActivityStreams]
-
-    const processedData: {name: string; value: number;}[] = []
-    const startTime = new Date(time[0]);
-    for (var i=0;i<metricData.length;i++) {
-      const currentTime = new Date(time[i])
-
-      switch(xAxis) {
-        case "timeElapsed": processedData.push({name:this.getTime(currentTime, startTime),value:parseFloat(metricData[i])}); break;
-        case "timeOfDay": processedData.push({name:currentTime.getHours().toString()+":"+currentTime.getMinutes().toString()+":"+currentTime.getSeconds().toString(),value:parseFloat(metricData[i])}); break;
-        case "totalDistance": processedData.push({name:parseFloat(distance[i]).toFixed(2),value:parseFloat(metricData[i])}); break;
-        default: {
-          console.log("xAxisRepresents has a bad value. Defaulting to timeElapsed")
-          processedData.push({name:this.getTime(currentTime, startTime),value:parseFloat(metricData[i])})
-        }
-      }
-    }
-
-    return processedData //[{ name: "1", value: 2 }, { name: "2", value: 2 },{ name: "3", value: 3 }]
-  }
 
   getMetric(metric: string, activity:Activity){
     const processedData: string[] = []
@@ -134,7 +106,7 @@ export class ActivityService {
   }
 
 
-  getTime(date1:Date, date2:Date): string{
+  getTime(date1:Date, date2:Date): string{ //utils
     // Time Difference in Milliseconds
     const milliDiff: number = date1.getTime() - date2.getTime();
     // Total number of seconds in the difference
