@@ -104,7 +104,7 @@ getGraphData(metric: string, activity: Activity, xAxis: string, partitions:numbe
       }
     }
     for (let i = 0; i < partitions; i++) {
-      processedData.push({name: (i*partSize).toFixed(1)+"-"+((i+1)*partSize).toFixed(1), value: arrays[i].length})
+      processedData.push({name: (lowest+(i*partSize)).toFixed(1)+"-"+(lowest+(i+1)*partSize).toFixed(1), value: arrays[i].length})
     }
     console.log(processedData)
 
