@@ -34,6 +34,7 @@ export class ActivityComponent implements OnInit {
   //Chart Manipulation
   xAxisRepresents: string = "timeElapsed";
   extrasSet: Set<string> = new Set();
+  referenceLines: {name:string, value:number}[] = [{name:'median',value:640}]
 
   //Data
   stats !: {name:string, value:string}[];
@@ -51,9 +52,9 @@ export class ActivityComponent implements OnInit {
     lowerLimit:600
   }
   ratings = [
-    { name: 'Acceptable Time', value: '90%' },
-    { name: 'Below Avg Time', value: '48%' },
-    { name: 'Above Avg Time', value: '55%' },
+    { name: '25th percentile', value: -1},
+    { name: '50th percentile', value: -1},
+    { name: '75th percentile', value: -1},
     { name: 'σ', value: this.graphService.getDeviation(this.dataset.map(d => d.value)) }
   ];
 
@@ -103,18 +104,25 @@ export class ActivityComponent implements OnInit {
   }
   pushExtras(){
     console.log("Extras is ", this.extrasSet)
-    //const xAxis = this.activityService.getMetric(this.xAxisRepresents, this.activity)
-    //if (this.extrasSet.has("goal")){
-    //  this.displayData.push({'name':"goal", 'series':this.LineAt(xAxis, this.extrasValues.goal)}) //This can be done iterating through the set and with this.extrasValues[currentVar]
-    //}
-    //if (this.extrasSet.has("upperLimit")){
-    //  console.log("Inside upperLimit")
-    //  this.displayData.push({'name':"Upper Limit", 'series':this.LineAt(xAxis, this.extrasValues.upperLimit)})
-    //}
-    //if (this.extrasSet.has("lowerLimit")){
-    //  console.log("Inside lowerLimit")
-    //  this.displayData.push({'name':"Lower Limit", 'series':this.LineAt(xAxis, this.extrasValues.lowerLimit)})
-    //}
+    this.referenceLines = []
+    const xAxis = this.activityService.getMetric(this.xAxisRepresents, this.activity)
+    if (this.extrasSet.has("goal")){
+      this.referenceLines.push({name:"goal", value:this.extrasValues.goal}) //This can be done iterating through the set and with this.extrasValues[currentVar]
+    }
+    if (this.extrasSet.has("upperLimit")){
+      console.log("Inside upperLimit")
+      this.referenceLines.push({name:"Upper Limit", value:this.extrasValues.upperLimit})
+    }
+    if (this.extrasSet.has("lowerLimit")){
+      console.log("Inside lowerLimit")
+      this.referenceLines.push({name:"Lower Limit", value:this.extrasValues.lowerLimit})
+    }
+
+    if (this.extrasSet.has("percentiles")){
+      const percentilesList = this.ratings.filter(x => x.name.includes("percentile"));
+      this.referenceLines.push(...percentilesList)
+    }
+
   }
   updateRatings(){
     for (let tier of this.ratings) {

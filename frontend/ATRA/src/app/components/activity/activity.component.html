@@ -114,7 +114,9 @@
                     [xAxis]="true"
                     [yAxis]="true"
                     [gradient]="true"
-                    [autoScale]="true">
+                    [autoScale]="true"
+                    [referenceLines]="referenceLines"
+                    [showRefLines]="true">
                   </ngx-charts-line-chart>
 
                   <ngx-charts-bar-vertical
@@ -185,6 +187,7 @@
           <li><input type="checkbox" [checked]="this.extrasSet.has('goal')" (change)="updateExtras('goal')"> Show Goal</li>
           <li><input type="checkbox" [checked]="this.extrasSet.has('upperLimit')" (change)="updateExtras('upperLimit')"> Show Upper Limit </li>
           <li><input type="checkbox" [checked]="this.extrasSet.has('lowerLimit')" (change)="updateExtras('lowerLimit')"> Show Lower Limit</li>
+          <li><input type="checkbox" [checked]="this.extrasSet.has('percentiles')" (change)="updateExtras('percentiles')"> Show Percentiles</li>
         </ul>
       </div>
     </div>

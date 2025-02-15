@@ -12,8 +12,12 @@ export class GraphService {
   getDisplayData(dataset: { name: string; value: number; }[], selectedMetric: string, selectedChart: string): { name: string; series: { name: string; value: number }[] }[] | { name: string; value: number }[] {
     return selectedChart=="line"  ? [{'name':selectedMetric, 'series':dataset}] : dataset
   }
-  calc(name: string, data:number[], prevValue:string|number=""): string | number {
+
+  calc(name: string, data:number[], prevValue:number=0): number {
     if (name==="σ") return this.getDeviation(data)
+    if (name==="25th percentile") return this.getQuantile(data, 0.25)
+    if (name==="50th percentile") return this.getQuantile(data, 0.5)
+      if (name==="75th percentile") return this.getQuantile(data, 0.75)
     return prevValue
   }
 
@@ -126,5 +130,18 @@ getGraphData(metric: string, activity: Activity, xAxis: string, partitions:numbe
       sum += i
     }
     return sum/container.length
+  }
+
+  getQuantile(data: number[], quantile: number): number {
+    if (data.length === 0) return 0; //throw new Error("Data array is empty");
+
+    const sorted = [...data].sort((a, b) => a - b);
+    const index = (sorted.length - 1) * quantile;
+    const lower = Math.floor(index);
+    const upper = Math.ceil(index);
+
+    if (lower === upper) return sorted[lower];
+
+    return sorted[lower] + (index - lower) * (sorted[upper] - sorted[lower]);
   }
 }
