@@ -102,7 +102,6 @@ export class ActivityComponent implements OnInit {
 
   //#region Chart Lifecycle
   updateChart() {
-    console.log(this.selectedMetric)
     this.yAxisTickFormat = this.selectedMetric==="pace" ? this.secsToMinSec:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
@@ -111,18 +110,15 @@ export class ActivityComponent implements OnInit {
     this.updateRatings()
   }
   pushExtras(){
-    console.log("Extras is ", this.extrasSet)
     this.referenceLines = []
     const xAxis = this.activityService.getMetric(this.xAxisRepresents, this.activity)
     if (this.extrasSet.has("goal")){
       this.referenceLines.push({name:"goal", value:this.extrasValues.goal}) //This can be done iterating through the set and with this.extrasValues[currentVar]
     }
     if (this.extrasSet.has("upperLimit")){
-      console.log("Inside upperLimit")
       this.referenceLines.push({name:"Upper Limit", value:this.extrasValues.upperLimit})
     }
     if (this.extrasSet.has("lowerLimit")){
-      console.log("Inside lowerLimit")
       this.referenceLines.push({name:"Lower Limit", value:this.extrasValues.lowerLimit})
     }
 
@@ -136,13 +132,6 @@ export class ActivityComponent implements OnInit {
     for (let tier of this.ratings) {
      tier.value = this.graphService.calc(tier.name, this.dataset.map(d=>d.value), tier.value)
     }
-  }
-  private LineAt(xAxis: any[], value: number): { name: string; value: number; }[] {
-    const result: { name: string; value: number; }[] = []
-    for (let x of xAxis) {
-      result.push({name:x, value:value})
-    }
-    return result
   }
   //#endregion
 
