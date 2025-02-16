@@ -56,7 +56,10 @@ export class ActivityComponent implements OnInit {
     { name: '25th percentile', value: -1},
     { name: '50th percentile', value: -1},
     { name: '75th percentile', value: -1},
-    { name: 'σ', value: this.graphService.getDeviation(this.dataset.map(d => d.value)) }
+    { name: 'σ', value: this.graphService.getDeviation(this.dataset.map(d => d.value)) },
+    {name: 'Normalized IQR', value: -1},
+    {name: 'IQR', value: -1},
+    {name: '% of outliers', value: -1}
   ];
 
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService) {}
@@ -125,6 +128,12 @@ export class ActivityComponent implements OnInit {
     if (this.extrasSet.has("percentiles")){
       const percentilesList = this.ratings.filter(x => x.name.includes("percentile"));
       this.referenceLines.push(...percentilesList)
+    }
+
+    if (this.extrasSet.has("outlierLimits")){
+      const outliers = this.graphService.calcOutliers(this.dataset.map(x=>x.value))
+      this.referenceLines.push({name:"Outlier Limit", value:outliers.higher})
+      this.referenceLines.push({name:"Outlier Limit", value:outliers.lower})
     }
 
   }

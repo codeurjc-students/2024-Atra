@@ -17,8 +17,27 @@ export class GraphService {
     if (name==="σ") return this.getDeviation(data)
     if (name==="25th percentile") return this.getQuantile(data, 0.25)
     if (name==="50th percentile") return this.getQuantile(data, 0.5)
-      if (name==="75th percentile") return this.getQuantile(data, 0.75)
+    if (name==="75th percentile") return this.getQuantile(data, 0.75)
+    if (name==="Normalized IQR") return parseFloat(((this.getQuantile(data, 0.75) - this.getQuantile(data, 0.25))/(Math.max(...data)-Math.min(...data))).toFixed(2))
+    if (name==="IQR") return this.getQuantile(data, 0.75) - this.getQuantile(data, 0.25)
+    if (name==="% of outliers") return parseFloat(this.calcOutliers(data)["percentage"].toFixed(2))
     return prevValue
+  }
+
+  calcOutliers(data: number[]): {lower:number, higher:number, percentage:number} {
+    const q1 = this.getQuantile(data,0.25)
+    const q3 = this.getQuantile(data,0.75)
+    const IQR = q3-q1
+    const lower = q1-1.5*IQR
+    const higher = q3+1.5*IQR
+    var outlierCount = 0
+
+    for (const n of data) {
+      if (n<lower || n>higher) {
+        outlierCount++
+      }
+    }
+    return {lower:lower, higher:higher, percentage:(outlierCount/data.length)*100}
   }
 
 constructor(private activityService: ActivityService) { }
