@@ -45,25 +45,21 @@ getDeviation(data:number[], includedAvg:boolean=false, avg:number=0){
 
 
 getGraphData(metric: string, activity: Activity, xAxis: string, partitions:number=-1): { name: string, value: number; }[] {
-    var metricData:number[];
-    const time = activity.streams.time;
-    const distance = activity.streams.distance
-    console.log('partitions', partitions)
-    console.log('xAxis', xAxis)
-
-
-    if (!(Object.keys(new ActivityStreams())).includes(metric)) {
+  var metricData:number[];
+  const time = activity.streams.time;
+  const distance = activity.streams.distance
+  console.log('partitions', partitions)
+  console.log('xAxis', xAxis)
+  if (!(Object.keys(new ActivityStreams())).includes(metric)) {
       throw new Error(`Given metric '${metric}' is not a key of ActivityStreams`)
-    }
-    metricData = activity.streams[metric as keyof ActivityStreams].map(x => parseFloat(x))
-
-    if (xAxis=="distribution"){
+  }
+  metricData = activity.streams[metric as keyof ActivityStreams].map(x => parseFloat(x))
+  if (xAxis=="distribution"){
       return this.distributionData(metricData, partitions)
-    }
-
-    const processedData: {name: string; value: number;}[] = []
-    const startTime = new Date(time[0]);
-    for (var i=0;i<metricData.length;i++) {
+  }
+  const processedData: {name: string; value: number;}[] = []
+  const startTime = new Date(time[0]);
+  for (var i=0;i<metricData.length;i++) {
       const currentTime = new Date(time[i])
 
       switch(xAxis) {
@@ -75,11 +71,9 @@ getGraphData(metric: string, activity: Activity, xAxis: string, partitions:numbe
           processedData.push({name:this.activityService.getTime(currentTime, startTime),value:metricData[i]})
         }
       }
-    }
-
-
-    return processedData //[{ name: "1", value: 2 }, { name: "2", value: 2 },{ name: "3", value: 3 }]
   }
+  return processedData //[{ name: "1", value: 2 }, { name: "2", value: 2 },{ name: "3", value: 3 }]
+}
 
 
 

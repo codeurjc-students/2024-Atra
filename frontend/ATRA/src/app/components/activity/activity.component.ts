@@ -35,6 +35,7 @@ export class ActivityComponent implements OnInit {
   xAxisRepresents: string = "timeElapsed";
   extrasSet: Set<string> = new Set();
   referenceLines: {name:string, value:number}[] = [{name:'median',value:640}]
+  yAxisTickFormat: (value: number) => string = (value) => value.toString()
 
   //Data
   stats !: {name:string, value:string}[];
@@ -62,6 +63,12 @@ export class ActivityComponent implements OnInit {
 
   open(content: TemplateRef<any>) {
     this.modal = this.modalService.open(content)
+  }
+
+  secsToMinSec(value: number): string {
+    const minutes = Math.floor(value / 60);
+    const seconds = value % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`; // Format as mm:ss 1500 100 500
   }
 
   @HostListener('window:resize', ['$event'])
@@ -96,6 +103,7 @@ export class ActivityComponent implements OnInit {
   //#region Chart Lifecycle
   updateChart() {
     console.log(this.selectedMetric)
+    this.yAxisTickFormat = this.selectedMetric==="pace" ? this.secsToMinSec:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
     this.displayData = this.graphService.getDisplayData(this.dataset, this.selectedMetric, this.selectedChart)

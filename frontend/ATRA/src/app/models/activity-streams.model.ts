@@ -1,6 +1,6 @@
 export class ActivityStreams {
   static getGraphableKeys(): string[]{
-    return ["altitude", "distance", "heartrate", "cadence"]
+    return ["altitude", "distance", "heartrate", "cadence", "pace"]
   }
 
   time : string[] = []
@@ -9,6 +9,7 @@ export class ActivityStreams {
   altitude : string[] = []
   heartrate : string[] = []
   cadence : string[] = []
+  pace : string[] = []
   other: any[] = []
 
   constructor(){}
