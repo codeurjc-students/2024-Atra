@@ -59,14 +59,13 @@ getAvg(data:number[]): number{
 getDeviation(data:number[], includedAvg:boolean=false, avg:number=0){
   if (!includedAvg) {
     avg = this.getAvg(data)
-    console.log("a", avg)
   }
 
   let total = 0
   for (let d of data) {
     total += Math.pow(d-avg, 2)
   }
-  return total/(data.length-1)
+  return Math.sqrt(total/(data.length-1))
 }
 
 
