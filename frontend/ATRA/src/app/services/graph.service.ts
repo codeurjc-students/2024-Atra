@@ -14,7 +14,8 @@ export class GraphService {
   }
 
   calc(name: string, data:number[], prevValue:number=0): number {
-    if (name==="σ") return this.getDeviation(data)
+    if (name==="σ") return parseFloat(this.getDeviation(data).toFixed(2))
+    if (name==="avg") return parseFloat(this.getAvg(data).toFixed(2))
     if (name==="25th percentile") return this.getQuantile(data, 0.25)
     if (name==="50th percentile") return this.getQuantile(data, 0.5)
     if (name==="75th percentile") return this.getQuantile(data, 0.75)
@@ -47,12 +48,18 @@ getAvg(data:number[]): number{
   for (let d of data){
     total += d
   }
+  console.log("data", data)
+  console.log("total", total)
+  console.log("length", data.length)
+  console.log("div", total/data.length)
+
   return total/data.length
 }
 
 getDeviation(data:number[], includedAvg:boolean=false, avg:number=0){
   if (!includedAvg) {
     avg = this.getAvg(data)
+    console.log("a", avg)
   }
 
   let total = 0
