@@ -98,20 +98,21 @@ export class ActivityComponent implements OnInit {
       next: (act) => {
         this.activity = this.activityService.process([act])[0];
         this.stats = this.activity.getOverview()
-        this.updateChart()
+        this.updateChart("init")
       },
       error: () => {alert("There was an error fetching the activity. Try reloading the page.")}
     })
   }
 
   //#region Chart Lifecycle
-  updateChart() {
+  updateChart(event:string) {
     this.yAxisTickFormat = this.selectedMetric==="pace" ? this.secsToMinSec:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
     this.displayData = this.graphService.getDisplayData(this.dataset, this.selectedMetric, this.selectedChart)
     this.pushExtras()
-    this.updateRatings()
+    if (event!=="changeChart")
+      this.updateRatings()
   }
   pushExtras(){
     this.referenceLines = []
@@ -154,7 +155,7 @@ export class ActivityComponent implements OnInit {
 
     this.xAxisRepresents = newChart==="histogram" ? "distribution":"timeElapsed"
 
-    this.updateChart()
+    this.updateChart("changeChart")
   }
 
   updateExtras(extra: string) {
@@ -162,7 +163,7 @@ export class ActivityComponent implements OnInit {
       this.extrasSet.delete(extra)
     else
       this.extrasSet.add(extra)
-    this.updateChart()
+    this.updateChart("extras")
   }
   //#endregion
 

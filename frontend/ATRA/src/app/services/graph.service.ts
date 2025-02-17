@@ -16,11 +16,11 @@ export class GraphService {
   calc(name: string, data:number[], prevValue:number=0): number {
     if (name==="σ") return parseFloat(this.getDeviation(data).toFixed(2))
     if (name==="avg") return parseFloat(this.getAvg(data).toFixed(2))
-    if (name==="25th percentile") return this.getQuantile(data, 0.25)
-    if (name==="50th percentile") return this.getQuantile(data, 0.5)
-    if (name==="75th percentile") return this.getQuantile(data, 0.75)
+    if (name==="25th percentile") return parseFloat(this.getQuantile(data, 0.25).toFixed(2))
+    if (name==="50th percentile") return parseFloat(this.getQuantile(data, 0.5 ).toFixed(2))
+    if (name==="75th percentile") return parseFloat(this.getQuantile(data, 0.75).toFixed(2))
     if (name==="Normalized IQR") return parseFloat(((this.getQuantile(data, 0.75) - this.getQuantile(data, 0.25))/(Math.max(...data)-Math.min(...data))).toFixed(2))
-    if (name==="IQR") return this.getQuantile(data, 0.75) - this.getQuantile(data, 0.25)
+    if (name==="IQR") return parseFloat((this.getQuantile(data, 0.75) - this.getQuantile(data, 0.25)).toFixed(2))
     if (name==="% of outliers") return parseFloat(this.calcOutliers(data)["percentage"].toFixed(2))
     return prevValue
   }

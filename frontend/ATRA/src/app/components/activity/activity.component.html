@@ -49,7 +49,7 @@
           <div class="d-flex align-items-center justify-content-between mb-1">
             <div class="d-flex align-items-center mb-3">
               <label for="metricSelect" class="form-label me-2 fw-bold">Metric:</label>
-              <select class="form-select w-auto" id="metricSelect" [(ngModel)]="selectedMetric" (change)="updateChart()">
+              <select class="form-select w-auto" id="metricSelect" [(ngModel)]="selectedMetric" (change)="updateChart('metricChange')">
                 <option *ngFor="let metric of metrics" [value]="metric">{{ metric }}</option>
               </select>
             </div>
@@ -175,7 +175,7 @@
     <div *ngIf="selectedChart!=='histogram'">
       <div>
         X axis is
-        <select [(ngModel)]="xAxisRepresents" (change)="updateChart()" >
+        <select [(ngModel)]="xAxisRepresents" (change)="updateChart('xAxisRepresents')" >
           <option value="timeElapsed">Time Elapsed</option>
           <option value="timeOfDay">Time of day</option>
           <option value="totalDistance">Total distance</option>
@@ -195,7 +195,7 @@
     </div>
     <div *ngIf="selectedChart==='histogram'">
       <label for="partitionNum" class="mx-2">Number of partitions</label>
-      <input type="number" name="partitionNum" id="partitionNum" [(ngModel)]="partitionNum" (change)="updateChart()">
+      <input type="number" name="partitionNum" id="partitionNum" [(ngModel)]="partitionNum" (change)="updateChart('partitions')">
     </div>
   </div>
 
