@@ -48,9 +48,9 @@ export class ActivityComponent implements OnInit {
   selectedMetric = this.metrics[0];
 
   extrasValues = {
-    goal:630,
-    upperLimit:670,
-    lowerLimit:600
+    goal:0,
+    upperLimit:1,
+    lowerLimit:-1
   }
   ratings = [
     { name: '25th percentile', value: -1},
@@ -110,9 +110,11 @@ export class ActivityComponent implements OnInit {
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
     this.displayData = this.graphService.getDisplayData(this.dataset, this.selectedMetric, this.selectedChart)
-    this.pushExtras()
     if (event!=="changeChart")
       this.updateRatings()
+    if (event==="metricChange" || event==="init")
+      this.updateGoals()
+    this.pushExtras()
   }
   pushExtras(){
     this.referenceLines = []
@@ -143,6 +145,17 @@ export class ActivityComponent implements OnInit {
     for (let tier of this.ratings) {
      tier.value = this.graphService.calc(tier.name, this.dataset.map(d=>d.value), tier.value)
     }
+  }
+  updateGoals(){
+    const variance = this.graphService.getDeviation(this.dataset.map(d => d.value))
+    const goal = this.graphService.getAvg(this.dataset.map(d => d.value))
+    const lowerLimit = goal - variance
+    const upperLimit = goal + variance
+
+    this.extrasValues.goal = parseFloat(goal.toFixed(2))
+    this.extrasValues.lowerLimit = parseFloat(lowerLimit.toFixed(2))
+    this.extrasValues.upperLimit = parseFloat(upperLimit.toFixed(2))
+    this.pushExtras()
   }
   //#endregion
 
