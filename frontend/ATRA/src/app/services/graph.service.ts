@@ -48,10 +48,6 @@ getAvg(data:number[]): number{
   for (let d of data){
     total += d
   }
-  console.log("data", data)
-  console.log("total", total)
-  console.log("length", data.length)
-  console.log("div", total/data.length)
 
   return total/data.length
 }

@@ -52,15 +52,15 @@ export class ActivityComponent implements OnInit {
     upperLimit:1,
     lowerLimit:-1
   }
-  ratings = [
-    { name: '25th percentile', value: -1},
+  ratings = [ //why is this not an object instead of a list of objects?
+    {name: '25th percentile', value: -1},
     {name: 'IQR', value: -1},
-    { name: '50th percentile', value: -1},
+    {name: '50th percentile', value: -1},
     {name: 'Normalized IQR', value: -1},
-    { name: '75th percentile', value: -1},
+    {name: '75th percentile', value: -1},
     {name: '% of outliers', value: -1},
-    { name: 'avg', value: this.graphService.getAvg(this.dataset.map(d => d.value)) },
-    { name: 'σ', value: this.graphService.getDeviation(this.dataset.map(d => d.value)) },
+    {name: 'avg', value: this.graphService.getAvg(this.dataset.map(d => d.value)) },
+    {name: 'σ', value: this.graphService.getDeviation(this.dataset.map(d => d.value)) },
   ];
 
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService) {}
