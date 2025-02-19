@@ -86,11 +86,28 @@
               </div>
 
               <div class="card">
-                <div class="card-header fw-bold">Ratings</div>
+                <div class="card-header fw-bold d-flex justify-content-between">
+                  Ratings
+                  <div>
+                    <!--
+                    <i class="fa-regular fa-circle-left clickable mx-1" (click)="toggleRatings(-1)" *ngIf="ratingsPage>0"></i>
+                    <i class="fa-regular fa-circle-right clickable mx-1" (click)="toggleRatings(1)" *ngIf="ratingsPage<1"></i>
+                    -->
+                    <i class="fa-regular fa-circle-left clickable mx-1"
+                       [ngClass]="{'disabled': ratingsPage <= 0}"
+                       (click)="ratingsPage > 0 && toggleRatings(-1)">
+                    </i>
+
+                    <i class="fa-regular fa-circle-right clickable mx-1"
+                       [ngClass]="{'disabled': ratingsPage >= 1}"
+                       (click)="ratingsPage < 1 && toggleRatings(1)">
+                    </i>
+                  </div>
+                </div>
                 <div class="card-body overflow-auto">
                   <div class="row">
-                    <div class="col-6" *ngFor="let rating of ratings">
-                      <p class="mb-1"><strong>{{ rating.name }}:</strong> {{ rating.value }}</p>
+                    <div class="col-6" *ngFor="let rating of currentRatingsPage | keyvalue: orderByInsertion">
+                      <p class="mb-1"><strong>{{ rating.key }}:</strong> {{ rating.value }}</p>
                     </div>
                   </div>
                 </div>

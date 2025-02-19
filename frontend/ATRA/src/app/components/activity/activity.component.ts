@@ -19,6 +19,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class ActivityComponent implements OnInit {
 
+
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
   modal !: any;
@@ -53,15 +54,29 @@ export class ActivityComponent implements OnInit {
     lowerLimit:-1
   }
   ratings = [ //why is this not an object instead of a list of objects?
-    {name: '25th percentile', value: -1},
-    {name: 'IQR', value: -1},
-    {name: '50th percentile', value: -1},
-    {name: 'Normalized IQR', value: -1},
-    {name: '75th percentile', value: -1},
-    {name: '% of outliers', value: -1},
-    {name: 'avg', value: this.graphService.getAvg(this.dataset.map(d => d.value)) },
-    {name: 'σ', value: this.graphService.getDeviation(this.dataset.map(d => d.value)) },
+
+    new Map<string, number>([
+      ['25th percentile', -1],
+      ['IQR', -1],
+      ['50th percentile', -1],
+      ['Normalized IQR', -1],
+      ['75th percentile', -1],
+      ['% of outliers', -1],
+      ['avg', this.graphService.getAvg(this.dataset.map(d => d.value))],
+      ['σ', this.graphService.getDeviation(this.dataset.map(d => d.value))]
+    ]),
+    new Map<string, number>([
+      ['Between Goal and LL',0],
+      ['Above UL',0],
+      ['Between UL and Goal',0],
+      ['Below LL',0],
+
+
+    ]),
   ];
+
+  ratingsPage = 0
+  currentRatingsPage: Map<string, number>  = this.ratings[this.ratingsPage]
 
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService) {}
 
@@ -104,8 +119,16 @@ export class ActivityComponent implements OnInit {
     })
   }
 
+  toggleRatings(n:number) {
+    this.ratingsPage +=n;
+    console.log(this.ratingsPage)
+    this.currentRatingsPage = this.ratings[this.ratingsPage]
+  }
+
   //#region Chart Lifecycle
   updateChart(event:string) {
+    console.log("a", this.ratings);
+
     this.yAxisTickFormat = this.selectedMetric==="pace" ? this.secsToMinSec:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
@@ -115,6 +138,15 @@ export class ActivityComponent implements OnInit {
     if (event==="metricChange" || event==="init")
       this.updateGoals()
     this.pushExtras()
+    this.updateExtraRatings() //posssibly could be called only when event===extras
+
+  }
+  updateExtraRatings() {
+    this.ratings[1].set("Between Goal and LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.goal, this.extrasValues.lowerLimit))
+    this.ratings[1].set("Between UL and Goal", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.goal, this.extrasValues.upperLimit))
+    this.ratings[1].set("Above UL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.upperLimit, Math.max(...this.dataset.map((x)=>x.value))))
+    this.ratings[1].set("Below LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.lowerLimit, Math.min(...this.dataset.map((x)=>x.value))))
+
   }
   pushExtras(){
     this.referenceLines = []
@@ -130,7 +162,11 @@ export class ActivityComponent implements OnInit {
     }
 
     if (this.extrasSet.has("percentiles")){
-      const percentilesList = this.ratings.filter(x => x.name.includes("percentile"));
+      const percentilesList = [...this.ratings[0].entries()] //this needs to reflect the page with the percentiles
+                                .filter(([key, _]) => key.includes("percentile"))
+                                .map(([key, value]) => ({ name: key, value:value }));
+
+      //this.ratings.filter(x => x.name.includes("percentile"));
       this.referenceLines.push(...percentilesList)
     }
 
@@ -139,11 +175,15 @@ export class ActivityComponent implements OnInit {
       this.referenceLines.push({name:"Outlier Limit", value:outliers.higher})
       this.referenceLines.push({name:"Outlier Limit", value:outliers.lower})
     }
-
+    this.updateExtraRatings() //posssibly could be called only when event===extras
   }
   updateRatings(){
-    for (let tier of this.ratings) {
-     tier.value = this.graphService.calc(tier.name, this.dataset.map(d=>d.value), tier.value)
+    console.log("updateRatings");
+
+    for (let [key, value] of this.currentRatingsPage.entries()) {
+      console.log("key", key);
+      console.log("result ", this.graphService.calc(key, this.dataset.map(d=>d.value), value))
+     this.currentRatingsPage.set(key, this.graphService.calc(key, this.dataset.map(d=>d.value), value))
     }
   }
   updateGoals(){
@@ -180,4 +220,6 @@ export class ActivityComponent implements OnInit {
   }
   //#endregion
 
+
+  orderByInsertion = (a: any, b: any): number => 0;
 }

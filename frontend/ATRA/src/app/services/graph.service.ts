@@ -8,6 +8,23 @@ import { map } from 'rxjs';
   providedIn: 'root'
 })
 export class GraphService {
+  //  processedData.push({name:i.toString(),value:this.avg(container)})
+  //  c=0
+  //  container=[]
+  //};
+  getBetween(data: number[], n1: number, n2: number, roundTo:number=2): number {
+    const high = Math.max(...[n1,n2])
+    const low = Math.min(...[n1,n2])
+    var count = 0
+    for (const d of data){
+      if (d<=high && d>=low) {
+        count++
+      }
+    }
+
+    return parseFloat(((count/data.length)*100).toFixed(roundTo))
+  }
+
 
   getDisplayData(dataset: { name: string; value: number; }[], selectedMetric: string, selectedChart: string): { name: string; series: { name: string; value: number }[] }[] | { name: string; value: number }[] {
     return selectedChart=="line"  ? [{'name':selectedMetric, 'series':dataset}] : dataset
