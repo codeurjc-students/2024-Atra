@@ -1,7 +1,9 @@
+import { ActivityStreams } from "./activity-streams.model";
 import { DataPoint } from "./datapoint.model";
 import { User } from './user.model';
 
 export class Activity {
+
     id: number;
 
     name:string;
@@ -17,15 +19,7 @@ export class Activity {
 
     dataPoints: DataPoint[];
 
-    streams: {
-      time : string[],
-      distance : number[],
-      position : number[],
-      altitude : number[],
-      heartrate : number[],
-      cadence : number[],
-      other: any[]
-    }
+    streams: ActivityStreams;
     other:any;
 
     constructor(activity: any) {
@@ -55,11 +49,11 @@ export class Activity {
     result.push({name:"Total distance", value:""+this.totalDistance})
     result.push({name:"Route", value:""+this.route})
 
-
-
-
-
     return result
   }
 
+  getStream(stream: string){
+    if (!(stream in Object.keys(this.streams))) return ["Requested metric is not a key of activity.streams"]
+    return this.streams[stream as keyof typeof this.streams]
+  }
 }

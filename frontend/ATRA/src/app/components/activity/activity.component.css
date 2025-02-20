@@ -2,6 +2,7 @@
   padding: 20px;
   max-width: 1500px;
   margin: 0 auto;
+  height: 100%;
 }
 
 .embedded-container {
@@ -40,4 +41,13 @@
 
 .tab-pane {
   height: 100%;
+}
+
+.tab-pane:not(.show) {
+  display: none !important;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }

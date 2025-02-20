@@ -1,6 +1,6 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0">Select an Activity</h2>
+    <h2 class="h5 mb-0">{{activity.name}}</h2>
     <div>
       <button class="btn btn-danger mx-2"><i class="fa-solid fa-trash"></i> Delete</button>
       <button class="btn btn-warning"><i class="fa-solid fa-pencil"></i> Edit</button>
@@ -12,7 +12,7 @@
           <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
       </li>
       <li class="nav-item" role="presentation">
-          <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities" type="button" role="tab" aria-controls="activities" aria-selected="false">Activities</button>
+          <button class="nav-link" id="study-tab" data-bs-toggle="tab" data-bs-target="#study" type="button" role="tab" aria-controls="study" aria-selected="false">Study</button>
       </li>
       <li class="nav-item" role="presentation">
           <button class="nav-link" id="segments-tab" data-bs-toggle="tab" data-bs-target="#segments" type="button" role="tab" aria-controls="segments" aria-selected="false">Segments</button>
@@ -21,30 +21,227 @@
 
   <!-- Tab Content -->
   <div class="tabs-container">
-      <div class="tab-content" id="myTabContent">
-          <div class="tab-pane fade show active d-flex justify-content-between align-items-top " id="summary" role="tabpanel" aria-labelledby="summary-tab">
-              <div class="w-50 h-50 mx-2">
-                <h5>Overview</h5>
-                <div class="embedded-container w-100 h-100">
-                  <ul>
-                    <li *ngFor="let stat of stats"> {{stat.name}}: {{stat.value}}</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="w-50 h-50 mx-2">
-                <h5>Map</h5>
-                <div class="embedded-container w-100 h-100">
-
-                </div>
-              </div>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active d-flex justify-content-between align-items-top " id="summary" role="tabpanel" aria-labelledby="summary-tab">
+        <div class="w-50 h-50 mx-2">
+          <h5>Overview</h5>
+          <div class="embedded-container w-100 h-100">
+            <ul>
+              <li *ngFor="let stat of stats"> {{stat.name}}: {{stat.value}}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="w-50 h-50 mx-2">
+          <h5>Map</h5>
+          <div class="embedded-container w-100 h-100">
 
           </div>
-          <div class="tab-pane fade" id="activities" role="tabpanel" aria-labelledby="activities-tab">
-              <p>Activities content goes here...</p>
-          </div>
-          <div class="tab-pane fade" id="segments" role="tabpanel" aria-labelledby="segments-tab">
-              <p>Segments content goes here...</p>
-          </div>
+        </div>
       </div>
+
+
+
+      <div class="tab-pane fade" id="study" role="tabpanel" aria-labelledby="study-tab">
+        <div class="container d-flex flex-column">
+          <!-- Top Section: Dropdown and Containers -->
+
+          <!-- Metric selector -->
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <div class="d-flex align-items-center mb-3">
+              <label for="metricSelect" class="form-label me-2 fw-bold">Metric:</label>
+              <select class="form-select w-auto" id="metricSelect" [(ngModel)]="selectedMetric" (change)="updateChart('metricChange')">
+                <option *ngFor="let metric of metrics" [value]="metric">{{ metric }}</option>
+              </select>
+            </div>
+
+            <div class="d-flex align-items-center mb-3">
+              <label for="chartSelect" class="form-label me-2 fw-bold">Chart:</label>
+              <select class="form-select w-auto me-2" id="chartSelect" [(ngModel)]="selectedChart" (change)="changeChart(selectedChart)">
+                <option *ngFor="let chart of chartsKeys" [value]="chart">{{ chart }}</option>
+              </select>
+              <button class="btn btn-secondary" (click)="open(content)">Chart settings <i class="fa-solid fa-gear"></i></button>
+            </div>
+          </div>
+          <!-- Goals Container -->
+          <div class="row flex-grow-1 overflow-auto">
+            <div class="col-4">
+              <div class="card mb-2">
+                <div class="card-header fw-bold d-flex justify-content-between">Goals    <i class="fa-solid fa-rotate clickable" (click)="updateGoals()" ></i></div>
+                <div class="card-body">
+                  <form>
+                    <div class=" d-flex align-items-center justify-content-between">
+                      <label for="upperLimit" class="form-label">Upper Limit</label>
+                      <input type="number" step="0.1" class="form-control w-25" id="upperLimit" [(ngModel)]="goals.upperLimit" name="upperLimit" (change)="pushExtras()" />
+                    </div>
+                    <div class=" d-flex align-items-center justify-content-between">
+                      <label for="goal" class="form-label">Goal</label>
+                      <input type="number" step="0.1" class="form-control w-25" id="goal" [(ngModel)]="goals.goal" name="goal" (change)="pushExtras()" />
+                    </div>
+                    <div class=" d-flex align-items-center justify-content-between">
+                      <label for="lowerLimit" class="form-label">Lower Limit</label>
+                      <input type="number" step="0.1" class="form-control w-25" id="lowerLimit" [(ngModel)]="goals.lowerLimit" name="lowerLimit" (change)="pushExtras()" />
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header fw-bold d-flex justify-content-between">
+                  Ratings
+                  <div>
+                    <!--
+                    <i class="fa-regular fa-circle-left clickable mx-1" (click)="toggleRatings(-1)" *ngIf="ratingsPage>0"></i>
+                    <i class="fa-regular fa-circle-right clickable mx-1" (click)="toggleRatings(1)" *ngIf="ratingsPage<1"></i>
+                    -->
+                    <i class="fa-regular fa-circle-left clickable mx-1"
+                       [ngClass]="{'disabled': ratingsPage <= 0}"
+                       (click)="ratingsPage > 0 && toggleRatings(-1)">
+                    </i>
+
+                    <i class="fa-regular fa-circle-right clickable mx-1"
+                       [ngClass]="{'disabled': ratingsPage >= 1}"
+                       (click)="ratingsPage < 1 && toggleRatings(1)">
+                    </i>
+                  </div>
+                </div>
+                <div class="card-body overflow-auto">
+                  <div class="row">
+                    <div class="col-6" *ngFor="let rating of currentRatingsPage | keyvalue: orderByInsertion">
+                      <p class="mb-1"><strong>{{ rating.key }}:</strong> {{ rating.value }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="col-8" #chartContainer>
+              <div class="card">
+                <div class="card-body text-center">Graph 1
+                  <ngx-charts-line-chart
+                    *ngIf="charts['line']===true"
+                    [view]="view"
+                    [results]="displayData"
+                    [xAxisLabel]="xAxisRepresents"
+                    [legendTitle]="'legend'"
+                    [yAxisLabel]="selectedMetric"
+                    [legend]="false"
+                    [showXAxisLabel]="true"
+                    [showYAxisLabel]="true"
+                    [xAxis]="true"
+                    [yAxis]="true"
+                    [gradient]="true"
+                    [autoScale]="true"
+                    [referenceLines]="referenceLines"
+                    [showRefLines]="true"
+                    [yAxisTickFormatting]="yAxisTickFormat">
+                  </ngx-charts-line-chart>
+
+                  <ngx-charts-bar-vertical
+                    *ngIf="charts['histogram']===true"
+                    [view]="view"
+                    [results]="displayData"
+                    [xAxisLabel]="selectedMetric"
+                    [legendTitle]="'legend'"
+                    [yAxisLabel]="'Quantity'"
+                    [legend]="false"
+                    [showXAxisLabel]="true"
+                    [showYAxisLabel]="true"
+                    [xAxis]="true"
+                    [yAxis]="true"
+                    [gradient]="true"
+                    [barPadding]="0">
+                  </ngx-charts-bar-vertical>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <div class="tab-pane fade" id="segments" role="tabpanel" aria-labelledby="segments-tab">
+        <p>Segments content goes here...</p>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- Modal -->
+<ng-template #content> <!-- let-modal -->
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Chart settings</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <div *ngIf="selectedChart!=='histogram'">
+      <div>
+        X axis is
+        <select [(ngModel)]="xAxisRepresents" (change)="updateChart('xAxisRepresents')" >
+          <option value="timeElapsed">Time Elapsed</option>
+          <option value="timeOfDay">Time of day</option>
+          <option value="totalDistance">Total distance</option>
+        </select>
+      </div>
+      <div>
+        Show
+        <ul>
+
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('goal')" (change)="updateExtras('goal')"> Show Goal</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('upperLimit')" (change)="updateExtras('upperLimit')"> Show Upper Limit</label> </li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('lowerLimit')" (change)="updateExtras('lowerLimit')"> Show Lower Limit</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('percentiles')" (change)="updateExtras('percentiles')"> Show Percentiles</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('outlierLimits')" (change)="updateExtras('outlierLimits')"> Show Outlier Limits</label></li>
+        </ul>
+      </div>
+    </div>
+    <div *ngIf="selectedChart==='histogram'">
+      <label for="partitionNum" class="mx-2">Number of partitions</label>
+      <input type="number" name="partitionNum" id="partitionNum" [(ngModel)]="partitionNum" (change)="updateChart('partitions')">
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+  </div>
+</ng-template>
+
+<!--
+<div class="modal fade" id="chartOptionsModal" tabindex="-1" role="dialog" aria-labelledby="chartOptionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="chartOptionsModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        ...
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>-->
+
+
