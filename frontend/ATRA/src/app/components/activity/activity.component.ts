@@ -2,10 +2,10 @@ import { GraphService } from '../../services/graph.service';
 import { ActivityStreams } from './../../models/activity-streams.model';
 import { ActivityService } from './../../services/activity.service';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Activity } from '../../models/activity.model';
-import { FormsModule, ValidationErrors } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -18,7 +18,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './activity.component.css'
 })
 export class ActivityComponent implements OnInit {
-
 
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
@@ -48,13 +47,12 @@ export class ActivityComponent implements OnInit {
   metrics: string[] = ActivityStreams.getGraphableKeys();
   selectedMetric = this.metrics[0];
 
-  extrasValues = {
+  goals = {
     goal:0,
     upperLimit:1,
     lowerLimit:-1
   }
-  ratings = [ //why is this not an object instead of a list of objects?
-
+  ratings = [
     new Map<string, number>([
       ['25th percentile', -1],
       ['IQR', -1],
@@ -70,8 +68,6 @@ export class ActivityComponent implements OnInit {
       ['Above UL',0],
       ['Between UL and Goal',0],
       ['Below LL',0],
-
-
     ]),
   ];
 
@@ -121,14 +117,11 @@ export class ActivityComponent implements OnInit {
 
   toggleRatings(n:number) {
     this.ratingsPage +=n;
-    console.log(this.ratingsPage)
     this.currentRatingsPage = this.ratings[this.ratingsPage]
   }
 
   //#region Chart Lifecycle
   updateChart(event:string) {
-    console.log("a", this.ratings);
-
     this.yAxisTickFormat = this.selectedMetric==="pace" ? this.secsToMinSec:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
@@ -142,23 +135,23 @@ export class ActivityComponent implements OnInit {
 
   }
   updateExtraRatings() {
-    this.ratings[1].set("Between Goal and LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.goal, this.extrasValues.lowerLimit))
-    this.ratings[1].set("Between UL and Goal", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.goal, this.extrasValues.upperLimit))
-    this.ratings[1].set("Above UL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.upperLimit, Math.max(...this.dataset.map((x)=>x.value))))
-    this.ratings[1].set("Below LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.extrasValues.lowerLimit, Math.min(...this.dataset.map((x)=>x.value))))
+    this.ratings[1].set("Between Goal and LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.goals.goal, this.goals.lowerLimit))
+    this.ratings[1].set("Between UL and Goal", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.goals.goal, this.goals.upperLimit))
+    this.ratings[1].set("Above UL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.goals.upperLimit, Math.max(...this.dataset.map((x)=>x.value))))
+    this.ratings[1].set("Below LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.goals.lowerLimit, Math.min(...this.dataset.map((x)=>x.value))))
 
   }
   pushExtras(){
     this.referenceLines = []
     const xAxis = this.activityService.getMetric(this.xAxisRepresents, this.activity)
     if (this.extrasSet.has("goal")){
-      this.referenceLines.push({name:"goal", value:this.extrasValues.goal}) //This can be done iterating through the set and with this.extrasValues[currentVar]
+      this.referenceLines.push({name:"goal", value:this.goals.goal}) //This can be done iterating through the set and with this.extrasValues[currentVar]
     }
     if (this.extrasSet.has("upperLimit")){
-      this.referenceLines.push({name:"Upper Limit", value:this.extrasValues.upperLimit})
+      this.referenceLines.push({name:"Upper Limit", value:this.goals.upperLimit})
     }
     if (this.extrasSet.has("lowerLimit")){
-      this.referenceLines.push({name:"Lower Limit", value:this.extrasValues.lowerLimit})
+      this.referenceLines.push({name:"Lower Limit", value:this.goals.lowerLimit})
     }
 
     if (this.extrasSet.has("percentiles")){
@@ -178,11 +171,7 @@ export class ActivityComponent implements OnInit {
     this.updateExtraRatings() //posssibly could be called only when event===extras
   }
   updateRatings(){
-    console.log("updateRatings");
-
     for (let [key, value] of this.currentRatingsPage.entries()) {
-      console.log("key", key);
-      console.log("result ", this.graphService.calc(key, this.dataset.map(d=>d.value), value))
      this.currentRatingsPage.set(key, this.graphService.calc(key, this.dataset.map(d=>d.value), value))
     }
   }
@@ -192,9 +181,9 @@ export class ActivityComponent implements OnInit {
     const lowerLimit = goal - variance
     const upperLimit = goal + variance
 
-    this.extrasValues.goal = parseFloat(goal.toFixed(2))
-    this.extrasValues.lowerLimit = parseFloat(lowerLimit.toFixed(2))
-    this.extrasValues.upperLimit = parseFloat(upperLimit.toFixed(2))
+    this.goals.goal = parseFloat(goal.toFixed(2))
+    this.goals.lowerLimit = parseFloat(lowerLimit.toFixed(2))
+    this.goals.upperLimit = parseFloat(upperLimit.toFixed(2))
     this.pushExtras()
   }
   //#endregion

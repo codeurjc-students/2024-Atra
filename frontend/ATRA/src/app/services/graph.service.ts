@@ -58,18 +58,18 @@ export class GraphService {
     return {lower:lower, higher:higher, percentage:(outlierCount/data.length)*100}
   }
 
-constructor(private activityService: ActivityService) { }
+  constructor(private activityService: ActivityService) { }
 
-getAvg(data:number[]): number{
+  getAvg(data:number[]): number{
   let total = 0
   for (let d of data){
     total += d
   }
 
   return total/data.length
-}
+  }
 
-getDeviation(data:number[], includedAvg:boolean=false, avg:number=0){
+  getDeviation(data:number[], includedAvg:boolean=false, avg:number=0){
   if (!includedAvg) {
     avg = this.getAvg(data)
   }
@@ -79,10 +79,10 @@ getDeviation(data:number[], includedAvg:boolean=false, avg:number=0){
     total += Math.pow(d-avg, 2)
   }
   return Math.sqrt(total/(data.length-1))
-}
+  }
 
 
-getGraphData(metric: string, activity: Activity, xAxis: string, partitions:number=-1): { name: string, value: number; }[] {
+  getGraphData(metric: string, activity: Activity, xAxis: string, partitions:number=-1): { name: string, value: number; }[] {
   var metricData:number[];
   const time = activity.streams.time;
   const distance = activity.streams.distance
@@ -111,7 +111,7 @@ getGraphData(metric: string, activity: Activity, xAxis: string, partitions:numbe
       }
   }
   return processedData //[{ name: "1", value: 2 }, { name: "2", value: 2 },{ name: "3", value: 3 }]
-}
+  }
 
 
 
