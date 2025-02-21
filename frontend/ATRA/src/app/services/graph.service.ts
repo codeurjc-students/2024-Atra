@@ -86,8 +86,7 @@ export class GraphService {
   var metricData:number[];
   const time = activity.streams.time;
   const distance = activity.streams.distance
-  console.log('partitions', partitions)
-  console.log('xAxis', xAxis)
+
   if (!(Object.keys(new ActivityStreams())).includes(metric)) {
       throw new Error(`Given metric '${metric}' is not a key of ActivityStreams`)
   }

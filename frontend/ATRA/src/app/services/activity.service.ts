@@ -9,6 +9,15 @@ import { ActivityStreams } from '../models/activity-streams.model';
   providedIn: 'root'
 })
 export class ActivityService {
+  getCoordinates(activity: Activity): [number, number][] {
+    return activity.getStream("position").map((x:string)=>{
+      const parts = x.split(";")
+      const lat = parseFloat(parts[0])
+      const lon = parseFloat(parts[1])
+
+      return [lat, lon]
+    })
+  }
 
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 

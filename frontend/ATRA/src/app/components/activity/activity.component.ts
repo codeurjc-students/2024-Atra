@@ -8,6 +8,7 @@ import { Activity } from '../../models/activity.model';
 import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import * as L from 'leaflet'
 
 
 @Component({
@@ -74,6 +75,9 @@ export class ActivityComponent implements OnInit {
   ratingsPage = 0
   currentRatingsPage: Map<string, number>  = this.ratings[this.ratingsPage]
 
+
+  map!: L.Map;
+  coordinates: [number, number][] = []
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService) {}
 
   open(content: TemplateRef<any>) {
@@ -98,6 +102,21 @@ export class ActivityComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const baseMaps = {
+      "OSM Standard": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+      "Satellite": L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg'),
+      "Vector": L.tileLayer('https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.jpg')
+    };
+
+    // Initialize the map centered on coordinates
+    this.map = L.map('map', {
+      layers: [baseMaps["OSM Standard"]]
+    })
+    // Add control to switch between layers
+    L.control.layers(baseMaps).addTo(this.map);
+    //end of map things
+
+
     const id = this.route.snapshot.paramMap.get("id");
     if (id===null) {
       this.router.navigate(["/error?reason=missingParameter"]);
@@ -109,6 +128,16 @@ export class ActivityComponent implements OnInit {
       next: (act) => {
         this.activity = this.activityService.process([act])[0];
         this.stats = this.activity.getOverview()
+        this.coordinates = this.activityService.getCoordinates(this.activity)
+        // Add a marker at the same coordinates
+        const path = L.polyline(this.coordinates, {
+          color: 'blue',         // Line color
+          weight: 4,             // Line thickness
+          opacity: 0.8,          // Line opacity
+        }).addTo(this.map);
+
+        this.map.fitBounds(path.getBounds());
+
         this.updateChart("init")
       },
       error: () => {alert("There was an error fetching the activity. Try reloading the page.")}

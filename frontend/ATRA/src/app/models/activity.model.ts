@@ -53,7 +53,7 @@ export class Activity {
   }
 
   getStream(stream: string){
-    if (!(stream in Object.keys(this.streams))) return ["Requested metric is not a key of activity.streams"]
+    if (!(Object.keys(this.streams).includes(stream))) return [`Requested metric '${stream}' is not a key of activity.streams`]
     return this.streams[stream as keyof typeof this.streams]
   }
 }
