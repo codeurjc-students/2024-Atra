@@ -46,8 +46,3 @@
 .tab-pane:not(.show) {
   display: none !important;
 }
-
-.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
