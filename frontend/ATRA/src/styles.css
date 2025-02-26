@@ -30,3 +30,7 @@ label {
 .clickable {
   cursor: pointer;
 }
+
+.h-90 {
+  height: 90%;
+}

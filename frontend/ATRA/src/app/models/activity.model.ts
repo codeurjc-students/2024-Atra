@@ -40,16 +40,16 @@ export class Activity {
   }
 
   getOverview(): {name:string; value:string}[] {
-    var result:{name:string; value:string}[]  = [];
-    result.push({name:"Name", value:this.name})
-    result.push({name:"Type", value:this.type})
-    result.push({name:"Start time", value:this.startTime.getHours()+":"+this.startTime.getMinutes()})
-    result.push({name:"Date", value:this.startTime.toISOString().split("T")[0]})
-    result.push({name:"Duration", value:""+this.totalTime})
-    result.push({name:"Total distance", value:""+this.totalDistance})
-    result.push({name:"Route", value:""+this.route})
+    return [
+    {name:"Name", value:this.name},
+    {name:"Type", value:this.type},
+    {name:"Start time", value:this.startTime.getHours()+":"+this.startTime.getMinutes()},
+    {name:"Date", value:this.startTime.toISOString().split("T")[0]},
+    {name:"Duration", value:""+this.totalTime},
+    {name:"Total distance", value:this.totalDistance.toFixed(2)},
+    {name:"Route", value:""+this.route},
+  ]
 
-    return result
   }
 
   getStream(stream: string){
