@@ -5,8 +5,10 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 mb-0">{{activity.name}}</h2>
     <div>
-      <button class="btn btn-danger mx-2"><i class="fa-solid fa-trash"></i> Delete</button>
-      <button class="btn btn-warning"><i class="fa-solid fa-pencil"></i> Edit</button>
+      <button class="btn btn-warning mx-1" *ngIf="this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
+      <button class="btn btn-primary mx-1" *ngIf="this.activity.hasRoute()"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
+      <button class="btn btn-danger mx-1"><i class="fa-solid fa-trash"></i> Delete</button>
+
     </div>
   </div>
   <!-- Tabs -->
@@ -58,3 +60,43 @@
   </div>
 </div>
 
+
+
+<!-- Modal -->
+<ng-template #create_route> <!-- let-modal -->
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Create Route From This Activity</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="routeName" class="form-label">Route Name:</label>
+      <input type="text" id="routeName" name="routeName" class="form-control" #routeName>
+    </div>
+
+    <div class="mb-3">
+      <label for="routeDesc" class="form-label">Route Description:</label>
+      <textarea id="routeDesc" name="routeDesc" class="form-control" #routeDesc></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="routeDistance" class="form-label">Distance:</label>
+      <input type="number" id="routeDistance" name="routeDistance" class="form-control" [value]="activity.totalDistance.toFixed(2)" #routeDistance>
+    </div>
+
+    <div class="mb-3">
+      <label for="routeElevation" class="form-label">Elevation:</label>
+      <input type="number" id="routeElevation" name="routeElevation" class="form-control" [value]="activity.elevationGain.toFixed(2)" #routeElevation>
+    </div>
+
+    <p>The route will be created with the same coordinates as this activity.</p><p>Check everything is correct, and click create when ready.</p>
+
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="createRoute(routeName.value, routeDesc.value, routeDistance.value, routeElevation.value)"><i class="fa-solid fa-plus mx-1"></i>Create</button>
+  </div>
+</ng-template>

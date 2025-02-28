@@ -60,6 +60,10 @@ export class Activity {
     return this.streams[stream as keyof typeof this.streams]
   }
 
+  hasRoute(): boolean {
+    return this.route == null
+  }
+
   formatTime(seconds: number): string { //secsToHHMMSS
 
     // Total number of seconds in the difference

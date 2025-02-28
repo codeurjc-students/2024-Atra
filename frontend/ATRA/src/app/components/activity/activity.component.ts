@@ -1,12 +1,14 @@
 import { ActivityService } from './../../services/activity.service';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Activity } from '../../models/activity.model';
 import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { ActivityStudyComponent } from "../activity-study/activity-study.component";
 import L from 'leaflet';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RouteService } from '../../services/route.service';
 
 
 @Component({
@@ -18,6 +20,7 @@ import L from 'leaflet';
 })
 export class ActivityComponent implements OnInit {
 
+
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
   id !: string;
@@ -25,7 +28,7 @@ export class ActivityComponent implements OnInit {
   stats !: {name:string, value:string}[];
   map!: L.Map;
 
-  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService) {}
+  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService) {}
 
   ngOnInit(): void {
     this.mapSetup()
@@ -74,4 +77,17 @@ export class ActivityComponent implements OnInit {
 
     this.map.fitBounds(path.getBounds());
   }
+
+  //#region create route
+  modal!: any;
+
+  open(content: TemplateRef<any>) {
+    this.modal = this.modalService.open(content)
+  }
+
+  createRoute(name:string, desc:string, distance:string, elevation:string) {
+    this.routeService.createRoute(name,desc, parseFloat(distance), parseFloat(elevation), this.activity.id)
+  }
+
+  //#endregion
 }
