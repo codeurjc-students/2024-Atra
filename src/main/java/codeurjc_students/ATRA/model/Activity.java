@@ -33,6 +33,7 @@ public class Activity {
 	private Long route;
 
 	@ElementCollection
+	@OrderColumn(name = "position")
 	private List<DataPoint> dataPoints = new ArrayList<>();
 
 	public void addDataPoint(DataPoint dataPoint) {

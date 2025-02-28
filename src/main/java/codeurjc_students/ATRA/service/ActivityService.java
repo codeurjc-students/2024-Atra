@@ -142,4 +142,49 @@ public class ActivityService {
 		}
 		return result;
 	}
+
+	public Activity get(Long id) {
+		Optional<Activity> opt = this.findById(id);
+        return opt.orElse(null);
+    }
+
+	public Double totalDistance(Activity activity) {
+		List<DataPoint> dataPoints = activity.getDataPoints();
+		Double total = 0.0;
+		DataPoint prevDp = null;
+		for (var dp : dataPoints) {
+			totalDistance(prevDp==null ? dp:prevDp, dp);
+			prevDp = dp;
+		}
+		return total;
+	}
+
+
+
+	public static Double totalDistance(DataPoint dp1, DataPoint dP2){
+		return totalDistance(dp1.get_lat(), dp1.get_long(), dP2.get_lat(), dP2.get_long());
+	}
+
+	public static Double totalDistance(Double lat1, Double lon1, DataPoint dP) {
+		return totalDistance(lat1, lon1, dP.get_lat(), dP.get_long());
+	}
+
+	public static Double totalDistance(Double lat1, Double lon1, Double lat2, Double lon2) {
+		//Haversine formula, courtesy of https://stackoverflow.com/a/27943, https://stackoverflow.com/a/11172685, https://www.movable-type.co.uk/scripts/latlong.html
+		var R = 6371; // Radius of the earth in km
+		double dLat = deg2rad(lat2-lat1);  // deg2rad below
+		double dLon = deg2rad(lon2-lon1);
+		var a =
+				Math.sin(dLat/2) * Math.sin(dLat/2) +
+						Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+								Math.sin(dLon/2) * Math.sin(dLon/2);
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		return R * c; //distance in km
+	}
+
+	private static Double deg2rad(Double deg) {
+		return deg * (Math.PI/180);
+	}
+
+
 }
