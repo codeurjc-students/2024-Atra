@@ -42,7 +42,7 @@ export class ActivityComponent implements OnInit {
 
     this.activityService.get(this.id).subscribe({
       next: (act) => {
-        this.activity = this.activityService.process([act])[0];
+        this.activity = this.activityService.process1(act);
         this.stats = this.activity.getOverview()
 
         this.addPathToMap()

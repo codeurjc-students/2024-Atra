@@ -81,6 +81,10 @@ export class ActivityService {
     return result;
   }
 
+  process1(value: any): Activity {
+    return new Activity(value);
+  }
+
   get(id: string){
     return this.http.get<any[]>("/api/activities/" + id);
   }

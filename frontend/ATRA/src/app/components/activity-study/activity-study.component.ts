@@ -105,7 +105,7 @@ export class ActivityStudyComponent implements OnInit {
 
     this.activityService.get(this.id).subscribe({
       next: (act) => {
-        this.activity = this.activityService.process([act])[0];
+        this.activity = this.activityService.process1(act);
         this.updateChart("init")
       },
       error: () => {alert("There was an error fetching the activity. Try reloading the page.")}
