@@ -187,4 +187,12 @@ public class ActivityService {
 	}
 
 
+	public List<Activity> findById(List<Long> activityIds) {
+		List<Activity> result = new ArrayList<>();
+		for (var id : activityIds) {
+			Optional<Activity> actOpt = findById(id);
+            actOpt.ifPresent(result::add);
+		}
+		return result;
+	}
 }
