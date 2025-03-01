@@ -5,6 +5,7 @@ import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.repository.ActivityRepository;
 import io.jenetics.jpx.GPX;
+import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -75,7 +76,8 @@ public class ActivityService {
     }
 
 	private Activity newActivity(GPX gpx, String username){
-		List<WayPoint> pts = gpx.getTracks().get(0).getSegments().get(0).getPoints();
+		Track track = gpx.getTracks().get(0);
+		List<WayPoint> pts = track.getSegments().get(0).getPoints();
 
 
 		Activity activity = new Activity();
@@ -86,13 +88,14 @@ public class ActivityService {
 
 		//process the metadata
 		gpx.getMetadata().ifPresent(metadata -> activity.setStartTime(metadata.getTime().get()));
-		activity.setName(gpx.getTracks().get(0).getName().get());
-		activity.setType(gpx.getTracks().get(0).getType().get());
+		activity.setName(track.getName().isPresent() ? track.getName().get():"No Name");
+		activity.setType(track.getType().isPresent() ? track.getType().get():"No Type");
 		//process the waypoints
 		for (WayPoint pt: pts) {
 			//add each waypoint to activity
 			addWayPoint(activity, pt);
 		}
+		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
 		activityRepository.save(activity);
 		return activity;
 	}
@@ -115,7 +118,10 @@ public class ActivityService {
 
 		//handle extensions
 		Optional<Document> extensions = pt.getExtensions();
-		if (extensions.isEmpty()) return;
+		if (extensions.isEmpty()) {
+			activity.addDataPoint(dataPoint);
+			return;
+		}
 		Element element = extensions.get().getDocumentElement();
 
 		Node currentMetric = element.getFirstChild().getChildNodes().item(0);
