@@ -34,3 +34,7 @@ label {
 .h-90 {
   height: 90%;
 }
+
+.thin-grey-border {
+  border: 1px solid #ccc;
+}
