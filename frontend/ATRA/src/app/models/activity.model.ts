@@ -8,19 +8,20 @@ export class Activity {
 
     name:string;
     type:string;
-    startTime:Date;
 
-    endTime:string; //
+    startTime:Date;
+    endTime:Date; //
 
     totalTime:number;
     totalDistance:number;
     elevationGain:number;
+
     user: User; //probably will need to change when User receives activities and/or routes Change to {id:number, name:string} or similar
     route:{id:number, name:string};
 
     dataPoints: DataPoint[];
-
     streams: ActivityStreams;
+
     other:any;
 
     constructor(activity: any) {
@@ -28,7 +29,7 @@ export class Activity {
       this.name = activity.name;
       this.type = activity.type;
       this.startTime = new Date(activity.startTime);
-      this.endTime = activity.endTime;
+      this.endTime = new Date(activity.endTime);
       this.totalTime = activity.totalTime;
       this.totalDistance = activity.totalDistance;
       this.elevationGain = activity.elevationGain
@@ -47,7 +48,7 @@ export class Activity {
     {name:"Type", value:this.type},
     {name:"Start time", value:this.startTime.getHours()+":"+this.startTime.getMinutes()},
     {name:"Date", value:this.startTime.toISOString().split("T")[0]},
-    {name:"Duration", value:""+this.formatTime(this.totalTime)},
+    {name:"Duration", value:""+Activity.formatTime(this.totalTime)},
     {name:"Total distance", value:this.totalDistance.toFixed(2)},
     {name:"Elevation gain", value:this.elevationGain.toFixed(2)},
     {name:"Route", value:""+this.route},
@@ -64,7 +65,7 @@ export class Activity {
     return this.route == null
   }
 
-  formatTime(seconds: number): string { //secsToHHMMSS
+  static formatTime(seconds: number): string { //secsToHHMMSS
 
     // Total number of seconds in the difference
     const totalSeconds = seconds;
