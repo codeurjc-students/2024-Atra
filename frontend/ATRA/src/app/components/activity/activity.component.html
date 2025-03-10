@@ -5,7 +5,8 @@
     <h2 class="h5 mb-0">{{activity.name}}</h2>
     <div>
       <button class="btn btn-warning mx-1" *ngIf="this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
-      <button class="btn btn-primary mx-1" *ngIf="this.activity.hasRoute()"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
+      <button class="btn btn-primary mx-1" *ngIf="this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
+      <button class="btn btn-warning mx-1" *ngIf="!this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
       <button class="btn btn-danger mx-1"><i class="fa-solid fa-trash"></i> Delete</button>
 
     </div>
@@ -61,7 +62,7 @@
 
 
 
-<!-- Modal -->
+<!-- Modals -->
 <ng-template #create_route> <!-- let-modal -->
   <div class="modal-header d-flex justify-content-between">
     <h5 class="modal-title">Create Route From This Activity</h5>
@@ -98,4 +99,31 @@
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
     <button type="button" class="btn btn-primary" (click)="createRoute(routeName.value, routeDesc.value, routeDistance.value, routeElevation.value)"><i class="fa-solid fa-plus mx-1"></i>Create</button>
   </div>
+</ng-template>
+
+
+<ng-template #routeModal> <!-- let-modal -->
+  <div>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Select a Route</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <select [(ngModel)]="selectedRoute" #selectForRoute class="form-select" (change)="selectedRouteChange()">
+      <option value="-1">-- Select a route --</option>
+      <option *ngFor="let x of routes" [value]="x.id">
+        {{ x.name }} ({{ x.totalDistance }} km)
+      </option>
+    </select>
+      <div class="thin-grey-border fixed-height-450 mt-3" id="routeMap" *ngIf="selectedRoute!=-1"></div>
+
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="submitChangeRoute(selectForRoute.value)"><i class="fa-solid fa-floppy-disk"></i> Confirm</button>
+  </div>
+</div>
 </ng-template>

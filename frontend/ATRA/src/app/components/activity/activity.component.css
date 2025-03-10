@@ -71,3 +71,10 @@
   background-color: #ccc; /* Adjust color as needed */
   transform: translateX(-50%);
 }
+
+.fixed-height-450 {
+  /*width: 450px;*/
+  height: 450px;
+}
+
+

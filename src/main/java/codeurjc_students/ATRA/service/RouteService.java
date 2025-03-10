@@ -34,4 +34,11 @@ public class RouteService {
 	public void delete(long id) {
 		repository.deleteById(id);
 	}
+
+    public void removeActivityFromRoute(Long activityId, Long routeId) {
+		Route route = findById(routeId).orElse(null);
+		if (route==null) return;
+		route.removeActivity(activityId);
+		save(route);
+	}
 }

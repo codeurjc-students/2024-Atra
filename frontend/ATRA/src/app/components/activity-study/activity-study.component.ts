@@ -21,7 +21,7 @@ export class ActivityStudyComponent implements OnInit {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
   modal !: any;
-  id !: string;
+  id !: number;
   @Input() activity !: Activity;
   view: [number, number] = [400, 400];
 
@@ -96,12 +96,12 @@ export class ActivityStudyComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get("id");
-    if (id===null) {
+    const stringId = this.route.snapshot.paramMap.get("id");
+    if (stringId===null) {
       this.router.navigate(["/error?reason=missingParameter"]);
       return;
     }
-    this.id = id;
+    this.id = parseInt(stringId);
 
     this.activityService.get(this.id).subscribe({
       next: (act) => {

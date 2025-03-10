@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.model;
 
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
+import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Getter
 @Entity
 @Table(name = "activities")
-public class Activity {
+public class Activity implements NamedId {
 
 
 	@Id

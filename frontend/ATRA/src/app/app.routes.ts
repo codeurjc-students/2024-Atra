@@ -7,12 +7,14 @@ import { MuralsComponent } from './components/murals/murals.component';
 import { ActivitySelectComponent } from './components/activity-select/activity-select.component';
 import { ComparisonComponent } from './components/comparison/comparison.component';
 import { ActivityComponent } from './components/activity/activity.component';
+import { RoutesComponent } from './components/routes/routes.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
   {path: 'me/home', component: HomeComponent},
+  {path: 'me/routes', component: RoutesComponent},
   {path: 'me/activity-comparison', component: ActivitySelectComponent},
   {path: 'me/activity-comparison/:id', component: ComparisonComponent}, // this with extra ones in query parameters. Alt would be me/activity-comparison?ids=1,2
                                                                         // this depends on wether I want to differentiate the elements being compared. If there is one important one

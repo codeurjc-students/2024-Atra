@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { UserService } from './user.service';
 import { Activity } from '../models/activity.model';
 import { ActivityStreams } from '../models/activity-streams.model';
+import { catchError, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -85,8 +86,16 @@ export class ActivityService {
     return new Activity(value);
   }
 
-  get(id: string){
+  get(id: number){
     return this.http.get<any[]>("/api/activities/" + id);
+  }
+
+  removeRoute(id: number){
+    return this.http.delete("/api/activities/" + id + "/route");
+  }
+
+  addRoute(activityId: number, routeId:number){
+    return this.http.post("/api/activities/" + activityId + "/route", routeId);
   }
 
 
@@ -140,5 +149,26 @@ export class ActivityService {
 
     return `${hoursString}${minsString}:${secsString}`
 
+  }
+
+
+  getAll(cond:string) {
+    return this.http.get<any[]>("/api/activities").pipe(
+      map((reply: any[]) => {
+        console.log("processing");
+        const activities = this.process(reply)
+        console.log("cond: "+cond);
+        if (cond=="routeIsNull") {
+          console.log("Filtering");
+          return activities.filter(act => act.route==null)
+        }
+        console.log("Did not filter");
+        return activities
+      }),
+      catchError(error => {
+        console.log("Couldn't fetch activities. Error: "+error);
+        return []
+      })
+    );
   }
 }

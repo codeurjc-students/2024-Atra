@@ -1,0 +1,80 @@
+.table-responsive {
+  border-top: none;
+  overflow-y: auto;
+}
+
+.table {
+  border: none;
+  border-collapse: collapse;
+  max-height: 100%;
+
+}
+
+.table th {
+  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+}
+
+.table td {
+  border: 1px solid #ccc;
+  /*border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  border-left: none;
+  border-right: none;*/
+}
+
+
+.first-col {
+  border-left: none !important;
+}
+
+.last-col {
+  border-right: none !important;
+}
+
+.invisible-btn {
+  opacity: 0; /* Makes it invisible */
+  pointer-events: none; /* Prevents interaction */
+}
+
+
+
+.thin-border-bottom {
+  position: relative;
+}
+
+.thin-border-bottom::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 45%;
+  width: 90%;
+  height: 1px; /* Adjust thickness as needed */
+  background-color: #ccc; /* Adjust color as needed */
+  transform: translateX(-50%);
+}
+
+.thin-border-left {
+  position: relative;
+}
+
+.thin-border-left::before {
+  content: "";
+  position: absolute;
+  top: 52%;
+  left: -7%; /* Adjust this to move the divider */
+  height: 96%; /* Adjust based on how much of the container it should span */
+  width: 1px; /* Thickness of the divider */
+  background-color: #ccc;
+  transform: translateY(-50%);
+}
+
+
+.round-corners {
+  border-radius: 5px; /*10 doesn't look half bad either*/
+}
+
+.max-h-100 {
+  max-height: 100%;
+}

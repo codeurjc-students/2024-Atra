@@ -2,10 +2,11 @@ import { Activity } from './../../models/activity.model';
 import { ActivityService } from './../../services/activity.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { RouteService } from '../../services/route.service';
 
 @Component({
-  selector: 'app-activity',
+  selector: 'app-activity-select',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './activity-select.component.html',
@@ -14,13 +15,23 @@ import { Component, OnInit } from '@angular/core';
 export class ActivitySelectComponent implements OnInit{
   selected: Set<number> = new Set();
   shouldSelectAll: boolean = true;
-  activities !: Activity[];
+  @Input() activities !: Activity[];
+  @Input() submit: () => void = () => this.defaultSubmit();
+  @Output() emitter = new EventEmitter<Set<number>>();
+
+
+  onSubmit(){
+    this.emitter.emit(this.selected)
+    this.submit()
+  }
+
 
   columns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
 
-  constructor(private router: Router, private activityService: ActivityService){}
+  constructor(private router: Router, private activityService: ActivityService, private routeService: RouteService){}
 
   ngOnInit(): void {
+    if (this.activities!=null) return
     this.activityService.getAuthenticatedUserActivities().subscribe({
       next: (value) => this.activities = this.activityService.process(value),
       error: (err) => {alert("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
@@ -52,14 +63,14 @@ export class ActivitySelectComponent implements OnInit{
       case 'name': return Y.name
       case 'date': return Y.startTime.toISOString().split("T")[0]
       case 'time': return this.toHoursMinsSecs(Y.totalTime)
-      case 'route': return Y.route
+      case 'route': return Y.route!=null ? Y.route.name : Y.route
       case 'distance': return Math.round(Y.totalDistance*100)/100 + "km"
       case 'other' : return Y.other
       default : throw new Error(`Property '${X}' does not exist on object Y.`)
     }
   }
 
-  submit(){
+  defaultSubmit(){
     if (this.selected.size === 0 ) { alert("You must select at least one activity") }
     else if (this.selected.size === 1) {
       this.router.navigate([`/me/activity-view/${Array.from(this.selected)[0]}`])

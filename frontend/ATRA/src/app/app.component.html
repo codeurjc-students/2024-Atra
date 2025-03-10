@@ -20,13 +20,16 @@
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
           <a [routerLink]="[urlStart, 'home']" [routerLinkActive]="'active'" class="icon-link">
-            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-house" style="color: #000000;"></i>
           </a>
           <a [routerLink]="[urlStart, 'activity-view']"  [routerLinkActive]="'active'" class="icon-link">
             <img src="../assets/study.svg" class="v-75 w-75">
           </a>
           <a [routerLink]="[urlStart, 'activity-comparison']" [routerLinkActive]="'active'" class="icon-link">
             <img src="../assets/compare.svg" class="v-100 w-100">
+          </a>
+          <a [routerLink]="[urlStart, 'routes']" [routerLinkActive]="'active'" class="icon-link">
+            <img src="../assets/map.svg" class="v-50 w-50">
           </a>
         </li>
       </ul>

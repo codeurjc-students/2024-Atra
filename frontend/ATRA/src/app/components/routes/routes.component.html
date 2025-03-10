@@ -1,0 +1,106 @@
+<div class="container-fluid d-flex align-items-center justify-content-center w-100 h-75" id="bigContainer">
+  <!--left-->
+  <div class="d-flex flex-column justify-content-center ms-5 me-3 w-25 h-100">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <h2 class="h5 mb-0">Routes</h2>
+      <button class="btn btn-danger" [ngClass]="{'invisible-btn': this.selectedRoute == null}" (click)="deleteSelectedRoute()"><i class="fa-solid fa-xmark"></i> Delete Selected</button>
+    </div>
+
+    <!-- Scrollable Table -->
+    <div class="white-bg thin-grey-border h-75">
+      <div class="table-responsive h-100">
+        <table class="table table-hover table-bordered table-auto">
+          <thead class="table-dark">
+            <tr>
+              <th class="first-col position-sticky top-0">
+                <input type="radio" name="routeGroup" class="form-check-input" [checked]="selectedRoute==null" (change)="select(null)">
+              </th>
+              <th *ngFor="let col of columns; last as isLast" [class.last-col]="isLast" class="position-sticky top-0">{{ col }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let x of routes | keyvalue" >
+              <td class="first-col">
+                <input type="radio" name="routeGroup" class="form-check-input" [checked]="selectedRoute?.id===x.key" (change)="select(x.key)">
+              </td>
+              <td *ngFor="let col of columns; last as isLast" [class.last-col]="isLast">{{ getXFromY(col, x.value) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!--right-->
+  <div class="d-flex flex-column justify-content-center ms-3 me-5 w-75 h-100" *ngIf="selectedRoute" >
+    <!--up (header)-->
+    <div class="d-flex justify-content-between align-items-center  mx-2 mb-1 thin-border-bottom">
+      <h2 class="h5 mb-1 mx-2" *ngIf="selectedRoute">Selected Route: {{selectedRoute.name}}</h2>
+      <button class="btn btn-danger invisible-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <!--down (body)-->
+    <div class="d-flex justify-content-start mx-2 h-75 ">
+      <!--left-->
+      <div class="d-flex flex-column flex-grow-1 me-4 max-w-75">
+        <!--up-->
+        <div class="d-flex justify-content-between md-2">
+          <div class="mx-1 text-wrap">
+            <span class="fw-bold">Desc:</span> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus auctor ligula sit amet fermentum ornare. Integer mauris justo, fermentum et arcu ac, vulputate ultrices metus.
+          </div>
+          <div class="mx-1">
+            <span class="fw-bold text-nowrap">Total Distance:</span> {{selectedRoute.totalDistance}}
+          </div>
+        </div>
+        <!--down/map-->
+        <div class="mt-2 thin-grey-border w-100 h-100 round-corners" id="map">
+        </div>
+      </div>
+
+      <!--right-->
+      <div class="d-flex flex-column mx-2 max-w-25 thin-border-left h-100">
+        <div class="d-flex align-items-end justify-content-between mb-1">
+          <h4 class="h5">Activities:</h4>
+          <button class="btn btn-primary" (click)="open(add_activity)"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="white-bg thin-grey-border h-90">
+          <div class="table-responsive h-100">
+            <table class="table table-hover table-bordered table-auto">
+              <thead class="table-dark">
+                <tr>
+                  <th *ngFor="let col of activityColumns; first as isFirst" [class.first-col]="isFirst" class="position-sticky top-0">
+                    {{ col }}
+                  </th>
+                  <th class="last-col text-center" class="position-sticky top-0"><i class="fa-solid fa-trash"></i></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let x of selectedRoute.activities" >
+                  <td *ngFor="let col of activityColumns; first as isFirst"[class.first-col]="isFirst">
+                    {{ getXFromYAct(col, x) }}
+                  </td>
+                  <td class="last-col"><button class="btn btn-danger" (click)="removeActivity(x.id)"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+<!-- Modal -->
+<ng-template #add_activity> <!-- let-modal -->
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Add Activity to Route</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <app-activity-select [submit]="submit" (emitter)="addActivitiesToRoute($event)" [activities]="allActivities"></app-activity-select>
+  </div>
+</ng-template>

@@ -23,6 +23,10 @@
   background-color: violet !important;
 }
 
+.white-bg {
+  background-color: white !important;
+}
+
 label {
   display: inline-block;
 }
@@ -37,4 +41,16 @@ label {
 
 .thin-grey-border {
   border: 1px solid #ccc;
+}
+
+.thin-red-border {
+  border: 1px solid red;
+}
+
+.max-w-25 {
+  max-width: 25%;
+}
+
+.max-w-75 {
+  max-width: 75%;
 }

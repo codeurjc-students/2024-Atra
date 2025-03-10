@@ -201,4 +201,12 @@ public class ActivityService {
 		}
 		return result;
 	}
+
+	public void routeDeleted(Long deletedRouteId) {
+		activityRepository.findAll().forEach(activity -> {
+			if (activity.getRoute() != null && activity.getRoute().equals(deletedRouteId)) {
+				activity.setRoute(null);
+			}
+		});
+	}
 }

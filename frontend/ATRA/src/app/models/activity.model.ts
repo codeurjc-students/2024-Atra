@@ -51,9 +51,8 @@ export class Activity {
     {name:"Duration", value:""+Activity.formatTime(this.totalTime)},
     {name:"Total distance", value:this.totalDistance.toFixed(2)},
     {name:"Elevation gain", value:this.elevationGain.toFixed(2)},
-    {name:"Route", value:""+this.route},
+    ...(this.route ? [{ name: "Route", value: this.route.name }] : []) // Only add if this.route is not null
   ]
-
   }
 
   getStream(stream: string){

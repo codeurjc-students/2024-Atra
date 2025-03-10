@@ -1,8 +1,11 @@
 package codeurjc_students.ATRA.dto;
 
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Route;
+import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.service.ActivityService;
+import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.ATRA.service.ActivityService; //consider substituting this for a DistanceUtils or similar utility class, consisting of static methods, and independent of spring
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,26 +20,46 @@ import java.util.Map;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ActivityDTO {
+public class ActivityDTO implements ActivityDtoInterface {
 	private Long id;
 	private String name;
 	private String type;
 	private Instant startTime;
 	private Long user;
-	private Long route;
+	private NamedId route;
 	private Double totalDistance;
 	private Long totalTime; //seconds
 	private Double elevationGain;
 	private List<DataPoint> dataPoints;
 	private Map<String, List<String>> streams;
 
-	public ActivityDTO(Activity activity) {
+	public ActivityDTO(Activity activity){
 		id = activity.getId();
 		name = activity.getName();
 		type = activity.getType();
 		startTime = activity.getStartTime();
 		user = activity.getUser();
-		route = activity.getRoute();
+		dataPoints = activity.getDataPoints();
+		setUpStreams(activity.getDataPoints());
+		totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
+		elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
+		totalTime = calcTotalTime(activity);
+		if (activity.getRoute() == null) {
+			route = null;
+		} else {
+			throw new RuntimeException("ActivityDTO(Activity a) called with activity.getRoute()!=null");
+		}
+
+
+	}
+
+	public ActivityDTO(Activity activity, NamedId routeIdAndName) {
+		id = activity.getId();
+		name = activity.getName();
+		type = activity.getType();
+		startTime = activity.getStartTime();
+		user = activity.getUser();
+		route = routeIdAndName;
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
 		totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
@@ -44,19 +67,25 @@ public class ActivityDTO {
 		totalTime = calcTotalTime(activity);
 	}
 
+	public ActivityDTO(Activity activity, Route route) {
+		this.id = activity.getId();
+		this.name = activity.getName();
+		this.type = activity.getType();
+		this.startTime = activity.getStartTime();
+		this.user = activity.getUser();
+		this.route = new BasicNamedId(route);
+		this.dataPoints = activity.getDataPoints();
+		setUpStreams(activity.getDataPoints());
+		this.totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
+		this.elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
+		this.totalTime = calcTotalTime(activity);
+	}
+
 	private long calcTotalTime(Activity activity) {
 		Instant start = activity.getStartTime();
 		Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
 		Duration duration = Duration.between(start, end);
 		return duration.toSeconds();
-	}
-
-	public static List<ActivityDTO> toDTO(List<Activity> activities) {
-		List<ActivityDTO> dtoList = new ArrayList<>();
-		for (var act: activities) {
-			dtoList.add(toDTO(act));
-		}
-		return dtoList;
 	}
 
 	private void setUpStreams(List<DataPoint> dataPoints) {
@@ -111,10 +140,5 @@ public class ActivityDTO {
 		long totalTime = Duration.between(prevDP.get_time(), nextDP.get_time()).toSeconds();
 
 		return String.valueOf(Math.round((double) totalTime / totalDistance)); //seconds / kilometer
-	}
-
-
-	static ActivityDTO toDTO(Activity activity) {
-		return new ActivityDTO(activity);
 	}
 }

@@ -1,9 +1,14 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.ActivityDTO;
+import codeurjc_students.ATRA.dto.DtoService;
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
+import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import codeurjc_students.ATRA.service.ActivityService;
+import codeurjc_students.ATRA.service.RouteService;
 import codeurjc_students.ATRA.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +29,10 @@ public class ActivityController {
 	private ActivityService activityService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RouteService routeService;
+    @Autowired
+    private DtoService dtoService;
 
     public Activity getActivity(){
         return null;
@@ -31,30 +40,33 @@ public class ActivityController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ActivityDTO> getActivity(@PathVariable("id") Long id, Principal principal){
-        ResponseEntity<List<ActivityDTO>> activities = getActivities(id, principal);
-        return ResponseEntity.status(activities.getStatusCode()).body(activities.getBody().get(0));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ActivityDTO>> getActivities(@RequestParam(value="id", required = false) Long id, Principal principal){
-        List<Activity> activities = new ArrayList<>();
-
-
+        //this can be extracted, returning User and throwing errors
         if (principal==null) return ResponseEntity.status(403).build();
         Optional<User> userOpt = userService.findByUserName(principal.getName());
         if (userOpt.isEmpty()) return  ResponseEntity.status(403).build(); //this should never happen. Maybe should be 500
         User user = userOpt.get();
+        //this can be extracted, returning User and throwing errors
 
-        if (id!=null) {
+        if (id!=null) { //user is requesting a specific activity
             //check that the user has permission to access this activity
             if (!user.hasActivity(id)) return ResponseEntity.status(403).build();
             //fetch and return the activity
             Optional<Activity> actOpt = activityService.findById(id);
             if (actOpt.isEmpty()) return ResponseEntity.notFound().build();
-            activities.add(actOpt.get());
-            return ResponseEntity.ok(ActivityDTO.toDTO(activities));
+            return ResponseEntity.ok(dtoService.toDTO(actOpt.get()));
         }
-        return ResponseEntity.ok(ActivityDTO.toDTO(activityService.get(user.getActivities())));
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal){
+        //this can be extracted, returning User and throwing errors
+        if (principal==null) return ResponseEntity.status(403).build();
+        Optional<User> userOpt = userService.findByUserName(principal.getName());
+        if (userOpt.isEmpty()) return  ResponseEntity.status(403).build(); //this should never happen. Maybe should be 500
+        User user = userOpt.get();
+        return ResponseEntity.ok(dtoService.toDtoActivity(activityService.get(user.getActivities())));
+        //this can be extracted, returning User and throwing errors
     }
 
     @PostMapping
@@ -72,6 +84,33 @@ public class ActivityController {
     public ResponseEntity<Activity> deleteActivity(){
         return null;
     }
+
+
+    @DeleteMapping("/{id}/route")
+    public ResponseEntity<ActivityDTO> removeRoute(@PathVariable Long id) {
+        Activity activity = activityService.findById(id).orElse(null);
+        if (activity==null) return ResponseEntity.notFound().build();
+        Long prevRoute = activity.getRoute();
+        routeService.removeActivityFromRoute(id,prevRoute);
+        activity.setRoute(null);
+        activityService.save(activity);
+        return ResponseEntity.ok(new ActivityDTO(activity));
+    }
+
+    @PostMapping("/{activityId}/route")
+    public ResponseEntity<ActivityDTO> addRoute(@PathVariable Long activityId, @RequestBody Long routeId) {
+        Activity activity = activityService.findById(activityId).orElse(null);
+        Route route = routeService.findById(routeId).orElse(null);
+        if (activity==null || route==null) return ResponseEntity.notFound().build();
+
+        activity.setRoute(routeId);
+        activityService.save(activity);
+        route.addActivity(activityId);
+        routeService.save(route);
+        //danger warning warn problema cuidado
+        return ResponseEntity.ok(new ActivityDTO(activity, new BasicNamedId(routeId, route.getName())));
+    }
+
 
 }
 
