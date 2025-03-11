@@ -39,7 +39,7 @@ export class ActivityComponent implements OnInit {
 
     const stringId = this.route.snapshot.paramMap.get("id");
     if (stringId===null) {
-      this.router.navigate(["/error?reason=missingParameter"]);
+      this.router.navigate(["/error?code=400&reason=missingParameter"]);
       return;
     }
     this.id = parseInt(stringId);

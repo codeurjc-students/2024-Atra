@@ -1,0 +1,24 @@
+.very-big-text {
+  font-size: 7rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ginormous-numbers {
+  font-size: 20rem;
+  font-weight: bold;
+}
+
+.normal-title {
+  font-size: 3rem;
+}
+
+.normal-text {
+  font-size: 1.5rem;
+}
+
+.error-msg {
+  text-align: left;
+  transform: translateX(-50%); /* Moves it left toward the center. Not a fan of using this. Breaks as soon as window size changes. But for now it works*/
+  max-width: 30%;
+}

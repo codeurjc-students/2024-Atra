@@ -24,7 +24,8 @@ export class AppComponent implements OnInit{
         if (event instanceof NavigationEnd) {
           this.showSideBar = this.router.url !== "/"
           this.urlStart = '/' + this.router.url.split("/")[1]
-
+          if (this.urlStart.split('?')[0]=="/error") {
+            this.urlStart = "/me"}
         }
       }
     )

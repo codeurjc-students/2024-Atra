@@ -8,11 +8,13 @@ import { ActivitySelectComponent } from './components/activity-select/activity-s
 import { ComparisonComponent } from './components/comparison/comparison.component';
 import { ActivityComponent } from './components/activity/activity.component';
 import { RoutesComponent } from './components/routes/routes.component';
+import { ErrorComponent } from './components/error/error.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
+  {path: 'error', component: ErrorComponent},
   {path: 'me/home', component: HomeComponent},
   {path: 'me/routes', component: RoutesComponent},
   {path: 'me/activity-comparison', component: ActivitySelectComponent},
