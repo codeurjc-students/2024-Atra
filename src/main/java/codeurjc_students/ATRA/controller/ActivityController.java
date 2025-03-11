@@ -116,7 +116,7 @@ public class ActivityController {
         //gotta check permissions. If not allowed, should return 404 instead of 403, so as to not show ids in use
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
-        routeService.findById(activity.getRoute()).ifPresent(route -> {
+        if (activity.getRoute()!=null) routeService.findById(activity.getRoute()).ifPresent(route -> {
             route.removeActivity(id);
             routeService.save(route);
         });
