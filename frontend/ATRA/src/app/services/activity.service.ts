@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { UserService } from './user.service';
 import { Activity } from '../models/activity.model';
 import { ActivityStreams } from '../models/activity-streams.model';
-import { catchError, map } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -98,6 +98,9 @@ export class ActivityService {
     return this.http.post("/api/activities/" + activityId + "/route", routeId);
   }
 
+  delete(id:number): Observable<string> {
+    return this.http.delete<string>("/api/activities/"+id);
+  }
 
   // internal logic and services
 

@@ -7,7 +7,7 @@
       <button class="btn btn-warning mx-1" *ngIf="this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
       <button class="btn btn-primary mx-1" *ngIf="this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
       <button class="btn btn-warning mx-1" *ngIf="!this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
-      <button class="btn btn-danger mx-1"><i class="fa-solid fa-trash"></i> Delete</button>
+      <button class="btn btn-danger mx-1" (click)="deleteActivity()"><i class="fa-solid fa-trash"></i> Delete</button>
 
     </div>
   </div>

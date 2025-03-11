@@ -65,6 +65,15 @@ export class ActivityComponent implements OnInit {
 
     this.map.fitBounds(this.path.getBounds());
   }
+  deleteActivity() {
+    this.activityService.delete(this.id).subscribe({
+      next: () => {
+        alert("Route deleted")
+        this.router.navigate(["/me/activity-view"])
+      },
+      error: (e) => {alert("ERROR: "+e.error)},
+    });
+  }
 
   //#region route shenanigans
   modal!: any;
