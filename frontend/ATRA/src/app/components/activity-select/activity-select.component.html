@@ -11,7 +11,7 @@
       <thead class="table-dark">
         <tr>
           <th class="first-col">
-            <input type="checkbox" class="form-check-input" [checked]="this.selected.size===this.activities.length" (change)="selectAll()">
+            <input type="checkbox" class="form-check-input" [checked]="this.activities != null && this.selected.size===this.activities.length" (change)="selectAll()">
           </th>
           <th *ngFor="let col of columns">{{ col }}</th>
         </tr>

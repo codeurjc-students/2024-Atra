@@ -75,7 +75,7 @@
       <div class="card">
         <div class="card-body text-center">Graph 1
           <ngx-charts-line-chart
-            *ngIf="charts['line']===true"
+            *ngIf="charts['line']===true && displayData.length>0"
             [view]="view"
             [results]="displayData"
             [xAxisLabel]="xAxisRepresents"
@@ -94,7 +94,7 @@
           </ngx-charts-line-chart>
 
           <ngx-charts-bar-vertical
-            *ngIf="charts['histogram']===true"
+            *ngIf="charts['histogram']===true && displayData.length>0"
             [view]="view"
             [results]="displayData"
             [xAxisLabel]="selectedMetric"

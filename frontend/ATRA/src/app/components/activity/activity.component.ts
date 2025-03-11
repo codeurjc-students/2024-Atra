@@ -88,7 +88,7 @@ export class ActivityComponent implements OnInit {
     this.modal = this.modalService.open(content)
 
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1
-    this.routeMap=null;
+    this.routeMap = null;
     this.selectedRouteChange();
   }
 
@@ -151,21 +151,16 @@ export class ActivityComponent implements OnInit {
   selectedRouteChange(){
     if (this.selectedRoute==-1) return this.routeMap = null
     if (this.routeMap==null || this.routeMap == undefined) {
-      console.log("in1");
-
       setTimeout(() => {
         if (this.routeMap==null) {
           console.log("creating map");
           this.routeMap = MapService.mapSetup("routeMap")
         }
-        console.log("in");
-
         this.updateMap()
         return
       })
+      return
     }
-    console.log("out");
-
     this.updateMap()
     return
   }
@@ -179,6 +174,7 @@ export class ActivityComponent implements OnInit {
         break
       }
     }
+
     if (this.displayRoute==null) throw new Error(`selectedRoute ${this.selectedRoute} does not match any route Ids within routes`)
     if (this.routeMap==null) throw new Error("routeMap was somehow null")
     this.routePath = MapService.addPolyline(this.displayRoute.coordinates,this.routeMap, this.routePath)
