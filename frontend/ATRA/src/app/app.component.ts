@@ -33,7 +33,9 @@ export class AppComponent implements OnInit{
 
   isPrivateRoute(){return this.router.url.startsWith("/me/")}
   isMuralRoute(){return this.router.url.startsWith("/mural/")}
-  onFileChange(event: Event) {this.activityService.uploadActivity(event)}
+  uploadFile(event: Event) {
+    this.activityService.uploadActivity(event)
+  }
 
   linkWithStrava() {alert("This function is yet to be implemented")}
 }

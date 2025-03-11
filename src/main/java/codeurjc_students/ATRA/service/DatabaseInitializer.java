@@ -34,7 +34,7 @@ public class DatabaseInitializer {
 
         for (int i=0;i<10;i++) {
             Activity act = activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), user.getUsername());
-            user.addActivity(act.getId());
+            //user.addActivity(act.getId());
         }
         userService.save(user);
 

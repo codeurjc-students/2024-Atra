@@ -7,6 +7,7 @@ import codeurjc_students.ATRA.repository.ActivityRepository;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,7 @@ public class ActivityService {
 		return newActivity(gpx, username);
     }
 
+	@Transactional
 	public Activity newActivity(Path path, String username){
 		GPX gpx;
         try {
@@ -86,6 +88,7 @@ public class ActivityService {
 		if (userOpt.isEmpty()) return null; //or throw exception caught above
 		activity.setUser(userOpt.get().getId());
 
+
 		//process the metadata
 		gpx.getMetadata().ifPresent(metadata -> activity.setStartTime(metadata.getTime().get()));
 		activity.setName(track.getName().isPresent() ? track.getName().get():"No Name");
@@ -97,6 +100,8 @@ public class ActivityService {
 		}
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
 		activityRepository.save(activity);
+		userOpt.get().addActivity(activity);
+		userService.save(userOpt.get());
 		return activity;
 	}
 

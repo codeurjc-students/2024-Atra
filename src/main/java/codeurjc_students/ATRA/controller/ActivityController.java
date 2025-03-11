@@ -75,8 +75,8 @@ public class ActivityController {
             return  ResponseEntity.badRequest().build();
         }
 
-        activityService.newActivity(file, principal.getName());
-        return ResponseEntity.ok().build();
+        Activity activity = activityService.newActivity(file, principal.getName());
+        return ResponseEntity.ok(activity);
     }
 
     public ResponseEntity<Activity> modifyActivity(){return null;}

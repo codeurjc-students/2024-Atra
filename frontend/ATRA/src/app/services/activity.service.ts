@@ -56,8 +56,10 @@ export class ActivityService {
     const formData = new FormData();
     formData.append('file', file);
     this.http.post('/api/activities', formData).subscribe({
-      next: () => {
-        this.router.navigate(["/activity-view"])
+      next: (activity:any) => {
+        if (confirm("Activity has been added. Do you want to see it?"))
+          this.router.navigate(["/me/activity-view/", activity.id])
+        //else reload current page
       },
       error: (error) => {
         if (error.status == 413) {
