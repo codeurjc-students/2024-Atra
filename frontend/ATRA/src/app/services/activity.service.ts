@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
 import { Activity } from '../models/activity.model';
-import { ActivityStreams } from '../models/activity-streams.model';
 import { catchError, map, Observable } from 'rxjs';
 
 @Injectable({

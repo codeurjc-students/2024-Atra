@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
-import { RegisterComponent } from "./components/register/register.component";
 import { CommonModule } from '@angular/common';
 import { ActivityService } from './services/activity.service';
 

@@ -1,11 +1,9 @@
 import { UserService } from './../../services/user.service';
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserInitComponent } from '../user-init/user-init.component';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-//import { ModalDismissReasons, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-login',

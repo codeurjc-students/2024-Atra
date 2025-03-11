@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import L, { map } from 'leaflet';
+import L from 'leaflet';
 
 @Injectable({
   providedIn: 'root'

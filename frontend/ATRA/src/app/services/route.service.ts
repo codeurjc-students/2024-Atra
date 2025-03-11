@@ -1,9 +1,7 @@
-import { Activity } from './../models/activity.model';
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import {catchError, map, Observable} from 'rxjs';
-import { User } from '../models/user.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { Route } from '../models/route.model';
 

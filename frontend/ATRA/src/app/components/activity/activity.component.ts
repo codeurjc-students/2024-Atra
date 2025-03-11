@@ -1,5 +1,4 @@
 import { MapService } from './../../services/map.service';
-import { routes } from './../../app.routes';
 import { ActivityService } from './../../services/activity.service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';

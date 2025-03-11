@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { ActivityStreams } from '../models/activity-streams.model';
 import { Activity } from '../models/activity.model';
 import { ActivityService } from './activity.service';
-import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

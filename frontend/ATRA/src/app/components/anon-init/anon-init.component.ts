@@ -1,4 +1,3 @@
-import { UserService } from './../../services/user.service';
 import { ActivityService } from './../../services/activity.service';
 import { Component } from '@angular/core';
 
