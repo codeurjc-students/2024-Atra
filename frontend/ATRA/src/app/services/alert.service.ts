@@ -13,14 +13,14 @@ export class AlertService {
   // Alert method (just shows a message)
   alert(message: string, title?: string) {
     const modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
-    modalRef.componentInstance.title = title==null ? "Warning":title;
+    modalRef.componentInstance.title = title ?? "Warning";
     modalRef.componentInstance.message = message;
   }
 
   // Confirm method (returns a promise resolving to true/false)
   confirm(message: string, title?: string, options?:{accept:string, cancel:string}): Observable<boolean> {
     const modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
-    modalRef.componentInstance.title = title==null ? "Warning":title;
+    modalRef.componentInstance.title = title ?? "Warning";
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.isConfirm = true;
     if (options){
