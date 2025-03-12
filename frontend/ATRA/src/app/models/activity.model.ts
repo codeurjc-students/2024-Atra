@@ -46,7 +46,7 @@ export class Activity {
     return [
     {name:"Name", value:this.name},
     {name:"Type", value:this.type},
-    {name:"Start time", value:this.startTime.getHours()+":"+this.startTime.getMinutes()},
+    {name:"Start time", value:Activity.formatDateTime(this.startTime)},
     {name:"Date", value:this.startTime.toISOString().split("T")[0]},
     {name:"Duration", value:""+Activity.formatTime(this.totalTime)},
     {name:"Total distance", value:this.totalDistance.toFixed(2)},
@@ -83,5 +83,11 @@ export class Activity {
 
 
     return `${hoursString}${minsString}:${secsString}`
+  }
+
+  static formatDateTime(dateTime: Date): string {
+    const hours = dateTime.getHours();
+    const minutes = dateTime.getMinutes()<10 ? '0'+dateTime.getMinutes():dateTime.getMinutes()
+    return `${hours}:${minutes}`
   }
 }
