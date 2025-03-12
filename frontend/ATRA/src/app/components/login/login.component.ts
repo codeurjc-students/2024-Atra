@@ -1,9 +1,10 @@
+import { AlertService } from './../../services/alert.service';
 import { UserService } from './../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private userService: UserService,
     private router: Router,
-    protected activeModal: NgbActiveModal
+    protected activeModal: NgbActiveModal,
+    private alertService: AlertService
   ){}
 
   ngOnInit(): void {
@@ -34,7 +36,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     if (this.loginForm.invalid) {
-      alert("Something went wrong, the form is not valid")
+      this.alertService.alert("Something went wrong, the form is not valid")
       return
     }
     this.activeModal.close();
@@ -45,7 +47,7 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         console.error('Login failed', error);
-        alert('Login failed. Please check your credentials and try again.');
+        this.alertService.alert('Login failed. Please check your credentials and try again.');
       }
     });
   }

@@ -1,0 +1,54 @@
+.custom-alert {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  font-family: sans-serif;
+  border: 1px solid #ccc;
+}
+
+.alert-body {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.alert-button {
+  background: #216784;
+  border: 2px solid #216784;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  /*font-weight: bold;*/
+}
+
+.alert-button:hover {
+  background: #346E85;
+}
+
+.alert-button:focus {
+  outline: 2px solid #216784;
+  border: 2px solid white !important;
+}
+
+.alert-cancel-button {
+  background: #C3EAFF;
+  border: 2px solid #C3EAFF;
+  color: #23202A; /*default confirm uses #23202A. I considered #216784*/
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  /*font-weight: bold;*/
+}
+
+.alert-cancel-button:hover {
+  background: #BCE1F5;
+}
+
+.alert-cancel-button:focus {
+  outline: 2px solid #216784;
+  border: 2px solid white !important;
+}

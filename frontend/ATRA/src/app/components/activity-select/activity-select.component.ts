@@ -1,3 +1,4 @@
+import { AlertService } from './../../services/alert.service';
 import { Activity } from './../../models/activity.model';
 import { ActivityService } from './../../services/activity.service';
 import { Router } from '@angular/router';
@@ -19,7 +20,6 @@ export class ActivitySelectComponent implements OnInit{
   @Input() submit: () => void = () => this.defaultSubmit();
   @Output() emitter = new EventEmitter<Set<number>>();
 
-
   onSubmit(){
     this.emitter.emit(this.selected)
     this.submit()
@@ -28,13 +28,13 @@ export class ActivitySelectComponent implements OnInit{
 
   columns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
 
-  constructor(private router: Router, private activityService: ActivityService, private routeService: RouteService){}
+  constructor(private router: Router, private activityService: ActivityService, private routeService: RouteService, private alertService:AlertService){}
 
   ngOnInit(): void {
     if (this.activities!=null) return
     this.activityService.getAuthenticatedUserActivities().subscribe({
       next: (value) => this.activities = this.activityService.process(value),
-      error: (err) => {alert("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+      error: (err) => {this.alertService.alert("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
     })
   }
 
@@ -71,13 +71,13 @@ export class ActivitySelectComponent implements OnInit{
   }
 
   defaultSubmit(){
-    if (this.selected.size === 0 ) { alert("You must select at least one activity") }
+    if (this.selected.size === 0 ) { this.alertService.alert("You must select at least one activity") }
     else if (this.selected.size === 1) {
       this.router.navigate([`/me/activity-view/${Array.from(this.selected)[0]}`])
     } else if (this.selected.size === 2) {
       this.router.navigate([`/me/activity-comparison/${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
     } else {
-      alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
+      this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
     }
   }
 

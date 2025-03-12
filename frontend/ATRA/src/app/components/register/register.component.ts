@@ -1,3 +1,4 @@
+import { AlertService } from './../../services/alert.service';
 import { User } from './../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
@@ -26,7 +27,8 @@ export class RegisterComponent implements OnInit{
     private userService: UserService,
     //private http:HttpClient,
     //private router: Router,
-    protected activeModal: NgbActiveModal
+    protected activeModal: NgbActiveModal,
+    private alertService:AlertService
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +63,7 @@ export class RegisterComponent implements OnInit{
       if (!control.get("password")?.touched && !control.get("confirm")?.touched) return null;
 
       if (password !== confirmPassword) {
-        //alert("Passwords do not match");
+        //this.alertService.alert("Passwords do not match");
         return {differentPasswords:true};
       }
       return null;
@@ -73,7 +75,7 @@ export class RegisterComponent implements OnInit{
       this.step = 'optional';
     }
     else {
-      alert("Debes completar todos los campos antes de continuar")
+      this.alertService.alert("Debes completar todos los campos antes de continuar")
     }
   }
 
@@ -90,7 +92,7 @@ export class RegisterComponent implements OnInit{
 
   onSubmit() {
     if (this.registerForm.invalid) {
-      alert("Something went wrong, the form is not valid")
+      this.alertService.alert("Something went wrong, the form is not valid")
       return
     }
 

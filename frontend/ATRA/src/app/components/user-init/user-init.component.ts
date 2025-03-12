@@ -1,3 +1,4 @@
+import { AlertService } from './../../services/alert.service';
 import { Component } from '@angular/core';
 import { LoginComponent } from "../login/login.component";
 import { RegisterComponent } from '../register/register.component';
@@ -11,7 +12,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './user-init.component.css'
 })
 export class UserInitComponent {
-  constructor(private modalService: NgbModal){}
+  constructor(private modalService: NgbModal, private alertService:AlertService){}
 
   openRegisterModal() {
     const modalRef = this.modalService.open(RegisterComponent);

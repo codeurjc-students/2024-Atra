@@ -1,3 +1,4 @@
+import { AlertService } from './../../services/alert.service';
 import { ActivityService } from './../../services/activity.service';
 import { MapService } from './../../services/map.service';
 import { CommonModule } from '@angular/common';
@@ -28,7 +29,7 @@ export class RoutesComponent {
   allActivities !: Activity[];
   errorLoadingActivities : boolean = false;
 
-  constructor(private routeService:RouteService, private activityService:ActivityService, private modalService: NgbModal){}
+  constructor(private routeService:RouteService, private activityService:ActivityService, private modalService: NgbModal, private alertService:AlertService){}
 
 
   ngOnInit(): void {
@@ -38,11 +39,11 @@ export class RoutesComponent {
           this.routes = new Map(value.map(x => [x.id, x]))
         }
         else {
-          alert("No routes were found. You can create one by clicking on create route.")
+          this.alertService.alert("No routes were found. You can create one by clicking on create route.")
           this.routes = new Map()
         }
       },
-      error: (err) => {alert("There was an error fetching the Routes"); console.log("There was an error fetching the Routes", err)}
+      error: (err) => {this.alertService.alert("There was an error fetching the Routes"); console.log("There was an error fetching the Routes", err)}
     })
 
     this.fetchActivitiesWithNoRoute()
@@ -123,7 +124,7 @@ export class RoutesComponent {
       },
       error: () => {
         console.log("fail");
-        alert("Couldn't remove the activity. Try again later, or after reloading.")
+        this.alertService.alert("Couldn't remove the activity. Try again later, or after reloading.")
       }
     })
   }
@@ -142,7 +143,7 @@ export class RoutesComponent {
       },
       error: () => {
         console.log("fail");
-        alert("Couldn't remove the activity. Try again later, or after reloading.")
+        this.alertService.alert("Couldn't remove the activity. Try again later, or after reloading.")
       }
     })
   }
@@ -155,7 +156,7 @@ export class RoutesComponent {
   modalSelected: Set<number> = new Set();
 
   open(content: TemplateRef<any>) {
-    if (this.errorLoadingActivities) return alert("There seem to be no activities with no route assigned.")
+    if (this.errorLoadingActivities) return this.alertService.alert("There seem to be no activities with no route assigned.")
     this.modal = this.modalService.open(content, {size:'lg'})
   }
   submit(){}
@@ -174,7 +175,7 @@ export class RoutesComponent {
       },
       error: () => {
         console.log("fail");
-        alert("Couldn't add the activities to the route. Try again later, or after reloading.")
+        this.alertService.alert("Couldn't add the activities to the route. Try again later, or after reloading.")
       }
     })
   }

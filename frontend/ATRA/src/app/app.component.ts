@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActivityService } from './services/activity.service';
+import { AlertService } from './services/alert.service';
 
 
 @Component({
@@ -16,7 +17,7 @@ export class AppComponent implements OnInit{
   showSideBar: boolean = true;
   urlStart: string = '/me';
 
-  constructor(private router: Router, private activityService: ActivityService){}
+  constructor(private router: Router, private activityService: ActivityService, private alertService: AlertService){}
 
   ngOnInit(){
     this.router.events.subscribe(
@@ -37,5 +38,6 @@ export class AppComponent implements OnInit{
     this.activityService.uploadActivity(event)
   }
 
-  linkWithStrava() {alert("This function is yet to be implemented")}
+  linkWithStrava() {
+    this.alertService.alert("This function is yet to be implemented")}
 }

@@ -1,3 +1,4 @@
+import { AlertService } from './alert.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -21,7 +22,7 @@ export class ActivityService {
 
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 
-  constructor(private http: HttpClient, private router: Router, private userService: UserService) {}
+  constructor(private http: HttpClient, private router: Router, private userService: UserService, private alertService:AlertService) {}
 
   uploadActivity(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -31,13 +32,13 @@ export class ActivityService {
       console.log("file name: " + file.name); // Example: Print file name
 
       if (!file.name.toLowerCase().endsWith(".gpx")){
-        alert("File upload failed. The file must be a gpx file!")
+        this.alertService.alert("File upload failed. The file must be a gpx file!")
         return
       }
       this.userService.isLoggedIn().subscribe({
         next: (response) => {
           if (!response) {
-            alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without login")
+            this.alertService.alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without login")
             return
           } else {
             this.uploadGPX(file);
@@ -45,7 +46,7 @@ export class ActivityService {
         },
         error: (error) => {
           console.error('Error ', error);
-          alert('Login failed. Please check your credentials and try again.');
+          this.alertService.alert('Login failed. Please check your credentials and try again.');
         }
       });
     }
@@ -56,15 +57,19 @@ export class ActivityService {
     formData.append('file', file);
     this.http.post('/api/activities', formData).subscribe({
       next: (activity:any) => {
-        if (confirm("Activity has been added. Do you want to see it?"))
-          this.router.navigate(["/me/activity-view/", activity.id])
-        //else reload current page
+        this.alertService.confirm("Activity has been added. Do you want to see it?").subscribe({
+          next:(accepted) => {
+            if (accepted)
+              this.router.navigate(["/me/activity-view/", activity.id])
+            //else reload current page
+          }
+        })
       },
       error: (error) => {
         if (error.status == 413) {
-          alert("Upload failed! The file uploaded exceeds the 10MB limit.")
+          this.alertService.alert("Upload failed! The file uploaded exceeds the 10MB limit.")
         } else {
-          alert("Upload failed! Try again later")
+          this.alertService.alert("Upload failed! Try again later")
         }
       }
     });

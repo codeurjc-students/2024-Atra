@@ -1,3 +1,4 @@
+import { AlertService } from './../../services/alert.service';
 import { ActivityService } from './../../services/activity.service';
 import { Component } from '@angular/core';
 
@@ -9,7 +10,7 @@ import { Component } from '@angular/core';
   styleUrl: './anon-init.component.css'
 })
 export class AnonInitComponent {
-  constructor(private activityService: ActivityService){}
+  constructor(private activityService: ActivityService, private alertService:AlertService){}
 
   onFileSelected(event: Event){
     this.activityService.uploadActivity(event)

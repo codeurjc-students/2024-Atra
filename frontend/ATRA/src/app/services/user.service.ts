@@ -1,3 +1,4 @@
+import { AlertService } from './alert.service';
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -11,7 +12,7 @@ import { Router } from '@angular/router';
 })
 export class UserService {
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private alertService:AlertService) {}
 
   login(username: string, password: string): Observable<any> {
     const body = { username, password };
@@ -46,7 +47,7 @@ export class UserService {
         email: user.email
       }).subscribe({
         next: () => {
-          alert("You have successfully created your account")
+          this.alertService.alert("You have successfully created your account")
           window.location.reload()
         },
         error: () => {

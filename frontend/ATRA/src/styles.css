@@ -54,3 +54,8 @@ label {
 .max-w-75 {
   max-width: 75%;
 }
+
+.remove-modal-background .modal-content {
+  border:none !important;
+  background: transparent !important;
+}

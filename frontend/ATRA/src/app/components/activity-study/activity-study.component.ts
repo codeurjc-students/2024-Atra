@@ -1,3 +1,4 @@
+import { AlertService } from './../../services/alert.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActivityStreams } from '../../models/activity-streams.model';
 import { Activity } from './../../models/activity.model';
@@ -72,7 +73,7 @@ export class ActivityStudyComponent implements OnInit {
   ratingsPage = 0
   currentRatingsPage: Map<string, number>  = this.ratings[this.ratingsPage]
 
-  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService) {}
+  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService, private alertService:AlertService) {}
 
   open(content: TemplateRef<any>) {
     this.modal = this.modalService.open(content)
@@ -108,7 +109,7 @@ export class ActivityStudyComponent implements OnInit {
         this.activity = this.activityService.process1(act);
         this.updateChart("init")
       },
-      error: () => {alert("There was an error fetching the activity. Try reloading the page.")}
+      error: () => {this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
     })
   }
 

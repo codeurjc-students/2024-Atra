@@ -11,6 +11,7 @@ import L from 'leaflet';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RouteService } from '../../services/route.service';
 import { Route } from '../../models/route.model';
+import { AlertService } from '../../services/alert.service';
 
 
 @Component({
@@ -31,7 +32,7 @@ export class ActivityComponent implements OnInit {
   map!: L.Map;
   path !: L.Polyline;
 
-  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService) {}
+  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService, private alertService:AlertService) {}
 
   ngOnInit(): void {
     if (this.map==null)
@@ -46,7 +47,7 @@ export class ActivityComponent implements OnInit {
 
     this.activityService.get(this.id).subscribe({
       next: (act) => this.receivedAnActivityHandler(act),
-      error: () => {alert("There was an error fetching the activity. Try reloading the page.")}
+      error: () => {this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
     })
     this.fetchRoutes()
   }
@@ -67,10 +68,10 @@ export class ActivityComponent implements OnInit {
   deleteActivity() {
     this.activityService.delete(this.id).subscribe({
       next: () => {
-        alert("Route deleted")
+        this.alertService.alert("Route deleted")
         this.router.navigate(["/me/activity-view"])
       },
-      error: (e) => {alert("ERROR: "+e.error)},
+      error: (e) => {this.alertService.alert("ERROR: "+e.error)},
     });
   }
 
@@ -84,7 +85,7 @@ export class ActivityComponent implements OnInit {
   displayRoute : Route | null = null;
 
   open(content: TemplateRef<any>) {
-    if (this.errorLoadingRoutes) return alert("There seem to be no activities with no route assigned.")
+    if (this.errorLoadingRoutes) return this.alertService.alert("There seem to be no activities with no route assigned.")
     this.modal = this.modalService.open(content)
 
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1
@@ -93,25 +94,28 @@ export class ActivityComponent implements OnInit {
   }
 
   createRoute(name:string, desc:string, distance:string, elevation:string) {
-    //Check
     this.routeService.createRoute(name,desc, parseFloat(distance), parseFloat(elevation), this.activity.id).subscribe({
       next: () => {
         this.modalService.dismissAll()
-        if (confirm("The route has been created properly. Do you want to be redirected to the routes page?")) {
-          this.router.navigate(["/me/routes/"])
-        } else {
-          this.fetchRoutes()
-          this.activityService.get(this.id).subscribe({
-            next: (act) => this.receivedAnActivityHandler(act),
-            error: () => {alert("There was an error fetching the activity. Try reloading the page.")}
-          })
-        }
+        this.alertService.confirm("The route has been created properly. Do you want to be redirected to the routes page?").subscribe({
+          next:(accepted)=>{
+            if (accepted) {
+              this.router.navigate(["/me/routes/"])
+            } else {
+              this.fetchRoutes()
+              this.activityService.get(this.id).subscribe({
+                next: (act) => this.receivedAnActivityHandler(act),
+                error: () => {this.alertService.alert("There was an error fetching the updated activity. Try reloading the page.")}
+              })
+            }
+          }
+        })
+
       },
       error: (e) => {
         console.log(e);
       }
-    }
-  );
+    });
   }
 
   fetchRoutes() {
@@ -121,7 +125,7 @@ export class ActivityComponent implements OnInit {
       },
       error: (e) => {
         console.log(e);
-        alert("There was an error fetching the routes. Try again later or after refreshing the page.")
+        this.alertService.alert("There was an error fetching the routes. Try again later or after refreshing the page.")
       }
     })
   }
@@ -133,7 +137,7 @@ export class ActivityComponent implements OnInit {
         next: (activity:any) => this.receivedAnActivityHandler(activity, "success at deleting existing connection"),
         error: () => {
           console.log("fail");
-          alert("Couldn't remove the route from the activity. Try again later, or after reloading.")
+          this.alertService.alert("Couldn't remove the route from the activity. Try again later, or after reloading.")
         }
       })
       return
@@ -142,7 +146,7 @@ export class ActivityComponent implements OnInit {
       next: (activity:any) => this.receivedAnActivityHandler(activity, "success at creating new connection"),
       error: () => {
         console.log("fail");
-        alert("Couldn't add the route to the activity. Try again later, or after reloading.")
+        this.alertService.alert("Couldn't add the route to the activity. Try again later, or after reloading.")
       }
     })
     return

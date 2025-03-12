@@ -1,0 +1,13 @@
+<div class="custom-alert">
+  <div class="fw-bold mb-2">{{ title }}</div>
+
+  <div class="alert-body mb-5">
+    {{ message }}
+  </div>
+  <div class="d-flex justify-content-end">
+    <button type="button" class="alert-button mx-1" (click)="confirm()" *ngIf="isConfirm">{{ accept }}</button>
+    <button type="button" class="alert-cancel-button mx-1" (click)="dismiss()" *ngIf="isConfirm">{{ cancel }}</button>
+
+    <button type="button" class="alert-button " (click)="dismiss()" *ngIf="!isConfirm">OK</button>
+  </div>
+</div>
