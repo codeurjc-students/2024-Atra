@@ -17,3 +17,12 @@ td {
 .table-responsive {
   max-height: 70vh;
 }
+
+
+
+/* popover crap */
+
+.map-container {
+  width: 250px;
+  height: 250px;
+}

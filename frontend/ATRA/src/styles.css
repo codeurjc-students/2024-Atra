@@ -59,3 +59,30 @@ label {
   border:none !important;
   background: transparent !important;
 }
+
+
+
+/*
+ popover crap
+ popovers are used in select-activity component
+*/
+.custom-popover .popover-arrow {
+  display: none;
+  background-color: transparent;
+}
+
+.custom-popover .popover-body {
+  background-color: #ECECEC !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  padding: 10px;
+}
+
+.custom-popover {
+  border: none !important;
+}
+
+.popover-arrow::after, .popover-arrow::before {
+  border-bottom-color:#e2e2e2 !important; /* previously #ECECEC */
+  border-top-color:#e2e2e2 !important;    /* previously #ECECEC */
+}

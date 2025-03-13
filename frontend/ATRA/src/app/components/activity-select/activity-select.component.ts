@@ -3,17 +3,20 @@ import { Activity } from './../../models/activity.model';
 import { ActivityService } from './../../services/activity.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { RouteService } from '../../services/route.service';
+import { NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import L from 'leaflet';
+import { MapService } from '../../services/map.service';
 
 @Component({
   selector: 'app-activity-select',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgbPopoverModule],
   templateUrl: './activity-select.component.html',
   styleUrl: './activity-select.component.css'
 })
-export class ActivitySelectComponent implements OnInit{
+export class ActivitySelectComponent implements OnInit, AfterViewInit{
   selected: Set<number> = new Set();
   shouldSelectAll: boolean = true;
   @Input() activities !: Activity[];
@@ -29,6 +32,7 @@ export class ActivitySelectComponent implements OnInit{
   columns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
 
   constructor(private router: Router, private activityService: ActivityService, private routeService: RouteService, private alertService:AlertService){}
+
 
   ngOnInit(): void {
     if (this.activities!=null) return
@@ -96,4 +100,53 @@ export class ActivitySelectComponent implements OnInit{
     return `${hoursString}${minsString}${secsString}`
   }
 
+
+  //#region popovers shit
+  @ViewChildren('popover') popovers!: QueryList<NgbPopover>;
+  @ViewChild('mapContainer') mapContainer!: ElementRef;
+  private map?: L.Map;
+  path !: L.Polyline;
+
+  ngAfterViewInit() {
+    this.popovers.changes.subscribe((newList:QueryList<NgbPopover>)=>{
+      newList.forEach(p => {
+        var a: Activity = this.activities.filter(a=>a.id==p.popoverContext?.activityId)[0]
+        p.shown.subscribe(() => {
+          this.initMap(this.activityService.getCoordinates(a))
+        });
+        p.hidden.subscribe(() => {
+          if (this.map) {
+            this.map.remove(); // Destroy map instance
+            this.map = undefined; // Allow reinitialization
+          }
+        });
+      })
+
+    })
+  }
+
+  //togglePopover() {
+  //  this.popoverBtn.isOpen() ? this.popoverBtn.close() : this.popoverBtn.open();
+  //}
+
+  private initMap(coordinates:[number,number][]) {
+    if (this.map || !this.mapContainer) return;
+
+    setTimeout(() => { // Wait for popover to fully render
+      this.map = MapService.mapSetup('popoverMap', false, false);
+      this.addPathToMap(coordinates)
+    });
+  }
+
+  addPathToMap(coordinates:[number,number][]) {
+    if (this.map==undefined) throw Error("addPathToMap called with undefined map")
+    if (this.path!=null) this.path.remove()
+    this.path = L.polyline(coordinates, {
+      color: 'blue',         // Line color
+      weight: 4,             // Line thickness
+      opacity: 0.8,          // Line opacity
+    }).addTo(this.map);
+
+    this.map.fitBounds(this.path.getBounds());
+  }
 }

@@ -18,11 +18,22 @@
       </thead>
       <tbody>
 
-        <tr *ngFor="let activity of activities" >
+        <tr *ngFor="let activity of activities; let i = index"
+          #popover="ngbPopover"
+          [ngbPopover]="popoverContent"
+          triggers="hover"
+          [popoverContext]="{ activityId: activity.id }"
+          [openDelay]="300"
+          [positionTarget]="'.popover-target'+i"
+          popoverClass="custom-popover"
+        >
           <td>
             <input type="checkbox" class="form-check-input" [value]="activity.id" [checked]="this.selected.has(activity.id)" (change)="toggle(activity.id)">
           </td>
-          <td *ngFor="let col of columns">{{ getXFromY(col, activity) }}</td>
+          <td *ngFor="let col of columns; first as isFirst;">
+            <div *ngIf="col === 'Name'" class="popover-target{{i}}">{{ getXFromY(col, activity) }}</div>
+            <div *ngIf="col !== 'Name'">{{ getXFromY(col, activity) }}</div>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -34,3 +45,8 @@
     <button class="btn btn-success" (click)="onSubmit()">Submit</button>
   </div>
 </div>
+
+
+<ng-template #popoverContent class="asdasd">
+  <div #mapContainer class="map-container" id="popoverMap"></div>
+</ng-template>

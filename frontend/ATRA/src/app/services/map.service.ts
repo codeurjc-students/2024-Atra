@@ -5,7 +5,7 @@ import L from 'leaflet';
   providedIn: 'root'
 })
 export class MapService {
-  static mapSetup(mapContainerId:string): L.Map{
+  static mapSetup(mapContainerId:string, includeLayers:boolean=true, interactive:boolean=true): L.Map{
     const baseMaps = {
       "OSM Standard": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
       "Satellite": L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg'),
@@ -13,10 +13,20 @@ export class MapService {
     };
 
     const map = L.map(mapContainerId, {
-      layers: [baseMaps["OSM Standard"]]
-    })
-    // Add control to switch between layers
-    L.control.layers(baseMaps).addTo(map);
+      layers: [baseMaps["OSM Standard"]],
+      dragging: interactive,
+      scrollWheelZoom: interactive,
+      doubleClickZoom: interactive,
+      touchZoom: interactive,
+      boxZoom: interactive,
+      keyboard: interactive,
+      zoomControl: interactive
+    });
+
+    if (includeLayers) {
+      // Add control to switch between layers
+      L.control.layers(baseMaps).addTo(map);
+    }
     return map
   }
 
