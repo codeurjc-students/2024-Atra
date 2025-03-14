@@ -11,10 +11,18 @@ export class AlertService {
   constructor(private modalService: NgbModal) {}
 
   // Alert method (just shows a message)
-  alert(message: string, title?: string) {
+  alert(message: string, title?: string, onDismiss?:()=>void) {
     const modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
     modalRef.componentInstance.title = title ?? "Warning";
     modalRef.componentInstance.message = message;
+    if (onDismiss!=null)
+      from(modalRef.dismissed).subscribe({
+        next:onDismiss,
+        error:(e)=>{
+          console.log("Something somehow went wrong.")
+          console.log(e.error);
+        }
+      })
   }
 
   // Confirm method (returns a promise resolving to true/false)
