@@ -30,12 +30,18 @@ public class Activity implements NamedId {
 	private String type;
 	private Instant startTime;
 
-	private Long user;
-	private Long route;
-
 	@ElementCollection
 	@OrderColumn(name = "position")
 	private List<DataPoint> dataPoints = new ArrayList<>();
+
+	@ManyToOne
+	private User user;
+
+	@ManyToOne(optional = true)
+	private Route route;
+
+	@ManyToMany(mappedBy = "activities")
+	private List<Mural> murals;
 
 	public void addDataPoint(DataPoint dataPoint) {
 		dataPoints.add(dataPoint);

@@ -86,7 +86,7 @@ public class ActivityService {
 		//set user
 		Optional<User> userOpt = userService.findByUserName(username);
 		if (userOpt.isEmpty()) return null; //or throw exception caught above
-		activity.setUser(userOpt.get().getId());
+		activity.setUser(userOpt.get());
 
 
 		//process the metadata

@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,9 @@ public class RouteService {
 		repository.deleteById(id);
 	}
 
-    public void removeActivityFromRoute(Long activityId, Long routeId) {
-		Route route = findById(routeId).orElse(null);
+    public void removeActivityFromRoute(Activity activity, Route route) {
 		if (route==null) return;
-		route.removeActivity(activityId);
+		route.removeActivity(activity);
 		save(route);
 	}
 }

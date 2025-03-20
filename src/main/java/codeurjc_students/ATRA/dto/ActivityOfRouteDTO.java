@@ -29,7 +29,7 @@ public class ActivityOfRouteDTO implements ActivityDtoInterface {
 	public ActivityOfRouteDTO(Activity activity) {
 		id = activity.getId();
 		name = activity.getName();
-		user = activity.getUser();
+		user = activity.getUser().getId();
 		calcDistanceAndElevation(activity);
 		totalTime = calcTotalTime(activity);
 	}

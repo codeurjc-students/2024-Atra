@@ -48,11 +48,13 @@ public class ActivityController {
         //this can be extracted, returning User and throwing errors
 
         if (id!=null) { //user is requesting a specific activity
-            //check that the user has permission to access this activity
-            if (!user.hasActivity(id)) return ResponseEntity.status(403).build();
-            //fetch and return the activity
             Optional<Activity> actOpt = activityService.findById(id);
             if (actOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+            //check that the user has permission to access this activity
+            if (!actOpt.get().getUser().equals(user)) return ResponseEntity.status(403).build();
+            //fetch and return the activity
+
             return ResponseEntity.ok(dtoService.toDTO(actOpt.get()));
         }
         return ResponseEntity.badRequest().build();
@@ -65,7 +67,7 @@ public class ActivityController {
         Optional<User> userOpt = userService.findByUserName(principal.getName());
         if (userOpt.isEmpty()) return  ResponseEntity.status(403).build(); //this should never happen. Maybe should be 500
         User user = userOpt.get();
-        return ResponseEntity.ok(dtoService.toDtoActivity(activityService.get(user.getActivities())));
+        return ResponseEntity.ok(dtoService.toDtoActivity(user.getActivities()));
         //this can be extracted, returning User and throwing errors
     }
 
@@ -90,8 +92,8 @@ public class ActivityController {
     public ResponseEntity<ActivityDTO> removeRoute(@PathVariable Long id) {
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
-        Long prevRoute = activity.getRoute();
-        routeService.removeActivityFromRoute(id,prevRoute);
+        Route prevRoute = activity.getRoute();
+        routeService.removeActivityFromRoute(activity,prevRoute);
         activity.setRoute(null);
         activityService.save(activity);
         return ResponseEntity.ok(new ActivityDTO(activity));
@@ -103,9 +105,9 @@ public class ActivityController {
         Route route = routeService.findById(routeId).orElse(null);
         if (activity==null || route==null) return ResponseEntity.notFound().build();
 
-        activity.setRoute(routeId);
+        activity.setRoute(route);
         activityService.save(activity);
-        route.addActivity(activityId);
+        route.addActivity(activity);
         routeService.save(route);
         //danger warning warn problema cuidado
         return ResponseEntity.ok(new ActivityDTO(activity, new BasicNamedId(routeId, route.getName())));
@@ -116,10 +118,11 @@ public class ActivityController {
         //gotta check permissions. If not allowed, should return 404 instead of 403, so as to not show ids in use
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
-        if (activity.getRoute()!=null) routeService.findById(activity.getRoute()).ifPresent(route -> {
-            route.removeActivity(id);
+        if (activity.getRoute()!=null) {
+            Route route = activity.getRoute();
+            route.removeActivity(activity);
             routeService.save(route);
-        });
+        }
 
         activityService.delete(id);
 

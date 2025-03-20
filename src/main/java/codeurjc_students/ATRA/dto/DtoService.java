@@ -21,15 +21,13 @@ public class DtoService {
     private ActivityService activityService;
 
     public ActivityDTO toDTO(Activity activity) {
-        if (activity.getRoute()==null) return new ActivityDTO(activity);
-        Optional<Route> route = routeService.findById(activity.getRoute());
-        if (route.isEmpty()) //this may throw an error
-            return new ActivityDTO(activity);
-        return new ActivityDTO(activity, new BasicNamedId(route.get()));
+        Route route = activity.getRoute();
+        if (route==null) return new ActivityDTO(activity);
+        return new ActivityDTO(activity, new BasicNamedId(route));
     }
 
     public RouteWithActivityDTO toDTO(Route route) {
-        List<Activity> activities = activityService.findById(route.getActivities());
+        List<Activity> activities = route.getActivities();
         List<ActivityOfRouteDTO> activityDTOs = (List<ActivityOfRouteDTO>) toDTO(activities, DtoType.ACTIVITY_OF_ROUTE);
         return new RouteWithActivityDTO(route, activityDTOs);
     }

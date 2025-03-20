@@ -33,15 +33,18 @@ public class Route implements NamedId {
 	@Nullable
 	private String description;
 
-	@ElementCollection
-	private List<Long> activities = new ArrayList<>();
+	@OneToMany(mappedBy = "route")
+	private List<Activity> activities = new ArrayList<>();
+	@ManyToMany(mappedBy = "routes")
+	private List<Mural> murals;
 
-	public void addActivity(Long activityId) {
+
+	public void addActivity(Activity activityId) {
 		activities.add(activityId);
 	}
 
-	public void removeActivity(Long activityId) {
-		activities.remove(activityId);
+	public void removeActivity(Activity activity) {
+		activities.remove(activity);
 	}
 
 }

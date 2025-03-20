@@ -46,20 +46,14 @@ public class RouteController {
         Optional<Route> routeOpt = routeService.findById(id);
         if (routeOpt.isEmpty()) return ResponseEntity.badRequest().build();
         Route route = routeOpt.get();
-        List<Activity> activities = activityService.findById(route.getActivities());
-
+        List<Activity> activities = route.getActivities();
 
         return ResponseEntity.ok((List<ActivityOfRouteDTO>) dtoService.toDTO(activities, DtoType.ACTIVITY_OF_ROUTE));
     }
     @GetMapping
     public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(@RequestParam(name="type", required = false) String type){
-        List<Route> routes = routeService.findAll();
         //probably could/should add some authentication, but for now this works
-        List<List<Activity>> activitiesList = new ArrayList<>();
-        routes.forEach(route -> {
-            List<Activity> activities = activityService.findById(route.getActivities());
-            activitiesList.add(activities);
-        });
+        List<Route> routes = routeService.findAll();
         if ("noActivities".equals(type))  return ResponseEntity.ok(dtoService.toDto(routes, DtoType.ROUTE_WITHOUT_ACTIVITY)); //ideally we'd just return Routes, but we kinda can't
         return ResponseEntity.ok(dtoService.toDtoRoute(routes));
     }
@@ -69,6 +63,7 @@ public class RouteController {
         Long activityId = route.getId();
         if (!activityService.exists(activityId)) return ResponseEntity.notFound().build();
         Activity activity = activityService.get(activityId);
+        if (activity==null) return ResponseEntity.badRequest().build();
         route.setCoordinates(Coordinates.fromActivity(activity));
 
         if (route.getName()==null || route.getName().isEmpty()){
@@ -78,11 +73,11 @@ public class RouteController {
             route.setTotalDistance(activityService.totalDistance(activity));
         }
 
-        route.addActivity(activityId);
+        route.addActivity(activity);
         route.setId(null);
         this.routeService.save(route);
 
-        activity.setRoute(route.getId());
+        activity.setRoute(route);
         this.activityService.save(activity);
         return ResponseEntity.ok(route);
     }
@@ -100,10 +95,10 @@ public class RouteController {
         try {
             route = routeService.findById(routeId).orElseThrow();
             activity = activityService.findById(activityId).orElseThrow();
-            if (!route.getActivities().contains(activityId)) return ResponseEntity.notFound().build();
+            if (!route.getActivities().contains(activity)) return ResponseEntity.notFound().build();
 
             //Confirmed that route and activity exists, and that they're related
-            route.removeActivity(activityId);
+            route.removeActivity(activity);
             activity.setRoute(null);
             routeService.save(route);
             activityService.save(activity);
@@ -125,11 +120,10 @@ public class RouteController {
             //Confirmed that route and activity exists, and that they're related
             for (var act : activities) {
                 if (act.getRoute()!=null) { //delete the activity from its previous route
-                    Optional<Route> routeOpt = routeService.findById(act.getRoute());
-                    routeOpt.ifPresent(value -> value.removeActivity(act.getId()));
+                    act.getRoute().removeActivity(act);
                 }
-                route.addActivity(act.getId());
-                act.setRoute(route.getId());
+                route.addActivity(act);
+                act.setRoute(route);
                 activityService.save(act);
             }
             routeService.save(route);
@@ -143,7 +137,7 @@ public class RouteController {
     public ResponseEntity<List<? extends RouteDtoInterface>> deleteRoute(@PathVariable Long id) {
         Route route = routeService.findById(id).orElse(null);
         if (route==null) return ResponseEntity.notFound().build();
-        for (var act : activityService.findById(route.getActivities())) {
+        for (var act : route.getActivities()) {
             act.setRoute(null);
             activityService.save(act);
         }

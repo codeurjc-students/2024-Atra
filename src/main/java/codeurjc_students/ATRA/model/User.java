@@ -27,9 +27,15 @@ public class User {
 	private String email;
 
 	//private List<Route> routes;
-	//private List<Mural> murals;
-	@ElementCollection
-	private List<Long> activities = new ArrayList<>();
+
+	@OneToMany(mappedBy = "owner")
+	private List<Mural> ownedMurals;
+	@ManyToMany(mappedBy = "members")
+	private List<Mural> memberMurals;
+
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true) //delete Activity if its User is deleted, twice over.
+	private List<Activity> activities = new ArrayList<>();
 
 	//<editor-fold desc="private List<String> roles">
 	@Column(name = "role")
@@ -52,15 +58,15 @@ public class User {
 	}
 
 	public void addActivity(Activity activity) {
-		activities.add(activity.getId());
+		activities.add(activity);
 	}
 
-	public void addActivity(Long id) {
-		activities.add(id);
-	}
+	//public void addActivity(Long id) {
+	//	activities.add(id);
+	//}
 
-	public boolean hasActivity(Long id) {
-		return activities.contains(id);
+	public boolean hasActivity(Activity activity) {
+		return activities.contains(activity);
 	}
 
 	public void removeActivity(Long id) {
