@@ -46,9 +46,6 @@ public class User {
 		this.password = password;
 		setDefaultRoles();
 	}
-	public String getEncodedPassword() {
-		return password;
-	}
 
 	private void setDefaultRoles(){
 		this.roles = List.of("USER");
@@ -64,5 +61,9 @@ public class User {
 
 	public boolean hasActivity(Long id) {
 		return activities.contains(id);
+	}
+
+	public void removeActivity(Long id) {
+		activities.remove(id);
 	}
 }

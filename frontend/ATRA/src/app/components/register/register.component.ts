@@ -33,41 +33,15 @@ export class RegisterComponent implements OnInit{
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-      username: ['', { validators: [Validators.required], asyncValidators: [this.isUserNameTaken()], updateOn: 'blur' }],
+      username: ['', { validators: [Validators.required], asyncValidators: [this.userService.isUserNameTaken()], updateOn: 'blur' }],
       password: ['', Validators.required],
       confirm: ['', Validators.required],
 
-      displayname: [''],
       email: ['', [Validators.email]]
     }, {
-      validators : [this.matchPasswords()],
+      validators : [this.userService.matchPasswords("password","confirm")],
       updateOn: 'blur'
     });
-  }
-
-  isUserNameTaken(): AsyncValidatorFn {
-    return (control: AbstractControl) => {
-      const username = control.value;
-      //if (username===this.currentUser.username) return of(null);
-      return this.userService.isUsernameTaken(username).pipe(
-        map((isTaken: boolean) => {return isTaken ? { usernameTaken: true } : null})
-      )
-    }
-  }
-
-  matchPasswords(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const password = control.get("password")?.value;
-      const confirmPassword = control.get("confirm")?.value;
-
-      if (!control.get("password")?.touched && !control.get("confirm")?.touched) return null;
-
-      if (password !== confirmPassword) {
-        //this.alertService.alert("Passwords do not match");
-        return {differentPasswords:true};
-      }
-      return null;
-    }
   }
 
   next() {

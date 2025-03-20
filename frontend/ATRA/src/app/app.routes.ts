@@ -9,12 +9,14 @@ import { ComparisonComponent } from './components/comparison/comparison.componen
 import { ActivityComponent } from './components/activity/activity.component';
 import { RoutesComponent } from './components/routes/routes.component';
 import { ErrorComponent } from './components/error/error.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
   {path: 'error', component: ErrorComponent},
+  {path: 'me', component: ProfileComponent},
   {path: 'me/home', component: HomeComponent},
   {path: 'me/routes', component: RoutesComponent},
   {path: 'me/activity-comparison', component: ActivitySelectComponent},
@@ -27,4 +29,7 @@ export const routes: Routes = [
   {path: 'mural/home', component: MuralsComponent},
   {path: 'mural/activity-comparison', component: ComparisonComponent},
   {path: 'mural/activity-view', component: ActivitySelectComponent},
+
+  {path: '**', component: ErrorComponent},
+
 ];

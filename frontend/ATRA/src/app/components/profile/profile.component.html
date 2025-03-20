@@ -1,0 +1,119 @@
+<div class="d-flex justify-content-center align-items-center w-100 h-100">
+  <div class="card w-75 h-75">
+    <input type="file" id="fileInput" accept="image/*" hidden />
+    <div class="profile-pic" onclick="document.getElementById('fileInput').click();">
+      <img id="profileImage" src="../assets/profile.svg" alt="Profile Picture">
+    </div>
+    <div class="card-content d-flex justify-content-center align-items-end h-100 w-100">
+      <div class="h-75 w-35 custom-card violet-bg mx-5">
+        <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
+          <div class="my-5">
+            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Total number of activities: </span> 312 </div>
+            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Total distance travelled: </span> 1024km</div>
+            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Total time trained: </span> 50h 12m 53s</div>
+            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Best 1km pace: </span> 4:12 </div>
+            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Best 5km pace: </span> 5:22 </div>
+            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Best 10km pace: </span> 5:36 </div>
+          </div>
+        </div>
+      </div>
+      <div class="h-75 w-35 custom-card green-bg mx-5">
+        <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
+          <div class="fs-5 my-5">
+            <div><span class="fw-bold">Username: </span> {{user.username}} </div>
+            <div><span class="fw-bold">Password: </span> ***************** </div>
+            <div><span class="fw-bold">Displayname: </span> {{user.displayname}} </div>
+            <div><span class="fw-bold">Email: </span> {{user.email}} </div>
+          </div>
+          <div class="d-flex justify-content-around w-100 my-4">
+            <button class="btn btn-warning" (click)="downloadSession()">Download Session</button>
+            <button class="btn btn-primary" (click)="open(changeProfileData)">Change</button>
+            <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
+          </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<ng-template #changeProfileData>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Change Profile Data</h5>
+  </div>
+
+  <div class="modal-body">
+    <form *ngIf="generalForm" [formGroup]="generalForm">
+      <div class="mb-3 form-floating">
+        <input type="text" class="form-control" id="username"  name="username" formControlName="username" placeholder="Username" #username>
+        <label for="username">Username</label>
+        <small class="text-danger d-block" *ngIf="generalForm.get('username')?.touched && generalForm.get('username')?.value===''">Debes introducir un nombre de usuario</small>
+        <small class="text-danger d-block" *ngIf="generalForm.get('username')?.touched && generalForm.get('username')?.errors?.['isTaken']">Ese nombre de usuario es inválido</small>
+      </div>
+
+
+      <div class="mb-3 form-floating">
+        <input type="text" class="form-control" id="displayname" name="displayname" formControlName="displayname" placeholder="Displayname" #displayname (change)="change(displayname.value)">
+        <label for="displayname">Displayname</label>
+      </div>
+
+
+      <div class="mb-3 form-floating">
+        <input type="text" class="form-control" id="email" name="email" formControlName="email" placeholder="Email" #email>
+        <label for="email">Email</label>
+        <small class="text-danger" *ngIf="generalForm.get('email')?.errors?.['email']">El formato del email parece incorrecto</small>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <button type="button" class="btn btn-warning" (click)="open(changePasswordModal, true)"><i class="fa-solid fa-arrows-rotate me-1"></i>Change Password</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-danger" (click)="dismiss('profile')"><i class="fa-solid fa-xmark me-1"></i>Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="saveChanges()" [disabled]="!generalForm.valid"><i class="fa-solid fa-floppy-disk me-1"></i>Save Changes</button>
+  </div>
+</ng-template>
+
+
+<ng-template #changePasswordModal>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Change Password</h5>
+  </div>
+
+  <div class="modal-body">
+    <p>If you forgot your password, you can change it from the welcome/login page</p>
+    <form *ngIf="passwordForm" [formGroup]="passwordForm">
+      <div id="oldPassword" class="form-floating mb-3 w-100">
+        <input id="oldPassword" type="password" class="form-control" formControlName="oldPassword" required>
+        <label for="oldPassword" class="mr-3 text-muted">Password</label>
+        <small class="text-danger d-block" *ngIf="passwordForm.get('oldPassword')?.touched && passwordForm.get('oldPassword')?.value===''">You must include your current password</small>
+      </div>
+      <div id="passwordContainer" class="form-floating mb-3 w-100">
+        <input id="newPassword" type="password" class="form-control" formControlName="newPassword" required>
+        <label for="newPassword" class="mr-3 text-muted">Password</label>
+        <small class="text-danger d-block" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.value===''">You must include a new password</small>
+        <small class="text-danger d-block" *ngIf="passwordForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
+      </div>
+      <div id="confirmContainer" class="form-floating mb-3 w-100">
+        <input id="confirmPassword" type="password" class="form-control" formControlName="confirmPassword" required>
+        <label for="confirmPassword" class="mr-3 text-muted">Confirm Password</label>
+        <small class="text-danger d-block" *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.value===''">You must include a new password</small>
+        <small class="text-danger d-block" *ngIf="passwordForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-danger" (click)="dismiss('password')"><i class="fa-solid fa-xmark me-1"></i>Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="changePassword()" [disabled]="!passwordForm.valid"><i class="fa-solid fa-floppy-disk me-1"></i>Save Changes</button>
+  </div>
+</ng-template>

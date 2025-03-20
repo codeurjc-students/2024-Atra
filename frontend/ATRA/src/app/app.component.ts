@@ -32,6 +32,7 @@ export class AppComponent implements OnInit{
     )
   }
 
+  isProfileRoute(){return this.router.url==("/me")}
   isPrivateRoute(){return this.router.url.startsWith("/me/")}
   isMuralRoute(){return this.router.url.startsWith("/mural/")}
   uploadFile(event: Event) {

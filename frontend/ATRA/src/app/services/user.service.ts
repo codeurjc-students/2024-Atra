@@ -2,9 +2,10 @@ import { AlertService } from './alert.service';
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
+import { AbstractControl, AsyncValidatorFn, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 
 @Injectable({
@@ -57,9 +58,13 @@ export class UserService {
     );
   }
 
-  //update(user: {id: number, name: string; email: string; username: string}) {
-  //  return this.http.post("/api/users/updateProfile", user);
-  //}
+  getCurrentUser(){
+    return this.http.get("/api/users/me")
+  }
+
+  update(user: User) { //prev user: {id: number, name: string; email: string; username: string}
+    return this.http.patch("/api/users/"+user.id, user);
+  }
 //
   //delete(id: number) {
   //  return this.http.delete("/api/users/"+id);
@@ -71,5 +76,44 @@ export class UserService {
   //    error: err => {console.log(err)}
   //  });
   //}
+
+  confirmPassword(password:string): Observable<boolean> {
+    return this.http.post<boolean>("/api/users/verify-password", password)
+  }
+
+  updatePassword(newPassword: string) {
+    return this.http.post("/api/users/password", newPassword)
+  }
+
+  delete() {
+    return this.http.delete("/api/users")
+  }
+
+  //#region form validators
+  isUserNameTaken(prevUsername?:string): AsyncValidatorFn {
+    return (control: AbstractControl) => {
+      const username = control.value;
+      if (prevUsername && username===prevUsername) return of(null);
+      return this.isUsernameTaken(username).pipe(
+        map((isUsernameTaken: boolean) => {return isUsernameTaken ? { isTaken: true } : null})
+      )
+    }
+  }
+
+  matchPasswords(id1:string, id2:string): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const password = control.get(id1)?.value;
+      const confirmPassword = control.get(id2)?.value;
+
+      if (!control.get(id1)?.touched && !control.get(id2)?.touched) return null;
+
+      if (password !== confirmPassword) {
+        //this.alertService.alert("Passwords do not match");
+        return {differentPasswords:true};
+      }
+      return null;
+    }
+  }
+  //#endregion
 
 }
