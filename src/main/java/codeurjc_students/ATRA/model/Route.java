@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -33,8 +34,10 @@ public class Route implements NamedId {
 	@Nullable
 	private String description;
 
+	@ToString.Exclude
 	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
 	private List<Activity> activities = new ArrayList<>();
+	@ToString.Exclude
 	@ManyToMany(mappedBy = "routes", fetch = FetchType.LAZY)
 	private List<Mural> murals;
 

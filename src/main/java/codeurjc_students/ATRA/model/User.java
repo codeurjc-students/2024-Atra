@@ -1,10 +1,7 @@
 package codeurjc_students.ATRA.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +25,14 @@ public class User {
 
 	//private List<Route> routes;
 
+	@ToString.Exclude
 	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
 	private List<Mural> ownedMurals;
+	@ToString.Exclude
 	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 	private List<Mural> memberMurals;
 
-
+	@ToString.Exclude
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY) //delete Activity if its User is deleted, twice over.
 	private List<Activity> activities = new ArrayList<>();
 
