@@ -34,13 +34,13 @@ public class Activity implements NamedId {
 	@OrderColumn(name = "position")
 	private List<DataPoint> dataPoints = new ArrayList<>();
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
 
-	@ManyToOne(optional = true)
+	@ManyToOne(optional = true, fetch = FetchType.LAZY)
 	private Route route;
 
-	@ManyToMany(mappedBy = "activities")
+	@ManyToMany(mappedBy = "activities", fetch = FetchType.LAZY)
 	private List<Mural> murals;
 
 	public void addDataPoint(DataPoint dataPoint) {

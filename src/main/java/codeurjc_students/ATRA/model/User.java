@@ -28,13 +28,13 @@ public class User {
 
 	//private List<Route> routes;
 
-	@OneToMany(mappedBy = "owner")
+	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
 	private List<Mural> ownedMurals;
-	@ManyToMany(mappedBy = "members")
+	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 	private List<Mural> memberMurals;
 
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true) //delete Activity if its User is deleted, twice over.
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY) //delete Activity if its User is deleted, twice over.
 	private List<Activity> activities = new ArrayList<>();
 
 	//<editor-fold desc="private List<String> roles">

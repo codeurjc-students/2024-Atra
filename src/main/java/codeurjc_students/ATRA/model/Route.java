@@ -33,9 +33,9 @@ public class Route implements NamedId {
 	@Nullable
 	private String description;
 
-	@OneToMany(mappedBy = "route")
+	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
 	private List<Activity> activities = new ArrayList<>();
-	@ManyToMany(mappedBy = "routes")
+	@ManyToMany(mappedBy = "routes", fetch = FetchType.LAZY)
 	private List<Mural> murals;
 
 
