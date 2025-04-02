@@ -68,7 +68,17 @@ public class User {
 		return activities.contains(activity);
 	}
 
-	public void removeActivity(Long id) {
-		activities.remove(id);
+	public void removeActivity(Activity activity) {
+		activities.remove(activity);
+	}
+
+	public void removeOwnedMural(Mural mural) {
+		ownedMurals.remove(mural);
+		memberMurals.remove(mural);
+	}
+
+	public void removeMemberMural(Mural mural) {
+		memberMurals.remove(mural);
+		//maybe remove it from ownerMurals as well? This will need to be fleshed out when we get to murals
 	}
 }

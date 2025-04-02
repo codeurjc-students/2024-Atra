@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.dto.UserDTO;
+import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.repository.UserRepository;
 
@@ -39,7 +40,11 @@ public class UserService {
 		repository.save(user);
 	}
 
-	public void delete(long id) {
+	/**
+	 * DeletionService.deleteUser(Long id) should be called instead.
+	 * @param id
+	 */
+	void delete(long id) {
 		repository.deleteById(id);
 	}
 

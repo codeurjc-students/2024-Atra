@@ -46,4 +46,14 @@ public class Activity implements NamedId {
 	public void addDataPoint(DataPoint dataPoint) {
 		dataPoints.add(dataPoint);
 	}
+
+	public boolean hasRoute(){ return route!=null;}
+
+	public void removeMural(Mural mural) {
+		murals.remove(mural);
+	}
+
+	public void removeRoute() {
+		route = null;
+	}
 }

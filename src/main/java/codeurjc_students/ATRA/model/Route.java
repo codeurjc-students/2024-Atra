@@ -50,4 +50,7 @@ public class Route implements NamedId {
 		activities.remove(activity);
 	}
 
+	public void removeMural(Mural mural) {
+		murals.remove(mural);
+	}
 }
