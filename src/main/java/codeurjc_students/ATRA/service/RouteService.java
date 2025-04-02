@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ public class RouteService {
 
 	@Autowired
 	private RouteRepository repository;
-
 
 	public Optional<Route> findById(long id) {
 		return repository.findById(id);
@@ -32,7 +32,11 @@ public class RouteService {
 		repository.save(user);
 	}
 
-	public void delete(long id) {
+	/**
+	 * DeletionService.deleteRoute(Long id) should be called instead.
+	 * @param id
+	 */
+	void delete(long id) {
 		repository.deleteById(id);
 	}
 

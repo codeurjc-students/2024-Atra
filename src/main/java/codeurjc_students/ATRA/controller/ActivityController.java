@@ -6,17 +6,16 @@ import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
-import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import codeurjc_students.ATRA.service.ActivityService;
 import codeurjc_students.ATRA.service.RouteService;
 import codeurjc_students.ATRA.service.UserService;
+import codeurjc_students.ATRA.service.DeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +32,8 @@ public class ActivityController {
     private RouteService routeService;
     @Autowired
     private DtoService dtoService;
+    @Autowired
+    private DeletionService deletionService;
 
     public Activity getActivity(){
         return null;
@@ -124,7 +125,7 @@ public class ActivityController {
             routeService.save(route);
         }
 
-        activityService.delete(id);
+        deletionService.deleteActivity(id);
 
         return ResponseEntity.ok().build();
     }

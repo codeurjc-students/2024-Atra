@@ -2,6 +2,7 @@ package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.repository.MuralRepository;
+import codeurjc_students.ATRA.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,6 @@ public class MuralService {
 
 	@Autowired
 	private MuralRepository repository;
-
 
 	public Optional<Mural> findById(long id) {
 		return repository.findById(id);
@@ -31,7 +31,11 @@ public class MuralService {
 		repository.save(user);
 	}
 
-	public void delete(long id) {
+	/**
+	 * DeletionService.deleteMural(Long id) should be called instead.
+	 * @param id
+	 */
+	void delete(long id) {
 		repository.deleteById(id);
 	}
 }

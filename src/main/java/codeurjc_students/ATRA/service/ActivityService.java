@@ -9,17 +9,14 @@ import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +30,6 @@ public class ActivityService {
 
 	@Autowired
 	private UserService userService;
-
 
 	public Optional<Activity> findById(long id) {
 		return activityRepository.findById(id);
@@ -51,11 +47,13 @@ public class ActivityService {
 		activityRepository.save(activity);
 	}
 
-	public void delete(long id) {
+	/**
+	 * DeletionService.deleteActivity(Long id) should be called instead.
+	 * @param id
+	 */
+	void delete(long id) {
 		activityRepository.deleteById(id);
 	}
-
-
 
 	public Activity newActivity(MultipartFile file, String username){
 		final GPX gpx;

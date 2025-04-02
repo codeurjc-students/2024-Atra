@@ -8,11 +8,11 @@ import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.service.ActivityService;
 import codeurjc_students.ATRA.service.RouteService;
 import codeurjc_students.ATRA.service.UserService;
+import codeurjc_students.ATRA.service.DeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -30,6 +30,8 @@ public class RouteController {
     private ActivityService activityService;
     @Autowired
     private DtoService dtoService;
+    @Autowired
+    private DeletionService deletionService;
 
 
     @GetMapping("/{id}")
@@ -143,7 +145,7 @@ public class RouteController {
         }
         this.activityService.routeDeleted(id);
 
-        this.routeService.delete(id);
+        this.deletionService.deleteRoute(id);
         return getAllRoutes("");
     }
 }
