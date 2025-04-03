@@ -2,14 +2,17 @@ package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.NewUserDTO;
 import codeurjc_students.ATRA.dto.UserDTO;
+import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.service.DeletionService;
 import codeurjc_students.ATRA.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.Objects;
@@ -55,12 +58,12 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser(Principal principal){
-        int isGood = principalVerification(principal);
-        if (isGood!=200) return ResponseEntity.status(isGood).build();
-
-        //we can be certain user will be instantiated thanks to principalVerification
-        User user = this.userService.findByUserName(principal.getName()).get();
-        return ResponseEntity.ok(userService.toDTO(user));
+        try {
+            User user = this.principalVerification(principal);
+            return ResponseEntity.ok(userService.toDTO(user));
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatus()).build();
+        }
     }
 
     @GetMapping("/IsUsernameTaken")
@@ -83,14 +86,14 @@ public class UserController {
 
     @PostMapping("/password")
     public ResponseEntity<Object> changePassword(@RequestBody String password, Principal principal){
-        int isGood = principalVerification(principal);
-        if (isGood!=200) return ResponseEntity.status(isGood).build();
-
-        //we can be certain user will be instantiated thanks to principalVerification
-        User user = this.userService.findByUserName(principal.getName()).get();
-        user.setPassword(passwordEncoder.encode(password));
-        userService.save(user);
-        return ResponseEntity.ok().build();
+        try {
+            User user = this.principalVerification(principal);
+            user.setPassword(passwordEncoder.encode(password));
+            userService.save(user);
+            return ResponseEntity.ok().build();
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatus()).build();
+        }
     }
 
     @PostMapping
@@ -113,13 +116,13 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<User> deleteCurrentlyAuthenticatedUser(Principal principal){
-        int i = this.principalVerification(principal);
-        if (i!=200) return ResponseEntity.status(i).build();
-
-        User user = userService.findByUserName(principal.getName()).get(); //safe because of principalVerification
-        deletionService.deleteUser(user);
-
-        return ResponseEntity.ok().build();
+        try {
+            User user = this.principalVerification(principal);
+            deletionService.deleteUser(user);
+            return ResponseEntity.ok().build();
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatus()).build();
+        }
     }
 
     // <editor-fold desc="Auxiliary Methods">
@@ -130,13 +133,11 @@ public class UserController {
         return true;
     }
 
-    private int principalVerification(Principal principal) {
-        //this could be implemented as returning the User if it exists or throwing an error
-        //with the code in its body or similar if it doesn't
-        if (principal==null) return 401;
+    private User principalVerification(Principal principal) throws HttpException {
+        if (principal==null) throw new HttpException(401);
         User user = userService.findByUserName(principal.getName()).orElse(null);
-        if (user == null) return 404;
-        else return 200;
+        if (user == null) throw new HttpException(404);
+        else return user;
     }
     // <editor-fold>
 
