@@ -6,6 +6,7 @@ import { AlertService } from '../../services/alert.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile',
@@ -171,8 +172,13 @@ export class ProfileComponent implements OnInit {
           next:(answer)=>{
             if (!answer.accept) return this.alertService.alert("The operation was cancelled. Your account is still up.", "Operation cancelled")
             if (answer.text!=='delete') return this.alertService.alert("The text typed does not match 'delete'. The operation was cancelled.", "Operation cancelled")
-            this.userService.delete().subscribe(a => {})
-            this.alertService.alert("Sike, this is not yet implemented", "Account deleted")
+            this.userService.delete().subscribe(response => {
+              if (response.status==200) this.alertService.alert("Your account has been deleted successfully. All your activities have been deleted. You have been removed from any Murals you were part of.", "Account deleted")
+              else if (response.status==401) this.alertService.alert("You are not authorized to perform this operation. It has been cancelled. The account is still up.", "Operation cancelled")
+              else if (response.status==404) this.alertService.alert("Could not find the user to be deleted. The operation has been cancelled.", "Operation cancelled")
+              else this.alertService.alert("An unexpected error ocurred, try again later.", "Error")
+            })
+            //this.alertService.alert("Sike, this is not yet implemented", "Account deleted")
             this.router.navigate(["/"])
           }
         })

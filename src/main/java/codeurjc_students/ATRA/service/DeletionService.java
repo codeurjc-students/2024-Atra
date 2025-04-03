@@ -21,14 +21,12 @@ public class DeletionService {
     @Autowired
     private MuralService muralService;
 
-
-    public void deleteUser(long id) {
-        User user = userService.findById(id).orElse(null);
+    public void deleteUser(User user) {
         if (user==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
 
         //this should happen automatically with cascade.
         user.getActivities().forEach(activity -> {
-        	activityService.delete(activity.getId());
+            activityService.delete(activity.getId());
         });
         user.getOwnedMurals().forEach(mural -> {
             mural.removeOwner(user);
@@ -38,7 +36,12 @@ public class DeletionService {
             mural.removeMember(user);
             muralService.save(mural);
         });
-        userService.delete(id);
+        userService.delete(user);
+    }
+
+    public void deleteUser(long id) {
+        User user = userService.findById(id).orElse(null);
+        deleteUser(user);
     }
 
     public void deleteActivity(long id) {
@@ -94,4 +97,6 @@ public class DeletionService {
         });
         muralService.delete(id);
     }
+
+
 }

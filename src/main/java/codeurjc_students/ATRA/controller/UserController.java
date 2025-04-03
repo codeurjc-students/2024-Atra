@@ -3,6 +3,7 @@ package codeurjc_students.ATRA.controller;
 import codeurjc_students.ATRA.dto.NewUserDTO;
 import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.service.DeletionService;
 import codeurjc_students.ATRA.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+    @Autowired
+    private DeletionService deletionService;
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id){
@@ -108,8 +111,15 @@ public class UserController {
 
     public ResponseEntity<User> modifyUser(){return null;}
 
-    public ResponseEntity<User> deleteUser(){
-        return null;
+    @DeleteMapping
+    public ResponseEntity<User> deleteCurrentlyAuthenticatedUser(Principal principal){
+        int i = this.principalVerification(principal);
+        if (i!=200) return ResponseEntity.status(i).build();
+
+        User user = userService.findByUserName(principal.getName()).get(); //safe because of principalVerification
+        deletionService.deleteUser(user);
+
+        return ResponseEntity.ok().build();
     }
 
     // <editor-fold desc="Auxiliary Methods">
@@ -121,6 +131,8 @@ public class UserController {
     }
 
     private int principalVerification(Principal principal) {
+        //this could be implemented as returning the User if it exists or throwing an error
+        //with the code in its body or similar if it doesn't
         if (principal==null) return 401;
         User user = userService.findByUserName(principal.getName()).orElse(null);
         if (user == null) return 404;

@@ -47,6 +47,13 @@ public class UserService {
 	void delete(long id) {
 		repository.deleteById(id);
 	}
+	/**
+	 * DeletionService.deleteUser(User user) should be called instead.
+	 * @param user
+	 */
+	void delete(User user) {
+		repository.delete(user);
+	}
 
     public UserDTO toDTO(User user) {
 		UserDTO dto = new UserDTO();
