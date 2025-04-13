@@ -27,10 +27,10 @@ public class User {
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-	private List<Mural> ownedMurals;
+	private List<Mural> ownedMurals = new ArrayList<>();;
 	@ToString.Exclude
 	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-	private List<Mural> memberMurals;
+	private List<Mural> memberMurals = new ArrayList<>();;
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY) //delete Activity if its User is deleted, twice over.
@@ -40,7 +40,7 @@ public class User {
 	@Column(name = "role")
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-	private List<String> roles;
+	private List<String> roles = new ArrayList<>();;
 	//</editor-fold>
 
 	public User(){

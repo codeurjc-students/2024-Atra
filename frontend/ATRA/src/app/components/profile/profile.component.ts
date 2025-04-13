@@ -178,7 +178,6 @@ export class ProfileComponent implements OnInit {
               else if (response.status==404) this.alertService.alert("Could not find the user to be deleted. The operation has been cancelled.", "Operation cancelled")
               else this.alertService.alert("An unexpected error ocurred, try again later.", "Error")
             })
-            //this.alertService.alert("Sike, this is not yet implemented", "Account deleted")
             this.router.navigate(["/"])
           }
         })
