@@ -1,0 +1,84 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h1>New Mural</h1>
+    <button type="button" class="btn-close" aria-label="Close" (click)="this.activeModal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="form">
+      <div class="form-floating my-3">
+        <input type="text" name="name" id="name" placeholder="name" #name class="form-control" formControlName="name">
+        <label for="name">Name</label>
+        <small class="text-danger d-block" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">You must include a name for the Mural</small>
+      </div>
+      <div class="form-floating my-3">
+        <input type="text" name="description" id="description" placeholder="description" #description class="form-control" formControlName="description">
+        <label for="description">Description</label>
+      </div>
+      <!--
+      <div class="form-group my-3">
+        <label for="members" class="d-block mb-1">Members</label>
+        <select name="members" id="members" #members class="form-select">
+          <option value="-- select a user --">-- select a user --</option><!-Options loaded dinamically as user types->
+        </select>
+        <ul>
+          <!-Items populated as the user adds members->
+          <li *ngFor="let user of selectedUsers">{{ user.name }} <button class="btn btn-danger" (click)="deleteUser(user.id)"><i class="fa-solid fa-trash"></i></button></li>
+        </ul>
+      </div>-->
+      <div class="my-3">
+        <label for="thumbnail" class="mb-1">Thumbnail Image</label>
+        <input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" formControlName="thumbnail" (change)="onFileSelected($event, 'thumbnail')">
+        <small class="text-danger d-block" *ngIf="form.get('thumbnail')?.touched && form.get('thumbnail')?.errors?.['required']">You must include a thumbnail for the Mural</small>
+        <small class="text-danger d-block" *ngIf="form.get('thumbnail')?.touched && form.get('thumbnail')?.errors?.['invalidFile']">The file must be an image with a 3:2 aspect ratio</small>
+
+        <!--onSelect="checkImageHasProperAspectRatio()"-->
+      </div>
+      <div class="my-3">
+        <label for="banner" class="mb-1">Banner Image</label>
+        <input type="file" accept="image/*"  name="banner" id="banner" #banner class="form-control" formControlName="banner" (change)="onFileSelected($event, 'banner')">
+        <small class="text-danger d-block" *ngIf="form.get('banner')?.touched && form.get('banner')?.errors?.['required']">You must include a banner image for the Mural</small>
+        <small class="text-danger d-block" *ngIf="form.get('banner')?.touched && form.get('banner')?.errors?.['invalidFile']">The file must be an image with a 5:1 aspect ratio</small>
+        <!--onSelect="checkImageHasProperAspectRatio()"-->
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer d-flex justify-content-end">
+    <button class="btn btn-danger" (click)="logShit()"><i class="fa-solid fa-xmark me-1"></i>Cancel</button>
+    <button class="btn btn-primary" [disabled]="!form.valid" (click)="submitForm()"><i class="fa-solid fa-floppy-disk me-1"></i>Create Mural</button>
+
+  </div>
+</div>
+
+<!--
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+      <!- Portfolio Modal - Title ->
+      <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">Añade un Ingrediente</h2>
+      <!- Icon Divider->
+      <div class="divider-custom">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+          <div class="divider-custom-line"></div>
+      </div>
+      <form>
+
+          <div class="form-floating mb-3">
+              <input class="form-control" id="ingredientInput" type="text" placeholder="Ingrediente: " data-sb-validations="required" oninput="filterIngredients()"/>
+              <label for="ingredientInput">Ingrediente: </label>
+          </div>
+
+      </form>
+      <ul class="centered-list highlight-list" id="matchingIngredientsList" data-selected="1">
+      </ul>
+      <button class="btn btn-primary" id="addIngButton" onclick="addIngredient()" data-bs-dismiss="modal" disabled>
+          <i class="fas fa-solid fa-plus fa-fw"></i>
+          Añadir Ingrediente
+      </button>
+      <button class="btn btn-primary" data-bs-dismiss="modal">
+          <i class="fas fa-xmark fa-fw"></i>
+          Cancelar
+      </button>
+  </div>
+</div>
+
+-->

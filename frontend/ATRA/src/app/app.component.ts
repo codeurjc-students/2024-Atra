@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivityService } from './services/activity.service';
 import { AlertService } from './services/alert.service';
 
@@ -13,13 +13,19 @@ import { AlertService } from './services/alert.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit{
+
   title = 'ATRA';
   showSideBar: boolean = true;
   urlStart: string = '/me';
 
-  constructor(private router: Router, private activityService: ActivityService, private alertService: AlertService){}
+  constructor(private location:Location, private router: Router, private activityService: ActivityService, private alertService: AlertService){}
 
   ngOnInit(){
+    //disable scroll
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+
     this.router.events.subscribe(
       (event) => {
         if (event instanceof NavigationEnd) {
@@ -34,11 +40,15 @@ export class AppComponent implements OnInit{
 
   isProfileRoute(){return this.router.url==("/me")}
   isPrivateRoute(){return this.router.url.startsWith("/me/")}
-  isMuralRoute(){return this.router.url.startsWith("/mural/")}
+  isMuralRoute(){return this.location.path().startsWith("/murals")}
+  isMuralRouteSelected() {return this.location.path().startsWith("/murals/") && this.location.path().split("/").length>3}
+  isMuralRouteCategory() {return this.location.path().startsWith("/murals/") && this.location.path().split("/").length==3}
+
   uploadFile(event: Event) {
     this.activityService.uploadActivity(event)
   }
 
   linkWithStrava() {
-    this.alertService.alert("This function is yet to be implemented")}
+    this.alertService.alert("This function is yet to be implemented")
+  }
 }

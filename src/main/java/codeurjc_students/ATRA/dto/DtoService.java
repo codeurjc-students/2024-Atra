@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.dto;
 
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.service.ActivityService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,5 +72,15 @@ public class DtoService {
             return result;
         }
         throw new RuntimeException("DtoType " + dtoType + " is not a DTO of Route, or is not being accounted for.");
+    }
+
+    public MuralDTO toDto(Mural mural){
+        return new MuralDTO(mural);
+    }
+
+    public List<MuralDTO> toDto(Collection<Mural> murals){
+        List<MuralDTO> returnValue = new ArrayList<>();
+        murals.forEach(mural -> returnValue.add(new MuralDTO(mural)));
+        return returnValue;
     }
 }

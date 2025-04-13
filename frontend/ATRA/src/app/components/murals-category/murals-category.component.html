@@ -1,0 +1,16 @@
+<div class="ms-5 my-3">
+  <h1 class="ms-3 mt-3">{{ title }}</h1>
+  <div class="d-flex justify-content-center w-100">
+    <!--murales-->
+    <div class="ms-5 w-90 d-flex flex-wrap">
+      <div
+        class="thumbnail-container mx-3 my-2 min-w-20 w-20 black-bg position-relative thin-black-border"
+        *ngFor="let mural of murals; let first=first;let last=last"
+        [routerLink]="['/murals', mural.id, 'details']"
+        >
+        <img [src]="mural.thumbnailURL" class="min-w-100">
+        <div class="mural-title">{{ mural.name }}</div>
+      </div>
+    </div>
+  </div>
+</div>

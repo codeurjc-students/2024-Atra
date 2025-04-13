@@ -26,9 +26,10 @@ export const routes: Routes = [
                                                                         // /activity-comparison?ids=1,2,
   {path: 'me/activity-view', component: ActivitySelectComponent},
   {path: 'me/activity-view/:id', component: ActivityComponent}, //
-  {path: 'mural/home', component: MuralsComponent},
-  {path: 'mural/activity-comparison', component: ComparisonComponent},
-  {path: 'mural/activity-view', component: ActivitySelectComponent},
+  {path: 'murals', component: MuralsComponent},
+  {path: 'murals/:category', component: MuralsComponent},
+  {path: 'murals/:id/activity-comparison', component: ComparisonComponent},
+  {path: 'murals/:id/activity-view', component: ActivitySelectComponent},
 
   {path: '**', component: ErrorComponent},
 

@@ -1,1 +1,12 @@
-<p>murals works!</p>
+
+
+<app-murals-list [ownedMurals]="ownedMurals" [memberMurals]="memberMurals" [otherMurals]="otherMurals" *ngIf="component=='list'"
+(seeAllClicked)="seeAllClicked($event)"
+></app-murals-list>
+
+<app-murals-category
+[title]="title"
+  [murals]="selectedMurals"
+  *ngIf="component=='category' && selectedMurals"
+
+  ></app-murals-category>

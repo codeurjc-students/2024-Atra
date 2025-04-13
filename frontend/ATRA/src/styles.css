@@ -129,3 +129,23 @@ label {
   border-bottom-color:#e2e2e2 !important; /* previously #ECECEC */
   border-top-color:#e2e2e2 !important;    /* previously #ECECEC */
 }
+
+.mural-title { /* used in MuralsComponent, MuralsListComponent and MuralsCategoryComponent*/
+  position: absolute;
+  bottom:0%;
+  display: flex;
+  justify-content: start;
+
+  max-height: 25%;
+  min-width: 100%;
+  overflow: hidden;
+
+  color: black;
+  background-color: white;
+  user-select: none;
+}
+
+.thumbnail-container { /* used in MuralsComponent, MuralsListComponent and MuralsCategoryComponent*/
+  aspect-ratio: 3/2;
+}
+
