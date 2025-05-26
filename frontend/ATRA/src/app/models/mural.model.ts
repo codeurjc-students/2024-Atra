@@ -12,7 +12,7 @@ export interface Mural {
 
     activities: Activity[];
 
-    thumbnailURL:string;
+    thumbnailUrl:string;
     thumbnail: Blob;
     bannerURL:string;
     banner: Blob;

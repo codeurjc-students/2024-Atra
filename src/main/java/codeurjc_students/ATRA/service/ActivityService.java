@@ -134,7 +134,7 @@ public class ActivityService {
 			String metricValue = currentMetric.getFirstChild().getNodeValue();
 
 			if (metric.startsWith("gpxtpx:")) metric = metric.substring(7);
-			else System.out.println("Found a metric that does not start with 'gpxtcx:'"); //ideally throw an exception or sth but for now this works
+			//else System.out.println("Found a metric that does not start with 'gpxtcx:'"); //ideally throw an exception or sth but for now this works
 
 			dataPoint.put(metric, metricValue);
 			currentMetric = currentMetric.getNextSibling();

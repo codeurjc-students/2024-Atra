@@ -28,7 +28,7 @@
 }
 
 .grey-bg {
-  background-color: #e9e3e39a;
+  background-color: #e9e3e39a !important;
 }
 
 label {
@@ -83,12 +83,20 @@ label {
   max-width: 75% !important;
 }
 
+.max-w-20 {
+  max-width: 20% !important;
+}
+
 .min-w-20 {
   min-width: 20% !important;
 }
 
 .min-w-100 {
   min-width: 100% !important;
+}
+
+.max-w-100 {
+  max-width: 100% !important;
 }
 
 .max-h-90 {

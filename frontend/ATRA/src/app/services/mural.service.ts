@@ -11,32 +11,18 @@ import { Mural } from '../models/mural.model';
   providedIn: 'root'
 })
 export class MuralService {
-
+  public static defaultThumbnail: string = 'assets/thumbnailImage.png'; // Default thumbnail path
 
   constructor(private http: HttpClient, private router: Router) {}
 
   getOwned(): Observable<Mural[]>{
-    return this.http.get<Mural[]>("/api/murals?type=owned").pipe(map(murals=>this.setDefaultThumbnail(murals)))
+    return this.http.get<Mural[]>("/api/murals?type=owned")
   }
   getMember(): Observable<Mural[]>{
-    return this.http.get<Mural[]>("/api/murals?type=member").pipe(map(murals=>this.setDefaultThumbnail(murals)))
+    return this.http.get<Mural[]>("/api/murals?type=member")
   }
   getOther(): Observable<Mural[]>{
-    return this.http.get<Mural[]>("/api/murals?type=other").pipe(map(murals=>this.setDefaultThumbnail(murals)))
-  }
-
-
-  private setDefaultThumbnail(murals:Mural[]): Mural[] {
-    murals.forEach(mural => {
-      fetch('assets/thumbnailImage.png')
-        .then(res => res.blob())
-        .then(blob => {
-          mural.thumbnail = blob
-          mural.thumbnailURL = URL.createObjectURL(blob);
-          // Use `url` as the image src
-        });
-    })
-    return murals
+    return this.http.get<Mural[]>("/api/murals?type=other")
   }
 
   createMural(mural: { name: string; description: string; thumbnail: File; banner: File; }) {

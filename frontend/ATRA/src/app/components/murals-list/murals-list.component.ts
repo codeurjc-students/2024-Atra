@@ -93,4 +93,10 @@ export class MuralsListComponent implements OnChanges {
       }
     })
   }
+
+  errorLoadingImage($event: ErrorEvent) {
+    const img = $event.target as HTMLImageElement;
+    console.error("Error loading image:", img.id);
+    img.src = MuralService.defaultThumbnail;
+  }
 }

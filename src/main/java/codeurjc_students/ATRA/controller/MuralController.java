@@ -5,6 +5,7 @@ import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.*;
 import codeurjc_students.ATRA.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -36,10 +37,23 @@ public class MuralController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mural> getMural(@PathVariable Long id){
+    public ResponseEntity<MuralDTO> getMural(@PathVariable Long id){
         Optional<Mural> muralOpt = muralService.findById(id);
         if (muralOpt.isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(muralOpt.get());
+        return ResponseEntity.ok(dtoService.toDto(muralOpt.get()));
+    }
+
+    @GetMapping("/{id}/thumbnail")
+    public ResponseEntity<byte[]> getThumbnail(@PathVariable Long id){
+        Optional<Mural> muralOpt = muralService.findById(id);
+        if (muralOpt.isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(muralOpt.get().getThumbnail());
+    }
+    @GetMapping("/{id}/banner")
+    public ResponseEntity<byte[]> getBanner(@PathVariable Long id){
+        Optional<Mural> muralOpt = muralService.findById(id);
+        if (muralOpt.isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(muralOpt.get().getBanner());
     }
 
     @GetMapping

@@ -22,6 +22,8 @@ public class MuralDTO {
 	private Long id;
 	private String name;
 	private String description;
+	private String thumbnailUrl;
+	private String bannerUrl;
 
 	//entities could be User if we modify the user to remove its references. Either set to null or use a DTO
 	private NamedId owner;
@@ -29,13 +31,13 @@ public class MuralDTO {
 	private List<NamedId> activities = new ArrayList<>();
 	private List<NamedId> routes = new ArrayList<>();
 
-	private byte[] thumbnail;
-	private byte[] banner;
-
 	public MuralDTO(Mural mural) {
 		id = mural.getId();
 		name = mural.getName();
 		description = mural.getDescription();
+		thumbnailUrl = "/api/murals/"+id+"/thumbnail";
+		bannerUrl = "/api/murals/"+id+"/banner";
+
 		owner = new BasicNamedId(mural.getOwner().getId(), mural.getOwner().getDisplayname());
 		mural.getMembers().forEach(user -> {
 			this.members.add(new BasicNamedId(user.getId(), user.getDisplayname()));
@@ -46,7 +48,5 @@ public class MuralDTO {
 		mural.getRoutes().forEach(route -> {
 			this.members.add(new BasicNamedId(route.getId(), route.getName()));
 		});
-		banner = mural.getBanner();
-		thumbnail = mural.getThumbnail();
 	}
 }
