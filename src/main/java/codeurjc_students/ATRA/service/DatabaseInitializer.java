@@ -56,9 +56,9 @@ public class DatabaseInitializer {
         for (int i = 0; i < 3; i++) {
             muralService.newMural(new Mural("mural"+i, muralGuy, List.of(user2)));
         }
-        File file = new File("target/classes/static/3-2_aspect_ratio.png");
+        File file = new File("target/classes/static/defaultThumbnailImage.png");
         byte[] thumbnailBytes = Files.readAllBytes(file.toPath());
-        file = new File("target/classes/static/bannerImage.png");
+        file = new File("target/classes/static/defaultBannerImage.png");
         byte[] bannerBytes = Files.readAllBytes(file.toPath());
 
         Mural mural = new Mural(user, List.of(user2));
