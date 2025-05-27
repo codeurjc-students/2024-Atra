@@ -62,13 +62,14 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
 
   getXFromY(X: string, Y: Activity) { //Y should be an activity
+    if (Y.summary==null) throw new Error("Activity summary is null, cannot get X from Y");
     switch(X.toLowerCase())  {
       case 'id': return Y.id
       case 'name': return Y.name
       case 'date': return Y.startTime.toISOString().split("T")[0]
-      case 'time': return this.toHoursMinsSecs(Y.totalTime)
+      case 'time': return this.toHoursMinsSecs(Y.summary.totalTime)
       case 'route': return Y.route!=null ? Y.route.name : Y.route
-      case 'distance': return Math.round(Y.totalDistance*100)/100 + "km"
+      case 'distance': return Math.round(Y.summary.totalDistance*100)/100 + "km"
       case 'other' : return Y.other
       default : throw new Error(`Property '${X}' does not exist on object Y.`)
     }

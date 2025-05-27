@@ -1,0 +1,158 @@
+package codeurjc_students.ATRA.dto;
+
+import codeurjc_students.ATRA.service.ActivityService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class ActivitySummary {
+    private long id;
+    private Instant startTime;
+    private Double totalDistance;
+    private Long totalTime; //seconds
+    private Double elevationGain;
+    private Map<String, Double> averages;
+    private Map<String, String> records;
+
+    ActivitySummary(ActivityDTO activity) {
+        id = activity.getId();
+        startTime = activity.getStartTime();
+
+        Map<String, List<String>> streams = activity.getStreams();
+
+        totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
+        elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
+        totalTime = calcTotalTime(activity);
+
+        averages = setUpAverages(activity);
+        records = setUpRecords(activity);
+    }
+
+    private Map<String, String> setUpRecords(ActivityDTO activity) {
+        List<String> positionStream = activity.getStreams().get("position");
+        List<String> timeStream = activity.getStreams().get("time");
+
+        List<String> distanceRecordTitles = Arrays.asList("1km", "5km", "10km", "21km", "42km");
+        List<String> timeRecordTitles = Arrays.asList("1min", "5min", "10min", "30min", "1hour");
+        Map<String, String> records = new HashMap<>();
+
+        records.put(distanceRecordTitles.get(0), distanceGoal(positionStream, timeStream, 1).toString());
+        records.put(distanceRecordTitles.get(1), distanceGoal(positionStream, timeStream, 5).toString());
+        records.put(distanceRecordTitles.get(2), distanceGoal(positionStream, timeStream, 10).toString());
+        records.put(distanceRecordTitles.get(3), distanceGoal(positionStream, timeStream, 21).toString());
+        records.put(distanceRecordTitles.get(4), distanceGoal(positionStream, timeStream, 42).toString());
+
+        records.put(timeRecordTitles.get(0), timeGoal(positionStream, timeStream, 1).toString());
+        records.put(timeRecordTitles.get(1), timeGoal(positionStream, timeStream, 5).toString());
+        records.put(timeRecordTitles.get(2), timeGoal(positionStream, timeStream, 10).toString());
+        records.put(timeRecordTitles.get(3), timeGoal(positionStream, timeStream, 30).toString());
+        records.put(timeRecordTitles.get(4), timeGoal(positionStream, timeStream, 60).toString());
+
+        return records;
+    }
+
+    //this one alongside distanceGoal should go in some service or be static or otherwise be accessible by others.
+    //especially if we ever want to allow users to create their own goals (which is supposed to be a functionality)
+    private Double timeGoal(List<String> positionStream, List<String> timeStream, int mins) {
+        int i = 0;
+        int j = 1;
+        double bestDistance = 0 ; //meters, I think
+        double accumulatedDistance = 0; //meters
+        Instant startTime = Instant.parse(timeStream.get(i));
+        for (j = 1; j < positionStream.size(); j++) {
+            double distance = ActivityService.totalDistance(
+                    Double.parseDouble(positionStream.get(j).split(";")[0]),
+                    Double.parseDouble(positionStream.get(j).split(";")[1]),
+                    Double.parseDouble(positionStream.get(j-1).split(";")[0]),
+                    Double.parseDouble(positionStream.get(j-1).split(";")[1])
+            );
+            accumulatedDistance += distance;
+            Instant currentTime = Instant.parse(timeStream.get(j));
+            long deltaT = Duration.between(startTime, currentTime).toMinutes();
+            if (deltaT>= mins) {
+                if (accumulatedDistance>bestDistance) {
+                    bestDistance = accumulatedDistance;
+                }
+                i++;
+                startTime = Instant.parse(timeStream.get(i));
+                accumulatedDistance -= ActivityService.totalDistance(
+                        Double.parseDouble(positionStream.get(i).split(";")[0]),
+                        Double.parseDouble(positionStream.get(i).split(";")[1]),
+                        Double.parseDouble(positionStream.get(i-1).split(";")[0]),
+                        Double.parseDouble(positionStream.get(i-1).split(";")[1])
+                );
+            }
+        }
+        return bestDistance;
+    }
+
+    //this one alongside timeGoal should go in some service or be static or otherwise be accessible by others.
+    //especially if we ever want to allow users to create their own goals (which is supposed to be a functionality)
+    private Long distanceGoal(List<String> positionStream, List<String> timeStream, int goal) {
+        goal *= 1000;
+        int i = 0;
+        int j = 1;
+        long bestTime = Long.MAX_VALUE ; //seconds
+        double accumulatedDistance = 0; //meters
+        for (j = 1; j < positionStream.size(); j++) {
+            double distance = ActivityService.totalDistance(
+                    Double.parseDouble(positionStream.get(j).split(";")[0]),
+                    Double.parseDouble(positionStream.get(j).split(";")[1]),
+                    Double.parseDouble(positionStream.get(j-1).split(";")[0]),
+                    Double.parseDouble(positionStream.get(j-1).split(";")[1])
+            );
+            accumulatedDistance += distance;
+            while (accumulatedDistance>=goal) {
+                Instant i1 = Instant.parse(timeStream.get(j));
+                Instant i2 = Instant.parse(timeStream.get(i));
+
+                long currentTime = Duration.between(i1, i2).getSeconds();
+                bestTime = Math.min(bestTime, currentTime);
+
+                if (i + 1 >= j) break;
+                i++;
+                accumulatedDistance -= ActivityService.totalDistance(
+                        Double.parseDouble(positionStream.get(i).split(";")[0]),
+                        Double.parseDouble(positionStream.get(i).split(";")[1]),
+                        Double.parseDouble(positionStream.get(i-1).split(";")[0]),
+                        Double.parseDouble(positionStream.get(i-1).split(";")[1])
+                );
+            }
+        }
+        return bestTime;
+    }
+
+    private Map<String, Double> setUpAverages(ActivityDTO activity) {
+        List<String> averageableMetrics = Arrays.asList("altitude", "heartrate", "cadence", "pace");
+
+        Map<String, Double> averages = new HashMap<>();
+
+        Map<String, List<String>> streams = activity.getStreams();
+        for (String metric : averageableMetrics) {
+            List<String> values = streams.get(metric);
+            if (values==null || values.isEmpty()) {
+                System.out.println("Empty/missing averageable metric: " + metric);
+                continue;
+            }
+            double runningTotal = 0.0;
+            for (var v : values) runningTotal += Double.parseDouble(v);
+            averages.put(metric, runningTotal/values.size());
+        }
+        return averages;
+    }
+
+    private long calcTotalTime(ActivityDTO activity) {
+        Instant start = activity.getStartTime();
+        Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
+        Duration duration = Duration.between(start, end);
+        return duration.toSeconds();
+    }
+
+}

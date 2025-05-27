@@ -27,11 +27,9 @@ public class ActivityDTO implements ActivityDtoInterface {
 	private Instant startTime;
 	private Long user;
 	private NamedId route;
-	private Double totalDistance;
-	private Long totalTime; //seconds
-	private Double elevationGain;
-	private List<DataPoint> dataPoints;
+	private List<DataPoint> dataPoints; // I think this can be deleted
 	private Map<String, List<String>> streams;
+	private ActivitySummary summary;
 
 	public ActivityDTO(Activity activity){
 		id = activity.getId();
@@ -41,9 +39,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		user = activity.getUser().getId();
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
-		totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
-		elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
-		totalTime = calcTotalTime(activity);
+		summary = new ActivitySummary(this);
 		if (activity.getRoute() == null) {
 			route = null;
 		} else {
@@ -62,9 +58,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		route = routeIdAndName;
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
-		totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
-		elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
-		totalTime = calcTotalTime(activity);
+		summary = new ActivitySummary(this);
 	}
 
 	public ActivityDTO(Activity activity, Route route) {
@@ -76,17 +70,10 @@ public class ActivityDTO implements ActivityDtoInterface {
 		this.route = new BasicNamedId(route);
 		this.dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
-		this.totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
-		this.elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
-		this.totalTime = calcTotalTime(activity);
+		summary = new ActivitySummary(this);
 	}
 
-	private long calcTotalTime(Activity activity) {
-		Instant start = activity.getStartTime();
-		Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
-		Duration duration = Duration.between(start, end);
-		return duration.toSeconds();
-	}
+
 
 	private void setUpStreams(List<DataPoint> dataPoints) {
 		streams = new HashMap<>();
@@ -94,7 +81,6 @@ public class ActivityDTO implements ActivityDtoInterface {
 		Double prevLat = null;
 		Double prevLon = null;
 		Double prevEle = null;
-		int c = 0;
 
 		streams.put("time", new ArrayList<>());
 		streams.put("distance", new ArrayList<>());

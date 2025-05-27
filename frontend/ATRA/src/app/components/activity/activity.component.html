@@ -83,12 +83,12 @@
 
     <div class="mb-3">
       <label for="routeDistance" class="form-label">Distance:</label>
-      <input type="number" id="routeDistance" name="routeDistance" class="form-control" [value]="activity.totalDistance.toFixed(2)" #routeDistance>
+      <input type="number" id="routeDistance" name="routeDistance" class="form-control" [value]="activity.summary?.totalDistance?.toFixed(2)" #routeDistance>
     </div>
 
     <div class="mb-3">
       <label for="routeElevation" class="form-label">Elevation:</label>
-      <input type="number" id="routeElevation" name="routeElevation" class="form-control" [value]="activity.elevationGain.toFixed(2)" #routeElevation>
+      <input type="number" id="routeElevation" name="routeElevation" class="form-control" [value]="activity.summary?.elevationGain?.toFixed(2)" #routeElevation>
     </div>
 
     <p>The route will be created with the same coordinates as this activity.</p><p>Check everything is correct, and click create when ready.</p>

@@ -72,13 +72,15 @@ export class RoutesComponent {
     //this is called with selectedActivity.activities[n]. To avoid trouble in serialization, those are ids.
     // have to decide if front should recive all of a route's activities as a DTO or as ids
     // I'm leaning toward DTO
-
+    if (v.summary==null) {
+      throw new Error(`Activity ${v.id} has no summary, so it cannot be displayed.`)
+    }
     switch(attr.toLowerCase())  {
       case 'id': return v.id
       case 'name': return v.name
-      case 'time': return Activity.formatTime(v.totalTime)
-      case 'ele': return v.elevationGain
-      case 'dist': return v.totalDistance.toFixed(2) + "km"
+      case 'time': return Activity.formatTime(v.summary.totalTime)
+      case 'ele': return v.summary.elevationGain
+      case 'dist': return v.summary.totalDistance.toFixed(2) + "km"
       default : throw new Error(`Property '${attr}' does not exist on object ${typeof v}.`)
     }
   }
