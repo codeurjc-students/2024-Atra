@@ -25,7 +25,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 	private String name;
 	private String type;
 	private Instant startTime;
-	private Long user;
+	private NamedId user; //should check this doesn't break anything
 	private NamedId route;
 	private List<DataPoint> dataPoints; // I think this can be deleted
 	private Map<String, List<String>> streams;
@@ -36,37 +36,33 @@ public class ActivityDTO implements ActivityDtoInterface {
 		name = activity.getName();
 		type = activity.getType();
 		startTime = activity.getStartTime();
-		user = activity.getUser().getId();
+		user = activity.getUser();
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
-		if (activity.getRoute() == null) {
-			route = null;
-		} else {
-			throw new RuntimeException("ActivityDTO(Activity a) called with activity.getRoute()!=null");
-		}
-
-
+		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 	}
 
+	//these may not be needed (since activity holds its route now)
 	public ActivityDTO(Activity activity, NamedId routeIdAndName) {
 		id = activity.getId();
 		name = activity.getName();
 		type = activity.getType();
 		startTime = activity.getStartTime();
-		user = activity.getUser().getId();
+		user = activity.getUser();
 		route = routeIdAndName;
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 	}
 
+	//these may not be needed.
 	public ActivityDTO(Activity activity, Route route) {
 		this.id = activity.getId();
 		this.name = activity.getName();
 		this.type = activity.getType();
 		this.startTime = activity.getStartTime();
-		this.user = activity.getUser().getId();
+		user = activity.getUser();
 		this.route = new BasicNamedId(route);
 		this.dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());

@@ -7,10 +7,11 @@ export interface Mural {
     name: string;
     description: string;
 
-    owner: User;
-    members: User[];
+    owner: {name:string;id:number};
+    members: {name:string;id:number}[];
 
-    activities: Activity[];
+    activities: {name:string;id:number}[];
+    routes: {name:string;id:number}[];
 
     thumbnailUrl:string;
     thumbnail: Blob;

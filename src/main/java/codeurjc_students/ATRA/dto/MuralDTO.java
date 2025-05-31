@@ -43,10 +43,10 @@ public class MuralDTO {
 			this.members.add(new BasicNamedId(user.getId(), user.getName()));
 		});
 		mural.getActivities().forEach(activity -> {
-			this.members.add(new BasicNamedId(activity.getId(), activity.getName()));
+			this.activities.add(new BasicNamedId(activity.getId(), activity.getName()));
 		});
 		mural.getRoutes().forEach(route -> {
-			this.members.add(new BasicNamedId(route.getId(), route.getName()));
+			this.routes.add(new BasicNamedId(route.getId(), route.getName()));
 		});
 	}
 }

@@ -8,4 +8,8 @@ export interface User {
 
     roles: string[];
 
+    activities?: { name: string; id: number }[];
+    routes?: { name: string; id: number }[];
+    murals?: { name: string; id: number }[];
+
 }
