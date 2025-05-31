@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @RestController
 @RequestMapping("/api/activities")
@@ -62,7 +62,8 @@ public class ActivityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal){
+    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @RequestParam(required=false) List<Long> ids){
+        if (ids!=null) return getMultipleActivities(principal, ids);
         //this can be extracted, returning User and throwing errors
         if (principal==null) return ResponseEntity.status(403).build();
         Optional<User> userOpt = userService.findByUserName(principal.getName());
@@ -70,6 +71,18 @@ public class ActivityController {
         User user = userOpt.get();
         return ResponseEntity.ok(dtoService.toDtoActivity(user.getActivities()));
         //this can be extracted, returning User and throwing errors
+    }
+
+    private ResponseEntity<List<ActivityDTO>> getMultipleActivities(Principal principal, List<Long> ids) {
+        //principal should be used to check permissions, but it's complex
+        //Actually shouldn't even be using the principal.
+        //should check that the principal is in the mural, and that the mural has access to the activity
+        List<ActivityDTO> activityDTOS = new ArrayList<>();
+        List<Activity> activities = activityService.findById(ids);
+        activities.forEach(activity -> {
+            activityDTOS.add(new ActivityDTO(activity));
+        });
+        return ResponseEntity.ok(activityDTOS);
     }
 
     @PostMapping
