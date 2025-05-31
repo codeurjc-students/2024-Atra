@@ -35,6 +35,7 @@ export class MuralsDashboardComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
+    this.gridItemService.forget()
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
   }
