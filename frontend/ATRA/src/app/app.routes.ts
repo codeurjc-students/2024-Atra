@@ -32,6 +32,7 @@ export const routes: Routes = [
   {path: 'murals/:id/activity-comparison', component: ComparisonComponent},
   {path: 'murals/:id/activity-view', component: ActivitySelectComponent},
   {path: 'murals/:id/dashboard', component: MuralsDashboardComponent},
+  {path: 'murals/:id/routes', component: RoutesComponent},
 
   {path: '**', component: ErrorComponent},
 
