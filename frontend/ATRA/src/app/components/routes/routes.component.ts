@@ -9,6 +9,7 @@ import { Activity } from '../../models/activity.model';
 import L from 'leaflet';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivitySelectComponent } from "../activity-select/activity-select.component";
+import { FormattingService } from '../../services/formatting.service';
 
 @Component({
   selector: 'app-routes',
@@ -78,7 +79,7 @@ export class RoutesComponent {
     switch(attr.toLowerCase())  {
       case 'id': return v.id
       case 'name': return v.name
-      case 'time': return Activity.formatTime(v.summary.totalTime)
+      case 'time': return FormattingService.formatTime(v.summary.totalTime)
       case 'ele': return v.summary.elevationGain
       case 'dist': return v.summary.totalDistance.toFixed(2) + "km"
       default : throw new Error(`Property '${attr}' does not exist on object ${typeof v}.`)

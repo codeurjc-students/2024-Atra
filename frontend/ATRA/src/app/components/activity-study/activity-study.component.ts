@@ -1,3 +1,4 @@
+import { FormattingService } from './../../services/formatting.service';
 import { AlertService } from './../../services/alert.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActivityStreams } from '../../models/activity-streams.model';
@@ -79,12 +80,6 @@ export class ActivityStudyComponent implements OnInit {
     this.modal = this.modalService.open(content)
   }
 
-  secsToMinSec(value: number): string {
-    const minutes = Math.floor(value / 60);
-    const seconds = value % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`; // Format as mm:ss 1500 100 500
-  }
-
   @HostListener('window:resize', ['$event'])
   ngAfterViewInit(): void {
     const containerWidth = this.chartContainer.nativeElement.offsetWidth;
@@ -120,7 +115,7 @@ export class ActivityStudyComponent implements OnInit {
 
   //#region Chart Lifecycle
   updateChart(event:string) {
-    this.yAxisTickFormat = this.selectedMetric==="pace" ? this.secsToMinSec:(value) => value.toString()
+    this.yAxisTickFormat = this.selectedMetric==="pace" ? FormattingService.formatPace:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
     this.displayData = this.graphService.getDisplayData(this.dataset, this.selectedMetric, this.selectedChart)
