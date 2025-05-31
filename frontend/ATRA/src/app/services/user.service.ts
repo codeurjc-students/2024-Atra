@@ -44,7 +44,7 @@ export class UserService {
       {
         username:user.username,
         password: user.password,
-        displayname: user.displayname,
+        name: user.name,
         email: user.email
       }).subscribe({
         next: () => {

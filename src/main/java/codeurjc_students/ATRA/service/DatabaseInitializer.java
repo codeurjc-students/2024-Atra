@@ -37,15 +37,15 @@ public class DatabaseInitializer {
     @PostConstruct
     public void init() throws IOException {
         User user = new User("asd", passwordEncoder.encode("asd"));
-        user.setDisplayname("pepito");
+        user.setName("pepito");
         userService.save(user);
 
         User user2 = new User("qwe", passwordEncoder.encode("qwe"));
-        user2.setDisplayname("juanito");
+        user2.setName("juanito");
         userService.save(user2);
 
         User muralGuy = new User("zxc", passwordEncoder.encode("zxc"));
-        muralGuy.setDisplayname("muralGuy");
+        muralGuy.setName("muralGuy");
         userService.save(muralGuy);
 
         for (int i=0;i<10;i++) {

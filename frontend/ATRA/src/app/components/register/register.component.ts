@@ -77,12 +77,12 @@ export class RegisterComponent implements OnInit{
     const username = this.registerForm.get('username')?.value
     const password = this.registerForm.get('password')?.value
     const email = this.registerForm.get('email')?.value
-    var displayname = this.registerForm.get('displayname')?.value
+    var name = this.registerForm.get('name')?.value
     return {
       id: 0,
       username: username,
       password: password,
-      displayname: (displayname == "") ? username:displayname,
+      name: (name == "") ? username:name,
       email: email,
       roles: []
     };

@@ -17,10 +17,10 @@ public class NewUserDTO {
 	private String username;
 	private String password;
 
-	private String displayname; //optional
+	private String name; //optional
 	private String email; //optional
 
-	public boolean hasDisplayName(){ return displayname != null;}
+	public boolean hasDisplayName(){ return name != null;}
 	public boolean hasEmail(){ return email != null;}
 
 

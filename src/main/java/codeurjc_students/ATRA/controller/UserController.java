@@ -46,8 +46,8 @@ public class UserController {
         if (receivedUser.getUsername()!=null && !receivedUser.getUsername().isEmpty() && !userService.existsByUsername(receivedUser.getUsername())) {
             user.setUsername(receivedUser.getUsername());
         }
-        if (receivedUser.getDisplayname()!=null && !receivedUser.getDisplayname().isEmpty()) {
-            user.setDisplayname(receivedUser.getDisplayname());
+        if (receivedUser.getName()!=null && !receivedUser.getName().isEmpty()) {
+            user.setName(receivedUser.getName());
         }
         if (receivedUser.getEmail()!=null && !receivedUser.getEmail().isEmpty()) {
             user.setEmail(receivedUser.getEmail());
@@ -104,9 +104,9 @@ public class UserController {
 
         if (userDTO.hasEmail()) user.setEmail(userDTO.getEmail());
         if (userDTO.hasDisplayName())
-            user.setDisplayname(userDTO.getDisplayname());
+            user.setName(userDTO.getName());
         else
-            user.setDisplayname(userDTO.getUsername());
+            user.setName(userDTO.getUsername());
 
         userService.save(user);
         return ResponseEntity.ok(user);

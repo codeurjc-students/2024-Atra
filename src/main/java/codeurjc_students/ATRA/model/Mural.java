@@ -50,8 +50,8 @@ public class Mural implements NamedId {
 	public Mural(User owner) {
 		this.owner = owner;
 		this.members.add(owner);
-		this.name = owner.getDisplayname() + "'s Mural";
-		this.description = "A mural created by " + owner.getDisplayname();
+		this.name = owner.getName() + "'s Mural";
+		this.description = "A mural created by " + owner.getName();
 	}
 
 	public Mural(User owner, Collection<User> members) {
@@ -60,8 +60,8 @@ public class Mural implements NamedId {
 			if (!user.equals(owner)) this.members.add(user);
 		});
 		this.members.add(owner);
-		this.name = owner.getDisplayname() + "'s Mural";
-		this.description = "A mural created by " + owner.getDisplayname();
+		this.name = owner.getName() + "'s Mural";
+		this.description = "A mural created by " + owner.getName();
 	}
 
 	public Mural(String name, User owner, Collection<User> members) {
@@ -71,7 +71,7 @@ public class Mural implements NamedId {
 			if (!user.equals(owner)) this.members.add(user);
 		});
 		this.members.add(owner);
-		this.description = "A mural created by " + owner.getDisplayname();
+		this.description = "A mural created by " + owner.getName();
 	}
 
 	public Mural(String name, String description, User owner, byte[] thumbnail, byte[] banner) {

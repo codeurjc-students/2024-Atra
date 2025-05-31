@@ -38,9 +38,9 @@ public class MuralDTO {
 		thumbnailUrl = "/api/murals/"+id+"/thumbnail";
 		bannerUrl = "/api/murals/"+id+"/banner";
 
-		owner = new BasicNamedId(mural.getOwner().getId(), mural.getOwner().getDisplayname());
+		owner = new BasicNamedId(mural.getOwner().getId(), mural.getOwner().getName());
 		mural.getMembers().forEach(user -> {
-			this.members.add(new BasicNamedId(user.getId(), user.getDisplayname()));
+			this.members.add(new BasicNamedId(user.getId(), user.getName()));
 		});
 		mural.getActivities().forEach(activity -> {
 			this.members.add(new BasicNamedId(activity.getId(), activity.getName()));

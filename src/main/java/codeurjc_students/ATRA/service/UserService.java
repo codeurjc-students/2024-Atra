@@ -58,7 +58,7 @@ public class UserService {
     public UserDTO toDTO(User user) {
 		UserDTO dto = new UserDTO();
 		dto.setId(user.getId());
-		dto.setDisplayname(user.getDisplayname());
+		dto.setName(user.getName());
 		dto.setUsername(user.getUsername());
 		dto.setRoles(user.getRoles());
 

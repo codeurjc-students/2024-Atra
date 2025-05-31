@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.model;
 
+import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements NamedId {
 
 
 	@Id
@@ -20,7 +21,7 @@ public class User {
 	private String username;
 	private String password;
 
-	private String displayname;
+	private String name;
 	private String email;
 
 	//private List<Route> routes;

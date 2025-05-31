@@ -15,7 +15,7 @@ public class UserDTO {
     private Long id;
     private String username;
 
-    private String displayname;
+    private String name;
     private String email;
     //private List<Long> routes;
     //private List<Long> murals;

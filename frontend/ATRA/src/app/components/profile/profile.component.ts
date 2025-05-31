@@ -28,7 +28,7 @@ export class ProfileComponent implements OnInit {
       id: 1,
       username: "username",
       password: "string",
-      displayname: "displayname",
+      name: "name",
       email: "email",
       roles: [""]
     };
@@ -37,7 +37,7 @@ export class ProfileComponent implements OnInit {
   createForms(){
     this.generalForm = this.fb.group({
       username: [this.user.username, { validators: [Validators.required], asyncValidators: [this.userService.isUserNameTaken(this.user.username)], updateOn: 'blur' }],
-      displayname: [this.user.displayname],
+      name: [this.user.name],
       email: [this.user.email, Validators.email]
     })
 
@@ -82,25 +82,25 @@ export class ProfileComponent implements OnInit {
     //do some shit
     if (!this.generalForm.valid) throw new Error("Invalid form")
     const username = this.generalForm.get('username')?.value
-    const displayname = this.generalForm.get('displayname')?.value
+    const name = this.generalForm.get('name')?.value
     const email = this.generalForm.get('email')?.value
 
     if (this.user.username!==username)
       this.alertService.confirm("Updating your username will log you out. Are you sure you want to continue?", "You're about to be logged out").subscribe({
         next:(accepted)=>{
           if (accepted) {
-            this.restOfSaveChanges(username, displayname, email)
+            this.restOfSaveChanges(username, name, email)
             this.router.navigate(["/"])
           }
         }
       });
     else {
-      this.restOfSaveChanges(username, displayname, email)
+      this.restOfSaveChanges(username, name, email)
     }
   }
-  private restOfSaveChanges(username:string, displayname:string, email:string) {
+  private restOfSaveChanges(username:string, name:string, email:string) {
     this.user.username = username
-    this.user.displayname = displayname
+    this.user.name = name
     this.user.email = email
 
     this.userService.update(this.user).subscribe({
@@ -151,13 +151,13 @@ export class ProfileComponent implements OnInit {
       this.passwordForm.reset()
     } else if (modalName==='profile') {
       this.profileModal.dismiss();
-      this.generalForm.reset({username:this.user.username, displayname:this.user.displayname, email:this.user.email})
+      this.generalForm.reset({username:this.user.username, name:this.user.name, email:this.user.email})
     }
   }
 
   change(v:string) {
     console.log(v);
-    console.log(this.generalForm.get('displayname'));
+    console.log(this.generalForm.get('name'));
 
 
   }
