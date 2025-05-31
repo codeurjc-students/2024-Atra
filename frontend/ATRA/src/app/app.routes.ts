@@ -10,6 +10,7 @@ import { ActivityComponent } from './components/activity/activity.component';
 import { RoutesComponent } from './components/routes/routes.component';
 import { ErrorComponent } from './components/error/error.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { MuralsDashboardComponent } from './components/murals-dashboard/murals-dashboard.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent},
@@ -30,6 +31,7 @@ export const routes: Routes = [
   {path: 'murals/:category', component: MuralsComponent},
   {path: 'murals/:id/activity-comparison', component: ComparisonComponent},
   {path: 'murals/:id/activity-view', component: ActivitySelectComponent},
+  {path: 'murals/:id/dashboard', component: MuralsDashboardComponent},
 
   {path: '**', component: ErrorComponent},
 

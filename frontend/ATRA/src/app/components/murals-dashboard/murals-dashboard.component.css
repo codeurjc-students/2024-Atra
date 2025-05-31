@@ -1,0 +1,14 @@
+.boxItem {
+  width: 90%;
+  max-width: 90%;
+  height: 45vh;
+  background-color: #b2dbfd;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  max-width: 95%;
+  margin: 0 auto; /* Horizontally center */
+
+}

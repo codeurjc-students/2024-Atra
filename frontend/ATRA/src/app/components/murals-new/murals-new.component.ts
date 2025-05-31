@@ -111,7 +111,7 @@ export class MuralsNewComponent {
         this.alertService.confirm("The mural has been created, would you like to view it?", "Mural created", {accept:"Yes", cancel:"No"}).subscribe(
           (shouldRedirect)=>{
             if (shouldRedirect) {
-              this.router.navigate(["/murals",mural.id,"details"])
+              this.router.navigate(["/murals",mural.id,"dashboard"])
               this.activeModal.dismiss()
             } else {
               //reload owned murals and member murals

@@ -64,6 +64,8 @@ public class DatabaseInitializer {
         Mural mural = new Mural(user, List.of(user2));
         mural.setBanner(bannerBytes);
         mural.setThumbnail(thumbnailBytes);
+        mural.getActivities().addAll(activityService.findAll().subList(0,3));
+        System.out.println("Mural initialized with " + activityService.findAll().stream().filter(a->"Morning Run".equals(a.getName())).toList().size() + " activities");
         Mural mural2 = new Mural(user2, List.of(user));
 
         muralService.newMural(mural);

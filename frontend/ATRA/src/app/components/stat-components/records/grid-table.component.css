@@ -1,0 +1,15 @@
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.clickable-row:hover {
+  background-color: #ff0000 !important;
+}
+
+
+.overflow-auto {
+  height: 45vh;
+  background-color: aqua;
+  width: 50%;
+}

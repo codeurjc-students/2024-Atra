@@ -6,7 +6,7 @@
       <div
         class="thumbnail-container mx-3 my-2 min-w-20 w-20 black-bg position-relative thin-black-border"
         *ngFor="let mural of murals; let first=first;let last=last"
-        [routerLink]="['/murals', mural.id, 'details']"
+        [routerLink]="['/murals', mural.id, 'dashboard']"
         >
         <img [id]="'mural-'+mural.id+'-thumbnail'" class="min-w-100 max-w-100" [src]="mural.thumbnailUrl" (error)="errorLoadingImage($event)">
         <div class="mural-title">{{ mural.name }}</div>

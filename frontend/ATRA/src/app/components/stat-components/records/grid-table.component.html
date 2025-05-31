@@ -1,0 +1,25 @@
+<!--Header-->
+<div class="d-flex justify-content-between">
+  <div>
+    <h3>{{ title }}</h3>
+  </div>
+</div>
+<!--body-->
+<div class="thin-grey-border w-100 h-90 overflow-auto grey-bg">
+  <div class="">
+    <table class="table table-striped table-hover table-sm table-responsive">
+      <thead>
+        <tr>
+          <th scope="col" *ngFor="let name of colNames"> {{ name }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="" *ngFor="let row of rowValues;let i = index" (click)="rowClicked(i)" [class.clickable-row]="rowLinks">
+          <td *ngFor="let value of row"> {{ value }} </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
