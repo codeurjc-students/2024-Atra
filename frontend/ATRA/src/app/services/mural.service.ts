@@ -25,6 +25,10 @@ export class MuralService {
     return this.http.get<Mural[]>("/api/murals?type=other")
   }
 
+  getMural(id:number): Observable<Mural> {
+    return this.http.get<Mural>("/api/murals/"+id)
+  }
+
   createMural(mural: { name: string; description: string; thumbnail: File; banner: File; }) {
     const formData = new FormData();
     formData.append('name', mural.name);
