@@ -66,22 +66,9 @@ public class RouteController {
         if (!activityService.exists(activityId)) return ResponseEntity.notFound().build();
         Activity activity = activityService.get(activityId);
         if (activity==null) return ResponseEntity.badRequest().build();
-        route.setCoordinates(Coordinates.fromActivity(activity));
-
-        if (route.getName()==null || route.getName().isEmpty()){
-            route.setName("Route from Activity " + activityId);
-        }
-        if (route.getTotalDistance()==null || route.getTotalDistance()==0) {
-            route.setTotalDistance(activityService.totalDistance(activity));
-        }
-
-        route.addActivity(activity);
-        route.setId(null);
-        this.routeService.save(route);
-
-        activity.setRoute(route);
-        this.activityService.save(activity);
+        Route resultRoute = routeService.newRoute(activity, activityService);
         return ResponseEntity.ok(route);
+
     }
 
     public ResponseEntity<User> modifyRoute(){return null;}

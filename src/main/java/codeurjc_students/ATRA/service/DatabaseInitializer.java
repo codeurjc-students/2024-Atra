@@ -1,8 +1,11 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Mural;
+import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,7 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.*;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Array;
 
 @Service
 public class DatabaseInitializer {
@@ -24,6 +29,8 @@ public class DatabaseInitializer {
 
     @Autowired
     private MuralService muralService;
+    @Autowired
+    private RouteService routeService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -42,11 +49,17 @@ public class DatabaseInitializer {
         muralGuy.setName("muralGuy");
         userService.save(muralGuy);
 
-        for (int i=0;i<10;i++) {
-            if (i%2==0) activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), user.getUsername());
-            else activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), user2.getUsername());
+        List<User> users = Arrays.asList(user,user2,muralGuy);
+        Map<String, Activity> activityMap = new HashMap<>();
+        for (int i=0;i<20;i++) {
+            Activity createdAct = activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), users.get(i%users.size()).getUsername());
+            activityMap.put(createdAct.getName(),createdAct);
             muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
         }
+        activityMap.forEach((name,activity)->{
+            if (name.contains("Morning Run")) routeService.addRouteToActivity("Usual 10k", activity, activityService);
+            if (name.contains("vuelta"))      routeService.addRouteToActivity("Miercoles vuelta", activity, activityService);
+        });
         for (int i = 0; i < 3; i++) {
             muralService.newMural(new Mural("mural"+i, muralGuy, List.of(user2)));
         }
@@ -67,7 +80,5 @@ public class DatabaseInitializer {
 
         userService.save(user);
         userService.save(user2);
-
-
     }
 }

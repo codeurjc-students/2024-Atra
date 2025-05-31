@@ -1,8 +1,10 @@
 package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Coordinates;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.repository.RouteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,5 +45,47 @@ public class RouteService {
 		if (route==null) return;
 		route.removeActivity(activity);
 		save(route);
+	}
+
+	public Route newRoute(Activity activity, ActivityService activityService) {
+		return this.newRoute(new Route(), activity, activityService);
+	}
+	public Route newRoute(Route route, Activity activity, ActivityService activityService) {
+		if (route == null) {
+			route = new Route();
+		}
+		route.setCoordinates(Coordinates.fromActivity(activity));
+
+		if (route.getName()==null || route.getName().isEmpty()){
+			route.setName("Route from Activity " + activity.getId());
+		}
+		if (route.getTotalDistance()==null || route.getTotalDistance()==0) {
+			route.setTotalDistance(activityService.totalDistance(activity));
+		}
+
+		route.addActivity(activity);
+		route.setId(null);
+		this.save(route);
+
+		activity.setRoute(route);
+		activityService.save(activity);
+		return route;
+	}
+
+	@Transactional
+	void addRouteToActivity(String routeName, Activity activity, ActivityService activityService) {
+		if (!repository.existsByName(routeName)) {
+			Route route = new Route();
+			route.setName(routeName);
+			this.newRoute(route, activity, activityService);
+		}
+		else {
+			List<Route> routes = repository.findByName(routeName);
+			Route route = routes.get(0); //safe because we're in the else
+			activity.setRoute(route);
+			route.addActivity(activity);
+			activityService.save(activity);
+			this.save(route);
+		}
 	}
 }

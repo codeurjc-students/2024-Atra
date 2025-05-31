@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <gpx xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns3="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:ns2="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:ns1="http://www.cluetrust.com/XML/GPXDATA/1/0" creator="Amazfit GTR 4" version="1.1">
 	<trk>
-		<name><![CDATA[20250301 Caminar]]></name>
+		<name><![CDATA[20250301 Caminar 2]]></name>
 		<trkseg>
 			<trkpt lat="36.72050966" lon="-4.41654166">
 				<ele>7.53</ele>
