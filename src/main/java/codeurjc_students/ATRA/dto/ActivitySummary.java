@@ -60,11 +60,19 @@ public class ActivitySummary {
 
     //this one alongside distanceGoal should go in some service or be static or otherwise be accessible by others.
     //especially if we ever want to allow users to create their own goals (which is supposed to be a functionality)
+
+    /**
+     *
+     * @param positionStream
+     * @param timeStream
+     * @param mins
+     * @return (meters) best distance covered in the specified time.
+     */
     private Double timeGoal(List<String> positionStream, List<String> timeStream, int mins) {
         int i = 0;
         int j = 1;
-        double bestDistance = 0 ; //meters, I think
-        double accumulatedDistance = 0; //meters
+        double bestDistance = 0 ; //km
+        double accumulatedDistance = 0; //km
         Instant startTime = Instant.parse(timeStream.get(i));
         for (j = 1; j < positionStream.size(); j++) {
             double distance = ActivityService.totalDistance(
@@ -90,13 +98,20 @@ public class ActivitySummary {
                 );
             }
         }
-        return bestDistance;
+        return bestDistance==Long.MAX_VALUE ? -1:bestDistance; //km
     }
 
     //this one alongside timeGoal should go in some service or be static or otherwise be accessible by others.
     //especially if we ever want to allow users to create their own goals (which is supposed to be a functionality)
+    /**
+     *
+     * @param positionStream
+     * @param timeStream
+     * @param goal
+     * @return (seconds) best time in which the given distance is covered.
+     */
     private Long distanceGoal(List<String> positionStream, List<String> timeStream, int goal) {
-        goal *= 1000;
+        //goal *= 1000;
         int i = 0;
         int j = 1;
         long bestTime = Long.MAX_VALUE ; //seconds
@@ -110,8 +125,8 @@ public class ActivitySummary {
             );
             accumulatedDistance += distance;
             while (accumulatedDistance>=goal) {
-                Instant i1 = Instant.parse(timeStream.get(j));
-                Instant i2 = Instant.parse(timeStream.get(i));
+                Instant i1 = Instant.parse(timeStream.get(i));
+                Instant i2 = Instant.parse(timeStream.get(j));
 
                 long currentTime = Duration.between(i1, i2).getSeconds();
                 bestTime = Math.min(bestTime, currentTime);
@@ -126,7 +141,7 @@ public class ActivitySummary {
                 );
             }
         }
-        return bestTime;
+        return bestTime==Long.MAX_VALUE ? -1:bestTime; //seconds
     }
 
     private Map<String, Double> setUpAverages(ActivityDTO activity) {
@@ -136,6 +151,10 @@ public class ActivitySummary {
 
         Map<String, List<String>> streams = activity.getStreams();
         for (String metric : averageableMetrics) {
+            if (metric.equals("pace")) { //cause "ratio of averages != average of ratios"
+                averages.put("pace", totalTime/totalDistance);
+                continue;
+            }
             List<String> values = streams.get(metric);
             if (values==null || values.isEmpty()) {
                 System.out.println("Empty/missing averageable metric: " + metric);

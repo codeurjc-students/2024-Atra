@@ -108,7 +108,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 			streams.get("elevation_gain").add(eleGain.toString());
 			streams.get("heartrate").add(Integer.toString(dP.getHr()));
 			streams.get("cadence").add(Integer.toString(dP.getCad()));
-			streams.get("pace").add(getPace(dP, i, dataPoints));
+			streams.get("pace").add(getPace(i, dataPoints));
 			distance += dist;
 			prevLat = dP.get_lat();
 			prevLon = dP.get_long();
@@ -116,15 +116,22 @@ public class ActivityDTO implements ActivityDtoInterface {
 		}
 	}
 
-	private String getPace(DataPoint dP, int currentPos, List<DataPoint> dataPoints) {
-		DataPoint prevDP =  currentPos-1>=0 ? dataPoints.get(currentPos-1):dP;
-		DataPoint nextDP =  currentPos+1<=dataPoints.size()-1 ? dataPoints.get(currentPos+1):dP;
+	private String getPace(int currentPos, List<DataPoint> dataPoints) {
+		DataPoint currentDP = dataPoints.get(currentPos);
+		DataPoint prevDP =  currentPos-1>=0 ? dataPoints.get(currentPos-1):currentDP;
+		DataPoint nextDP =  currentPos+1<=dataPoints.size()-1 ? dataPoints.get(currentPos+1):currentDP;
 
-		Double prevDistance = ActivityService.totalDistance(prevDP, dP);
-		Double nextDistance = ActivityService.totalDistance(nextDP, dP);
+		Double prevDistance = ActivityService.totalDistance(prevDP, currentDP);
+		Double nextDistance = ActivityService.totalDistance(nextDP, currentDP);
 		double totalDistance = prevDistance+nextDistance;
 		long totalTime = Duration.between(prevDP.get_time(), nextDP.get_time()).toSeconds();
-
+		long paceSecs = Math.round((double) totalTime / totalDistance);
+		if (paceSecs>=Long.MAX_VALUE*0.5) {
+			if (currentPos==0) { //you gotta be trolling me man
+				return getPace(currentPos+1, dataPoints);
+			}
+			return getPace(currentPos-1, dataPoints);
+		}
 		return String.valueOf(Math.round((double) totalTime / totalDistance)); //seconds / kilometer
 	}
 }
