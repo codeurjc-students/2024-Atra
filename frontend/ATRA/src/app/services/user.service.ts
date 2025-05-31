@@ -26,13 +26,6 @@ export class UserService {
 
   isUsernameTaken(userName: string) {
     return this.http.get<boolean>("/api/users/IsUsernameTaken?username="+userName)
-    //.pipe(
-    //  map(
-    //    (response: HttpResponse<any>) => {
-    //      return response;
-    //    }
-    //  )
-    //)
   }
 
   isLoggedIn() {

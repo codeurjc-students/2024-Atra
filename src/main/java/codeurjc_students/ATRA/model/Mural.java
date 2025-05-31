@@ -4,7 +4,6 @@ import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

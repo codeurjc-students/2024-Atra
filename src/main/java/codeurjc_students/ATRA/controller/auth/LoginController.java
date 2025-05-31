@@ -1,7 +1,6 @@
 package codeurjc_students.ATRA.controller.auth;
 
 
-import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.security.jwt.AuthResponse;
 import codeurjc_students.ATRA.security.jwt.AuthResponse.Status;
 import codeurjc_students.ATRA.security.jwt.LoginRequest;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")

@@ -1,9 +1,8 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { Route } from '../models/route.model';
 import { Mural } from '../models/mural.model';
 
 

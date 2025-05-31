@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Mural } from '../../models/mural.model';
 import { MuralService } from '../../services/mural.service';
 import { CommonModule, Location } from '@angular/common';

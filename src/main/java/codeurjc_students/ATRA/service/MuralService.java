@@ -3,7 +3,6 @@ package codeurjc_students.ATRA.service;
 import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.repository.MuralRepository;
-import codeurjc_students.ATRA.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

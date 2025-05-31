@@ -6,7 +6,6 @@ import { AlertService } from '../../services/alert.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile',

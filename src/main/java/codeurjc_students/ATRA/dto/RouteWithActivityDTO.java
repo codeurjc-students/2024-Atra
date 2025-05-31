@@ -1,6 +1,5 @@
 package codeurjc_students.ATRA.dto;
 
-import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Coordinates;
 import codeurjc_students.ATRA.model.Route;
 import jakarta.annotation.Nullable;

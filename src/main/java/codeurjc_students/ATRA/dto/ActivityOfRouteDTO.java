@@ -1,7 +1,6 @@
 package codeurjc_students.ATRA.dto;
 
 import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Coordinates;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.service.ActivityService;
 import lombok.Getter;
@@ -10,10 +9,6 @@ import lombok.Setter;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Setter
 @Getter

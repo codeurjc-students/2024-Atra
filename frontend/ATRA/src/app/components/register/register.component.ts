@@ -2,8 +2,7 @@ import { AlertService } from './../../services/alert.service';
 import { User } from './../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { map } from 'rxjs';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 

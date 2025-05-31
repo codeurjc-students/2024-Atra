@@ -1,14 +1,12 @@
-import { routes } from './../app.routes';
 import { Route } from './../models/route.model';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { AlertService } from './alert.service';
 import { Mural } from '../models/mural.model';
 import { Activity } from '../models/activity.model';
 import { User } from '../models/user.model';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FormattingService } from './formatting.service';
-import { LoginComponent } from '../components/login/login.component';
 
 @Injectable({
   providedIn: 'root'

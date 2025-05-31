@@ -1,7 +1,6 @@
 package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.dto.UserDTO;
-import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.repository.UserRepository;
 

@@ -1,7 +1,6 @@
 package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;

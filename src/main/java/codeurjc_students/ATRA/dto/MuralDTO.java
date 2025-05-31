@@ -1,16 +1,11 @@
 package codeurjc_students.ATRA.dto;
 
-import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Data

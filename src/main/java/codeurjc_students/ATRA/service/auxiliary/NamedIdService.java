@@ -1,7 +1,5 @@
 package codeurjc_students.ATRA.service.auxiliary;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import codeurjc_students.ATRA.service.ActivityService;
