@@ -122,11 +122,8 @@ public class ActivityDTO implements ActivityDtoInterface {
 		double totalDistance = prevDistance+nextDistance;
 		long totalTime = Duration.between(prevDP.get_time(), nextDP.get_time()).toSeconds();
 		long paceSecs = Math.round((double) totalTime / totalDistance);
-		if (paceSecs>=Long.MAX_VALUE*0.5) {
-			if (currentPos==0) { //you gotta be trolling me man
-				return getPace(currentPos+1, dataPoints);
-			}
-			return getPace(currentPos-1, dataPoints);
+		if (paceSecs==Long.MAX_VALUE) {
+			return "0";
 		}
 		return String.valueOf(Math.round((double) totalTime / totalDistance)); //seconds / kilometer
 	}
