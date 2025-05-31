@@ -36,7 +36,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		name = activity.getName();
 		type = activity.getType();
 		startTime = activity.getStartTime();
-		user = activity.getUser();
+		user = new BasicNamedId(activity.getUser());
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
@@ -49,7 +49,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		name = activity.getName();
 		type = activity.getType();
 		startTime = activity.getStartTime();
-		user = activity.getUser();
+		user = new BasicNamedId(activity.getUser());
 		route = routeIdAndName;
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
@@ -62,7 +62,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		this.name = activity.getName();
 		this.type = activity.getType();
 		this.startTime = activity.getStartTime();
-		user = activity.getUser();
+		this.user = new BasicNamedId(activity.getUser());
 		this.route = new BasicNamedId(route);
 		this.dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
