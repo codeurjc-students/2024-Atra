@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Mural } from '../../models/mural.model';
 import { MuralService } from '../../services/mural.service';
 import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -15,18 +14,19 @@ import { MuralsCategoryComponent } from "../murals-category/murals-category.comp
 })
 export class MuralsComponent implements OnInit {
 
-
-  ownedMurals!: Mural[];
-  memberMurals!: Mural[];
-  otherMurals!: Mural[];
-
   title:'Owned Murals' | 'Member Murals' | 'Other Murals' = "Owned Murals";
   component: 'list' | 'category' = "list";
-  selectedMurals: Mural[] | null = null;
 
   constructor(private muralService: MuralService, private location:Location, private router:Router) {}
 
+  //this component can be deleted with very little consequence.
+  //Effectively, it only serves to:
+  // - show muralsList or MuralsCategory depending on the route, which normal routing would do
+  // - and initialize the muralService caches with loadData(), which is not necessary since the first fetch of each will do that anyway.
+  //I'm leaving it here for the feels mainly.
   ngOnInit(): void {
+    this.muralService.loadData();
+
     //check if the route is /murals/:category, and if so, that the category is valid
     const currentUrlParts = this.location.path().split("/")
     if (currentUrlParts.length==3) {
@@ -35,57 +35,7 @@ export class MuralsComponent implements OnInit {
         this.router.navigate(["/murals"])
         return
       }
+      this.component = "category";
     }
-
-    //we're either on /murals, or /murals/:category with a valid category
-    this.muralService.getOwned().subscribe({
-      next: (murals) =>{
-        this.ownedMurals = murals;
-        if (currentUrlParts.length==3 && currentUrlParts[2]=="owned") this.urlChanged(this.location.path())
-      }
-    })
-    this.muralService.getMember().subscribe({
-      next: (murals) =>{
-        this.memberMurals = murals;
-        if (currentUrlParts.length==3 && currentUrlParts[2]=="member") this.urlChanged(this.location.path())
-      }
-    })
-    this.muralService.getOther().subscribe({
-      next: (murals) =>{
-        this.otherMurals = murals;
-        if (currentUrlParts.length==3 && currentUrlParts[2]=="other") this.urlChanged(this.location.path())
-      }
-    })
-
-    this.location.onUrlChange((url,state)=>{this.urlChanged(url)})
-  }
-
-  urlChanged(newUrl:string) {
-    const urlParts = newUrl.split("/")
-    if (urlParts.length==2) {
-      this.component = "list";
-      this.selectedMurals = []
-    }
-    else if (urlParts.length==3) {
-      this.component = 'category';
-
-      const category = urlParts[2]
-      if (category === 'owned') {
-        this.selectedMurals = this.ownedMurals;
-        this.title = 'Owned Murals';
-      }
-      else if (category === 'member') {
-        this.selectedMurals = this.memberMurals;
-        this.title = 'Member Murals';
-      }
-      else {
-        this.selectedMurals = this.otherMurals;
-        this.title = 'Other Murals';
-      }
-    }
-  }
-
-  seeAllClicked($event: 'owned'|'member'|'other') {
-    this.location.go("/murals/"+$event)
   }
 }

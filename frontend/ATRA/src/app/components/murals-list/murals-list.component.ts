@@ -1,5 +1,5 @@
 import { MuralService } from './../../services/mural.service';
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Mural } from '../../models/mural.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -13,11 +13,11 @@ import { MuralsNewComponent } from '../murals-new/murals-new.component';
   templateUrl: './murals-list.component.html',
   styleUrl: './murals-list.component.css'
 })
-export class MuralsListComponent implements OnChanges {
+export class MuralsListComponent implements OnChanges, OnInit {
 
-  @Input() ownedMurals!: Mural[];
-  @Input() memberMurals!: Mural[];
-  @Input() otherMurals!: Mural[];
+  ownedMurals!: Mural[];
+  memberMurals!: Mural[];
+  otherMurals!: Mural[];
 
   ownedMuralsWindow!: Mural[];
   memberMuralsWindow!: Mural[];
@@ -30,6 +30,27 @@ export class MuralsListComponent implements OnChanges {
   @Output() seeAllClicked:EventEmitter<'owned'|'member'|'other'> = new EventEmitter<'owned'|'member'|'other'>();
 
   constructor(private ngbModal:NgbModal, private muralService:MuralService) {}
+
+  ngOnInit(): void {
+    // Initialize owned, member, and other murals
+    this.muralService.getOwned().subscribe((murals) => {
+        if (murals==null) return
+        this.ownedMurals = murals;
+        this.ownedMuralsWindow = this.ownedMurals.slice(0,4);
+      }
+    );
+    this.muralService.getMember().subscribe((murals) => {
+        if (murals==null) return
+        this.memberMurals = murals;
+        this.memberMuralsWindow = this.memberMurals.slice(0,4);
+      }
+    );
+    this.muralService.getOther().subscribe((murals) => {
+        if (murals==null) return
+        this.otherMurals = murals;
+        this.otherMuralsWindow = this.otherMurals.slice(0,4);
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ownedMurals'] && changes['ownedMurals'].currentValue!=null) {
@@ -77,17 +98,14 @@ export class MuralsListComponent implements OnChanges {
 
     this.muralService.getOwned().subscribe({
       next: (murals) =>{
-        console.log("owned reloaded");
-        console.log(this.ownedMurals.length==murals.length);
-
-
+        if (murals==null) return
         this.ownedMurals = murals;
         this.ownedMuralsWindow = this.ownedMurals.slice(0+this.ownedMuralsOffset,4+this.ownedMuralsOffset);
       }
     })
     this.muralService.getMember().subscribe({
       next: (murals) =>{
-        console.log("member reloaded");
+        if (murals==null) return
         this.memberMurals = murals;
         this.memberMuralsWindow = this.memberMurals.slice(0+this.memberMuralsOffset,4+this.memberMuralsOffset);
       }
