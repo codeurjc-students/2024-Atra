@@ -30,13 +30,17 @@ export class AppComponent implements OnInit{
       (event) => {
         if (event instanceof NavigationEnd) {
           this.showSideBar = this.router.url !== "/"
+          console.log("routerURL: " + this.router.url);
+
           this.urlStart = '/' + this.router.url.split("/")[1]
+          console.log("urlStart: " + this.urlStart);
+
           if (this.urlStart.split('?')[0]=="/error") { //what does this do, why is this here?
             this.urlStart = "/me"
           }
           if (this.urlStart=="/murals") {
             const id = this.router.url.split("/")[2];
-            if (id) {
+            if (id!=null && !isNaN(Number(id))) {
               this.urlStart = "/murals/" + id;
             }
           }

@@ -29,9 +29,14 @@
           <a [routerLink]="[urlStart, 'home']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute()">
             <i class="fa-solid fa-house" style="color: #000000;"></i>
           </a>
-          <a [routerLink]="[urlStart]" class="icon-link" *ngIf="this.isMuralRoute()">
-            <i class="fa-solid fa-arrow-left fa-2xl" style="color: #000000;" *ngIf="this.isMuralRouteSelected() || this.isMuralRouteCategory()"></i>
-            <i class="fa-solid fa-house" style="color: #000000;" *ngIf="!this.isMuralRouteSelected() && !this.isMuralRouteCategory()"></i>
+          <!--house icon / back arrow from category. Leads to /murals-->
+          <a [routerLink]="[urlStart]" [routerLinkActiveOptions]="{ exact: true }" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute()">
+            <i class="fa-solid fa-house" style="color: #000000;" *ngIf="!isMuralRouteCategory() && !isMuralRouteSelected()"></i>
+            <i class="fa-solid fa-arrow-left fa-2xl" style="color: #000000;" *ngIf="isMuralRouteCategory() || isMuralRouteSelected()"></i>
+          </a>
+          <!--house icon inside selected mural, leads to /murals/id/dashboard-->
+          <a [routerLink]="[urlStart, 'dashboard']" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute() && this.isMuralRouteSelected()">
+            <i class="fa-solid fa-house" style="color: #000000;"></i>
           </a>
           <a [routerLink]="[urlStart, 'activity-view']"  [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
             <img src="../assets/study.svg" class="v-75 w-75">
