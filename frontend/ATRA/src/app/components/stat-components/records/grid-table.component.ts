@@ -37,7 +37,11 @@ export class GridTableComponent implements OnInit{
 
   rowClicked(index: number) {
     if (this.rowLinks==null) return
-    return this.router.navigate([this.rowLinks[index]]);
+    const parts = this.rowLinks[index].split('?');
+    if (parts.length == 2) {
+      return this.router.navigate([parts[0]], { queryParams: { selected: parts[1].split('=')[1] } });
+    }
+    return this.router.navigate([parts[0]]);
   }
 
 }

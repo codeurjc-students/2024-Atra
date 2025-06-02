@@ -10,6 +10,7 @@ import L from 'leaflet';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivitySelectComponent } from "../activity-select/activity-select.component";
 import { FormattingService } from '../../services/formatting.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-routes',
@@ -30,7 +31,7 @@ export class RoutesComponent {
   allActivities !: Activity[];
   errorLoadingActivities : boolean = false;
 
-  constructor(private routeService:RouteService, private activityService:ActivityService, private modalService: NgbModal, private alertService:AlertService){}
+  constructor(private routeService:RouteService, private activityService:ActivityService, private modalService: NgbModal, private alertService:AlertService, private activatedRoute: ActivatedRoute){}
 
 
   ngOnInit(): void {
@@ -38,6 +39,10 @@ export class RoutesComponent {
       next: (value:Route[]) => {
         if (value.length!=0) {
           this.routes = new Map(value.map(x => [x.id, x]))
+          this.activatedRoute.queryParamMap.subscribe(params => {
+            const selectedId = params.get('selected');
+            this.select(selectedId==null ? null:Number(selectedId)); //bc apparently Number(null) is 0
+          })
         }
         else {
           this.alertService.alert("No routes were found. You can create one by clicking on create route.")

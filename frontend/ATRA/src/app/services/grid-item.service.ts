@@ -304,7 +304,7 @@ export class GridItemService {
         if (this.mural) {
           console.log("GridItemService.populateRoutes setting rowLinks for mural routes");
 
-          this.rowLinks.get('routes')?.next(routes.map(route => `/murals/${this.mural!.id}/routes/${route.id}`));
+          this.rowLinks.get('routes')?.next(routes.map(route => `/murals/${this.mural!.id}/routes?selected=${route.id}`));
         } else if (this.user) {
           this.rowLinks.get('routes')?.next(routes.map(route => `/me/routes?selected=${route.id}`)); //not sure if selected will be honored. Another option is to create /routes/id/details
         }
