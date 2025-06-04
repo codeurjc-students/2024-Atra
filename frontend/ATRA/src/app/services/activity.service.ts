@@ -2,9 +2,9 @@ import { AlertService } from './alert.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from './user.service';
 import { Activity } from '../models/activity.model';
 import { catchError, map, Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class ActivityService {
 
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 
-  constructor(private http: HttpClient, private router: Router, private userService: UserService, private alertService:AlertService) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService, private alertService:AlertService) {}
 
   uploadActivity(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -35,7 +35,7 @@ export class ActivityService {
         this.alertService.alert("File upload failed. The file must be a gpx file!")
         return
       }
-      this.userService.isLoggedIn().subscribe({
+      this.authService.isLoggedIn().subscribe({
         next: (response) => {
           if (!response) {
             this.alertService.alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without login")

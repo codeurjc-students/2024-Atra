@@ -15,21 +15,12 @@ export class UserService {
 
   constructor(private http: HttpClient, private router: Router, private alertService:AlertService) {}
 
-  login(username: string, password: string): Observable<any> {
-    const body = { username, password };
-    return this.http.post("/api/auth/login", body);
-  }
-
   getUserById(userId : number):Observable<User>{
     return this.http.get<User>('/api/users/'+userId);
   }
 
   isUsernameTaken(userName: string) {
     return this.http.get<boolean>("/api/users/IsUsernameTaken?username="+userName)
-  }
-
-  isLoggedIn() {
-    return this.http.get<boolean>("/api/users/IsLoggedIn")
   }
 
   createUser(user: User) {

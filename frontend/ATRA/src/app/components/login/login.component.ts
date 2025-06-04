@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,8 @@ export class LoginComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     protected activeModal: NgbActiveModal,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private authService: AuthService
   ){}
 
   ngOnInit(): void {
@@ -40,10 +42,15 @@ export class LoginComponent implements OnInit {
       return
     }
     this.activeModal.close();
-    this.userService.login(this.loginForm.get("username")?.value, this.loginForm.get("password")?.value).subscribe({
+    this.authService.login(this.loginForm.get("username")?.value, this.loginForm.get("password")?.value).subscribe({
       next: (response) => {
         console.log('Login successful', response);
-        this.router.navigate(['/me/home']);
+        const redirect = this.authService.getRedirectUrl();
+        if (redirect) {
+          this.router.navigate([redirect]);
+        } else {
+          this.router.navigate(['/me/home']);
+        }
       },
       error: (error) => {
         console.error('Login failed', error);

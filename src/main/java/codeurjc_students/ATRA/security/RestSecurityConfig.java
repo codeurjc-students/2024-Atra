@@ -31,6 +31,9 @@ import java.security.SecureRandom;
 @Configuration
 public class RestSecurityConfig {
 
+	private final String ADMIN_ROLE = "ADMIN";
+	private final String USER_ROLE = "USER";
+
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -60,10 +63,42 @@ public class RestSecurityConfig {
 			.authorizeHttpRequests(authorize -> authorize
 		
 				// URLs that need authentication to access to it
-				.requestMatchers(HttpMethod.POST, "/api/example/1").hasRole("ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/example/2").hasRole("USER")
-				.requestMatchers(HttpMethod.GET, "/api/example/3").hasAnyRole("ADMIN", "USER")
-				.requestMatchers(HttpMethod.GET, "/api/example/4").permitAll()
+					.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+					.requestMatchers(HttpMethod.POST, "/api/auth/refresh").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+
+					.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/users/verify-password").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/users/password").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.PATCH, "/api/users/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/users/IsLoggedIn").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/users/IsUsernameTaken").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/users").anonymous() //can only create a user if not logged in
+
+					.requestMatchers(HttpMethod.DELETE, "/api/activities/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/activities/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.DELETE, "/api/activities/{id}/route").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/activities/{id}/route").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+
+					.requestMatchers(HttpMethod.GET, "/api/murals/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/murals/{id}/banner").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/murals/{id}/thumbnail").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+
+					.requestMatchers(HttpMethod.DELETE, "/api/routes/{\\\\d+}/activities/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.DELETE, "/api/routes/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/routes/{id}/activities/").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST, "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/routes/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/routes/{id}/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+
+
 
 				// Other URLs can be accessed without authentication
 				.anyRequest().permitAll())

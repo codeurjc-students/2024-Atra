@@ -11,29 +11,30 @@ import { RoutesComponent } from './components/routes/routes.component';
 import { ErrorComponent } from './components/error/error.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { MuralsDashboardComponent } from './components/murals-dashboard/murals-dashboard.component';
+import { AuthGuard } from './services/auth-guard.service';
 
 export const routes: Routes = [
-  {path: '', component: WelcomeComponent},
-  {path: 'login', component: LoginComponent},
-  {path: 'register', component: RegisterComponent},
-  {path: 'error', component: ErrorComponent},
-  {path: 'me', component: ProfileComponent},
-  {path: 'me/home', component: HomeComponent},
-  {path: 'me/routes', component: RoutesComponent},
-  {path: 'me/activity-comparison', component: ActivitySelectComponent},
-  {path: 'me/activity-comparison/:id', component: ComparisonComponent}, // this with extra ones in query parameters. Alt would be me/activity-comparison?ids=1,2
+  {path: '', component: WelcomeComponent}, //pretty sure login and register should be removed, they are actually handled by the root
+  {path: 'login', component: LoginComponent}, //pretty sure login and register should be removed, they are actually handled by the root
+  {path: 'register', component: RegisterComponent}, //pretty sure login and register should be removed, they are actually handled by the root
+  {path: 'error', component: ErrorComponent, canActivate: [AuthGuard],},
+  {path: 'me', component: ProfileComponent, canActivate: [AuthGuard],},
+  {path: 'me/home', component: HomeComponent, canActivate: [AuthGuard],},
+  {path: 'me/routes', component: RoutesComponent, canActivate: [AuthGuard],},
+  {path: 'me/activity-comparison', component: ActivitySelectComponent, canActivate: [AuthGuard],},
+  {path: 'me/activity-comparison/:id', component: ComparisonComponent, canActivate: [AuthGuard],}, // this with extra ones in query parameters. Alt would be me/activity-comparison?ids=1,2
                                                                         // this depends on wether I want to differentiate the elements being compared. If there is one important one
                                                                         // being compared against others, it should be /:id?ids=1,2. If all take the same importance, it should be
                                                                         // /activity-comparison?ids=1,2,
-  {path: 'me/activity-view', component: ActivitySelectComponent},
-  {path: 'me/activity-view/:id', component: ActivityComponent}, //
-  {path: 'murals', component: MuralsComponent},
-  {path: 'murals/:category', component: MuralsComponent},
-  {path: 'murals/:id/activity-comparison', component: ComparisonComponent},
-  {path: 'murals/:id/activity-view', component: ActivitySelectComponent},
-  {path: 'murals/:id/activities/:id', component: ActivityComponent},
-  {path: 'murals/:id/dashboard', component: MuralsDashboardComponent},
-  {path: 'murals/:id/routes', component: RoutesComponent},
+  {path: 'me/activity-view', component: ActivitySelectComponent, canActivate: [AuthGuard],},
+  {path: 'me/activity-view/:id', component: ActivityComponent, canActivate: [AuthGuard],},
+  {path: 'murals', component: MuralsComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:category', component: MuralsComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/activity-comparison', component: ComparisonComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/activity-view', component: ActivitySelectComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/dashboard', component: MuralsDashboardComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/routes', component: RoutesComponent, canActivate: [AuthGuard],},
 
   {path: '**', component: ErrorComponent},
 
