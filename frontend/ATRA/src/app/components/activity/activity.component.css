@@ -78,3 +78,7 @@
 }
 
 
+.linethrough-on-hover:hover{
+  text-decoration: line-through;
+  cursor: pointer;
+}

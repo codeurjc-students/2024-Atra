@@ -2,10 +2,12 @@ package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.ActivityDTO;
 import codeurjc_students.ATRA.dto.DtoService;
+import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.ActivityService;
 import codeurjc_students.ATRA.service.RouteService;
 import codeurjc_students.ATRA.service.UserService;
@@ -16,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -42,9 +42,9 @@ public class ActivityController {
     @GetMapping("/{id}")
     public ResponseEntity<ActivityDTO> getActivity(@PathVariable("id") Long id, Principal principal){
         //this can be extracted, returning User and throwing errors
-        if (principal==null) return ResponseEntity.status(403).build();
+        if (principal==null) return ResponseEntity.status(401).build();
         Optional<User> userOpt = userService.findByUserName(principal.getName());
-        if (userOpt.isEmpty()) return  ResponseEntity.status(403).build(); //this should never happen. Maybe should be 500
+        if (userOpt.isEmpty()) return  ResponseEntity.status(404).build(); //this should never happen. Maybe should be 500
         User user = userOpt.get();
         //this can be extracted, returning User and throwing errors
 
@@ -52,11 +52,13 @@ public class ActivityController {
             Optional<Activity> actOpt = activityService.findById(id);
             if (actOpt.isEmpty()) return ResponseEntity.notFound().build();
 
-            //check that the user has permission to access this activity
-            if (!actOpt.get().getUser().equals(user)) return ResponseEntity.status(403).build();
+            //check that the user has permission to see this activity
+            Activity activity = actOpt.get();
+
+            if (!activity.getUser().equals(user) && !activity.getVisibility().isPublic()) return ResponseEntity.status(403).build();
             //fetch and return the activity
 
-            return ResponseEntity.ok(dtoService.toDTO(actOpt.get()));
+            return ResponseEntity.ok(dtoService.toDTO(activity));
         }
         return ResponseEntity.badRequest().build();
     }
@@ -65,9 +67,9 @@ public class ActivityController {
     public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @RequestParam(required=false) List<Long> ids){
         if (ids!=null) return getMultipleActivities(principal, ids);
         //this can be extracted, returning User and throwing errors
-        if (principal==null) return ResponseEntity.status(403).build();
+        if (principal==null) return ResponseEntity.status(401).build();
         Optional<User> userOpt = userService.findByUserName(principal.getName());
-        if (userOpt.isEmpty()) return  ResponseEntity.status(403).build(); //this should never happen. Maybe should be 500
+        if (userOpt.isEmpty()) return ResponseEntity.status(404).build(); //this should never happen. Maybe should be 500
         User user = userOpt.get();
         return ResponseEntity.ok(dtoService.toDtoActivity(user.getActivities()));
         //this can be extracted, returning User and throwing errors
@@ -143,6 +145,20 @@ public class ActivityController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{id}/visibility")
+    public ResponseEntity<Boolean> changeVisibility(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String visibilityString = body.get("visibility");
+        try {
+            VisibilityType visibilityType = VisibilityType.valueOf(visibilityString);
+            String csvMuralIds = body.get("allowedMuralsList").substring(1,body.get("allowedMuralsList").length()-1);
+            List<Long> allowedMuralsIds = csvMuralIds.isEmpty() ? null:Arrays.stream(csvMuralIds.split(",")).map(Long::parseLong).toList(); //use a fucking string and just parse it, I'm done with this crap
+            boolean success = activityService.changeVisibility(id, visibilityType, allowedMuralsIds);
+            if (!success) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            throw new HttpException(400, visibilityString + " is not a valid Visibility Type");
+        }
+    }
 
 }
 

@@ -1,10 +1,14 @@
 package codeurjc_students.ATRA.model;
 
+import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Data
@@ -24,7 +28,7 @@ public class User implements NamedId {
 	private String name;
 	private String email;
 
-	//private List<Route> routes;
+	//private List<Route> ownedRoutes;
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
@@ -82,4 +86,10 @@ public class User implements NamedId {
 		memberMurals.remove(mural);
 		//maybe remove it from ownerMurals as well? This will need to be fleshed out when we get to murals
 	}
+
+	public boolean hasRole(String role) {
+		return this.roles.contains(role);
+	}
+
+
 }

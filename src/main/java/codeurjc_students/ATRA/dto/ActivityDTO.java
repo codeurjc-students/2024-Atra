@@ -5,6 +5,7 @@ import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.ActivityService; //consider substituting this for a DistanceUtils or similar utility class, consisting of static methods, and independent of spring
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 	private List<DataPoint> dataPoints; // I think this can be deleted
 	private Map<String, List<String>> streams;
 	private ActivitySummary summary;
+	private VisibilityType visibility;
 
 	public ActivityDTO(Activity activity){
 		id = activity.getId();
@@ -41,6 +43,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
+		visibility = activity.getVisibility().getType();
 	}
 
 	//these may not be needed (since activity holds its route now)
@@ -54,6 +57,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
+		visibility = activity.getVisibility().getType();
 	}
 
 	//these may not be needed.
@@ -67,6 +71,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		this.dataPoints = activity.getDataPoints();
 		setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
+		visibility = activity.getVisibility().getType();
 	}
 
 

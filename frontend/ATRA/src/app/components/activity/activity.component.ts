@@ -1,3 +1,4 @@
+import { AuthService } from './../../services/auth.service';
 import { MapService } from './../../services/map.service';
 import { ActivityService } from './../../services/activity.service';
 import { CommonModule } from '@angular/common';
@@ -32,7 +33,7 @@ export class ActivityComponent implements OnInit {
   map!: L.Map;
   path !: L.Polyline;
 
-  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService, private alertService:AlertService) {}
+  constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService, private alertService:AlertService, private authService:AuthService) {}
 
   ngOnInit(): void {
     if (this.map==null)
@@ -83,6 +84,7 @@ export class ActivityComponent implements OnInit {
   routeMap: L.Map | null = null;
   routePath !: L.Polyline;
   displayRoute : Route | null = null;
+  owned: boolean = false;
 
   open(content: TemplateRef<any>) {
     if (this.errorLoadingRoutes) return this.alertService.alert("There seem to be no activities with no route assigned.")
@@ -189,10 +191,44 @@ export class ActivityComponent implements OnInit {
 
   receivedAnActivityHandler(act:any, msg?:string) {
     if (msg) console.log(msg);
+    this.owned = this.authService.user.getValue()?.id==act.user.id;
+
     this.activity = this.activityService.process1(act);
     this.stats = this.activity.getOverview()
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1;
+    this.currentVisibility = this.activity.visibility
 
     this.addPathToMap()
+  }
+
+  currentVisibility: "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC" = "PRIVATE";
+  visibilities: ("PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC")[] = ["PRIVATE", "MURAL_SPECIFIC", "MURAL_PUBLIC", "PUBLIC"];
+  allowedMuralsList: number[] = [];
+
+  addAllowedMural(muralIdString: string) {
+    const muralId = parseInt(muralIdString);
+    if (isNaN(muralId)) {
+      this.alertService.alert("Invalid mural ID. Please enter a valid number.");
+      return;
+    }
+    if (this.allowedMuralsList.includes(muralId)) {
+      return;
+    }
+    this.allowedMuralsList.push(muralId);
+  }
+
+  submitChangeVisibility(newVis: string) {
+    if (!["PRIVATE", "MURAL_SPECIFIC", "MURAL_PUBLIC", "PUBLIC"].includes(newVis)) throw new Error("WHAT. THE. FUCK. How the fuck is newVis this value: " + newVis);
+    //show loading screen
+    if ("MURAL_SPECIFIC" !== newVis) this.allowedMuralsList = [];
+    this.activityService.changeVisibility(this.id, newVis as "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC", this.allowedMuralsList).subscribe({
+      next:() => {
+        console.log("Visibility changed");
+        //close loading screen
+        this.modal.close()
+
+      }
+    })
+
   }
 }

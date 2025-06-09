@@ -85,8 +85,8 @@ public class RestSecurityConfig {
 					.requestMatchers(HttpMethod.POST, "/api/activities/{id}/route").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
 					.requestMatchers(HttpMethod.GET, "/api/murals/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/murals/{id}/banner").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/murals/{id}/thumbnail").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET, "/api/murals/{id}/banner").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/murals/{id}/thumbnail").permitAll()
 					.requestMatchers(HttpMethod.GET, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.POST, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 

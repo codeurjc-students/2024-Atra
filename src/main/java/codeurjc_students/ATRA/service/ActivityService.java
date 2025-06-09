@@ -3,6 +3,7 @@ package codeurjc_students.ATRA.service;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.ActivityRepository;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Track;
@@ -18,9 +19,8 @@ import org.w3c.dom.Node;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityService {
@@ -49,7 +49,7 @@ public class ActivityService {
 
 	/**
 	 * DeletionService.deleteActivity(Long id) should be called instead.
-	 * @param id
+	 * @param id the id of the activity to delete
 	 */
 	void delete(long id) {
 		activityRepository.deleteById(id);
@@ -115,7 +115,7 @@ public class ActivityService {
 		dataPoint.put("long", Double.toString(longitude));
 		dataPoint.put("ele", Double.toString(elevation));
 
-		//hanlde time
+		//handle time
 		Optional<Instant> timeOpt = pt.getTime();
         timeOpt.ifPresent(instant -> dataPoint.put("time", instant.toString()));
 
@@ -207,9 +207,70 @@ public class ActivityService {
 
 	public void routeDeleted(Long deletedRouteId) {
 		activityRepository.findAll().forEach(activity -> {
-			if (activity.getRoute() != null && activity.getRoute().equals(deletedRouteId)) {
+			if (activity.getRoute() != null && activity.getRoute().getId().equals(deletedRouteId)) {
 				activity.setRoute(null);
 			}
 		});
 	}
+
+	/**
+	 *
+	 * @param activityId
+	 * @param newVisibility
+	 * @return false if activityId doesn't match any existing activities, true otherwise
+	 */
+	public boolean changeVisibility(Long activityId, VisibilityType newVisibility){ //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
+		return changeVisibility(activityId,newVisibility,null);
+	}
+	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
+		Activity activity = activityRepository.findById(activityId).orElse(null);
+		if (activity == null) return false;
+
+		HashSet<Long> allowedMurals = allowedMuralsCol == null ? new HashSet<>() : new HashSet<>(allowedMuralsCol);
+
+		VisibilityType prevType = activity.getVisibility().getType();
+		activity.changeVisibilityTo(newVisibility, allowedMuralsCol);
+		//now we have to check ALL places where that activity could have been/could be now, to update them
+		if (newVisibility.isLessPublicThan(prevType)) { //visibility decreased
+			//delete all not in allowedMurals
+			activity.getUser().getMemberMurals().forEach(mural -> {
+				if (!allowedMurals.contains(mural.getId())) {
+					mural.removeActivity(activity);
+				}
+			});
+		} else if (newVisibility.isMorePublicThan(prevType)) { //visibility increased
+			//add to all murals in allowedMurals ?? userMurals
+			if (allowedMurals.isEmpty()) { //if allowedMurals is empty, add all murals
+				activity.getUser().getMemberMurals().forEach(mural -> {
+					if (!mural.getActivities().contains(activity))
+						mural.addActivity(activity);
+				});
+			} else { //if allowedMurals has murals, only add to those
+				activity.getUser().getMemberMurals().forEach(mural -> {
+					if (allowedMurals.contains(mural.getId()))
+						mural.addActivity(activity);
+				});
+			}
+		}
+		activityRepository.save(activity);
+		return true;
+	}
+
+	public List<Activity> getActivitiesFromUser(VisibilityType visibility, User user) {
+		return getActivitiesFromUser(visibility, user, null);
+	}
+	public List<Activity> getActivitiesFromUser(VisibilityType visibility, User user, Long muralId) {
+		List<Activity> activities = user.getActivities();
+        return switch (visibility) {
+            case PUBLIC -> activities.stream().filter(a -> a.getVisibility().isPublic()).toList();
+            case MURAL_PUBLIC -> activities.stream().filter(a -> a.getVisibility().isMuralPublic()).toList();
+            case MURAL_SPECIFIC -> {
+                if (muralId == null)
+                    throw new IllegalArgumentException("getActivities(MURAL_SPECIFIC, ...) called with a null muralId");
+                yield activities.stream().filter(a -> a.getVisibility().isMuralPublic() || a.getVisibility().isVisibleByMural(muralId)).toList();
+            }
+            case PRIVATE -> activities;
+        };
+    }
+
 }

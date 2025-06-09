@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ActivityService {
+
   getCoordinates(activity: Activity): [number, number][] {
     return activity.getStream("position").map((x:string)=>{
       const parts = x.split(";")
@@ -180,4 +181,15 @@ export class ActivityService {
       })
     );
   }
+
+  changeVisibility(id: number, newVis: ActivityVisibility, allowedMuralsList:number[]) {
+    if (isActivityVisibility(newVis) == false) throw new Error("WHAT. THE. FUCK. How the fuck is newVis this value: " + newVis);
+    return this.http.patch("/api/activities/" + id + "/visibility", {visibility: newVis, allowedMuralsList:JSON.stringify(allowedMuralsList)})
+  };
+}
+
+type ActivityVisibility = "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC";
+
+function isActivityVisibility(value: string): value is ActivityVisibility {
+  return ["PRIVATE", "MURAL_SPECIFIC", "MURAL_PUBLIC", "PUBLIC"].includes(value);
 }

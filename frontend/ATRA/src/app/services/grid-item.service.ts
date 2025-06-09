@@ -44,7 +44,7 @@ export class GridItemService {
     if (mural) {
       this.members.next(mural.members);
     }
-    this.fetchActivities(entity.activities).subscribe({
+    this.fetchActivities(mural, user).subscribe({
         next: (activities: Activity[]) => {
           this.activityList.next(activities)
                 },
@@ -260,7 +260,6 @@ export class GridItemService {
           console.log("GridItemService.populateActivities setting rowLinks for mural activities");
           console.log(this.rowLinks.get('activities'));
 
-
           this.rowLinks.get('activities')?.next(activities.map(activity => `/murals/${this.mural!.id}/activities/${activity.id}`));
         } else if (this.user) {
           this.rowLinks.get('activities')?.next(activities.map(activity => `/me/activities/${activity.id}`));
@@ -317,11 +316,13 @@ export class GridItemService {
 
   constructor(private alertService:AlertService, private http: HttpClient) {}
 
-  fetchActivities(activities: {name:string;id:number}[] | undefined): Observable<Activity[]> {
-    //console.log("activities");
-    //console.log(activities);
-    if (activities == null) throw new Error("GridItemService.fetchActivities called with null activities.");
-    return this.http.get<Activity[]>('/api/activities', { params: { ids: activities.map(a => a.id).join(',') } })
+  fetchActivities(mural: Mural | null, user: User | null): Observable<Activity[]> {
+    //should fetch to /murals/:id/activities or /users/:id/activities, no need to pass the list
+    //thus, we can omit the argument (we were just receiving entity.activities, we'd be doing the same thing)
+    if (mural!=null) return this.http.get<Activity[]>('/api/murals/'+mural.id+"/activities")
+    if (user!=null) return this.http.get<Activity[]>('/api/users/'+user.id+"/activities")
+    //if both are null
+    throw new Error("GridItemService.fetchActivities called with null mural and user."); //shouldn't come to this, it should be caught above
   }
 
   fetchRoutes(routes: {name:string;id:number}[] | undefined): Observable<Route[]> {

@@ -7,11 +7,13 @@ import codeurjc_students.ATRA.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,10 +98,21 @@ public class MuralController {
 
     }
 
+    @GetMapping("/{muralId}/activities")
+    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @PathVariable Long muralId){
+        //exceptions are handled by HttpExceptionHandler
+        User user = principalVerification(principal);
+        Mural mural = muralService.findById(muralId).orElseThrow(()->new HttpException(404, "Mural not found"));
+        if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "User is not in Mural, thus, they can't access its activities");
+        //user and mural both exists, and user is in the mural
+        //now return the mural's activities
+        return ResponseEntity.ok(dtoService.toDtoActivity(mural.getActivities()));
+    }
+
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);
         User user = userService.findByUserName(principal.getName()).orElse(null);
-        if (user == null) throw new HttpException(404);
+        if (user == null) throw new HttpException(404, "User not found");
         else return user;
     }
 

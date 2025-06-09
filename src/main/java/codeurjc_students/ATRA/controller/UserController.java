@@ -1,9 +1,14 @@
 package codeurjc_students.ATRA.controller;
 
+import codeurjc_students.ATRA.dto.ActivityDTO;
+import codeurjc_students.ATRA.dto.DtoService;
 import codeurjc_students.ATRA.dto.NewUserDTO;
 import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.exception.HttpException;
+import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.ATRA.service.ActivityService;
 import codeurjc_students.ATRA.service.DeletionService;
 import codeurjc_students.ATRA.service.UserService;
 
@@ -13,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -26,7 +32,11 @@ public class UserController {
 	@Autowired
 	private UserService userService;
     @Autowired
+	private ActivityService activityService;
+    @Autowired
     private DeletionService deletionService;
+    @Autowired
+    private DtoService dtoService;
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id){
@@ -37,6 +47,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<UserDTO> patchUser(@PathVariable Long id, @RequestBody UserDTO receivedUser, Principal principal){
+        if (principal==null) return ResponseEntity.status(401).build();
         User user = userService.findById(id).orElse(null);
         if (user==null) return ResponseEntity.notFound().build();
         if (!user.getUsername().equals(principal.getName())) return ResponseEntity.status(403).build();
@@ -59,7 +70,27 @@ public class UserController {
             User user = this.principalVerification(principal);
             return ResponseEntity.ok(userService.toDTO(user));
         } catch (HttpException e) {
+            System.out.println("ERROR: current user is not authenticated or does not exist");
             return ResponseEntity.status(e.getStatus()).build();
+        }
+    }
+
+    @GetMapping("/{userId}/activities") //visibility = PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC & muralId= {LongOrNull}
+    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @PathVariable Long userId, @RequestParam(value = "visibility", required = false) String visibility, @RequestParam(value = "muralId", required = false) Long muralId){
+        User user = principalVerification(principal);
+        User requestedUser = userService.findById(userId).orElseThrow(()->new HttpException(404, "Requested user not found. Can't fetch their activities."));
+        if (!user.equals(requestedUser) && !user.hasRole("ADMIN")) {//return public activities
+            if (visibility!=null || muralId != null) throw new HttpException(400, "When requesting the activities of a different user than the one authenticated, you can't specify visibility");
+            return ResponseEntity.ok(dtoService.toDtoActivity(activityService.getActivitiesFromUser(VisibilityType.PUBLIC, user)));
+        }
+        //return all according to requested visibility. Default is private (meaning return all)
+        try {
+            VisibilityType vis = VisibilityType.valueOf(visibility);
+            List<Activity> activities = activityService.getActivitiesFromUser(vis, user, muralId);
+            return ResponseEntity.ok(dtoService.toDtoActivity(activities));
+        } catch (IllegalArgumentException e) {
+            throw new HttpException(400, "Received visibility has an invalid value. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. " +
+                    "If the visibility is MURAL_SPECIFIC, a muralId RequestParam must be included. This param must be a Long" + e.getMessage());
         }
     }
 

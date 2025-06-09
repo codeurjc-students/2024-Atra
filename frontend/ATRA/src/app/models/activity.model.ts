@@ -23,6 +23,8 @@ export class Activity {
     summary:ActivitySummary | null;
     other:any;
 
+    visibility: "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC";
+
     constructor(activity: any) {
       this.id = activity.id;
       this.name = activity.name;
@@ -37,6 +39,8 @@ export class Activity {
       this.streams = activity.streams;
       this.summary = activity.summary;
       this.other = activity.other;
+
+      this.visibility = activity.visibility || "PRIVATE"; // Default to PRIVATE if not set
   }
 
   getOverview(): {name:string; value:string}[] {

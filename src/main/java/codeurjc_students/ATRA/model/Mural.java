@@ -51,6 +51,7 @@ public class Mural implements NamedId {
 		this.members.add(owner);
 		this.name = owner.getName() + "'s Mural";
 		this.description = "A mural created by " + owner.getName();
+		populateActivities();
 	}
 
 	public Mural(User owner, Collection<User> members) {
@@ -61,6 +62,7 @@ public class Mural implements NamedId {
 		this.members.add(owner);
 		this.name = owner.getName() + "'s Mural";
 		this.description = "A mural created by " + owner.getName();
+		populateActivities();
 	}
 
 	public Mural(String name, User owner, Collection<User> members) {
@@ -71,6 +73,7 @@ public class Mural implements NamedId {
 		});
 		this.members.add(owner);
 		this.description = "A mural created by " + owner.getName();
+		populateActivities();
 	}
 
 	public Mural(String name, String description, User owner, byte[] thumbnail, byte[] banner) {
@@ -80,6 +83,7 @@ public class Mural implements NamedId {
 		this.members.add(owner);
 		this.thumbnail = thumbnail;
 		this.banner = banner;
+		populateActivities();
 	}
 	public void removeActivity(Activity activity) {
 		this.activities.remove(activity);
@@ -91,11 +95,34 @@ public class Mural implements NamedId {
 
 	public void removeOwner(User user)  {
 		removeMember(user);
-		owner = members.get(0);
+		owner = members.get(0); //or whoever was set to inherit
 	}
 
 	public void removeMember(User user)  {
 		if (members.size()==1) throw new RuntimeException("removeMember called with only one member remaining. delete should be called instead.");
 		members.remove(user);
+		activities.removeIf(activity -> activity.getUser().getId().equals(user.getId()));
+	}
+
+	private void populateActivities(){
+		if (this.members==null) return;
+		this.members.forEach(user -> { //this just gives the activities public or muralPublic activities (since the mural doesn't exist so its id isn't in any lists)
+			activities.addAll(user.getActivities().stream().filter(activity -> activity.getVisibility().isVisibleByMural(this.id)).toList());
+		});
+	}
+
+	public void updateActivities() {
+		//recalculates all activities. Should be called every once in a while to make sure we're up to date
+		activities.clear();
+		populateActivities();
+	}
+
+	public void addActivity(Activity activity) {
+		this.activities.add(activity);
+	}
+
+	public void addUser(User user) {
+		members.add(user);
+		activities.addAll(user.getActivities().stream().filter(activity -> activity.getVisibility().isVisibleByMural(this.id)).toList());
 	}
 }

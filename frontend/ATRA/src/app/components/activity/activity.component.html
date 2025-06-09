@@ -5,10 +5,11 @@
     <h2 class="h5 mb-0" *ngIf="activity">{{activity.name}}</h2>
     <h2 class="h5 mb-0" *ngIf="!activity">Loading</h2>
     <div>
-      <button class="btn btn-warning mx-1" *ngIf="activity && this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
-      <button class="btn btn-primary mx-1" *ngIf="activity && this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
-      <button class="btn btn-warning mx-1" *ngIf="activity && !this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
-      <button class="btn btn-danger mx-1" (click)="deleteActivity()"><i class="fa-solid fa-trash"></i> Delete</button>
+      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
+      <button class="btn btn-primary mx-1" *ngIf="activity && this.owned && this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
+      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
+      <button class="btn btn-info mx-1"    *ngIf="activity && this.owned" (click)="open(visibilityModal)"><i class="fa-solid fa-eye"></i> Change Visibility</button>
+      <button class="btn btn-danger mx-1"  *ngIf="activity && this.owned" (click)="deleteActivity()"><i class="fa-solid fa-trash"></i> Delete</button>
 
     </div>
   </div>
@@ -125,6 +126,40 @@
 
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
     <button type="button" class="btn btn-success" (click)="submitChangeRoute(selectForRoute.value)"><i class="fa-solid fa-floppy-disk"></i> Confirm</button>
+  </div>
+</div>
+</ng-template>
+
+<ng-template #visibilityModal> <!-- let-modal -->
+  <div>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Manage Visibility</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <select [(ngModel)]="currentVisibility" #selectForVisibility class="form-select">
+      <option *ngFor="let x of visibilities" [value]="x">
+        {{ x }}
+      </option>
+    </select>
+    <div class="mt-3 d-flex flex-column align-items-start" id="allowedRoutes" *ngIf="currentVisibility=='MURAL_SPECIFIC'">
+      <div>
+        <input type="text" class="form-control d-inline-block w-auto mx-1" #allowedMuralsInput placeholder="Enter item" />
+        <button class="btn btn-primary mx-1" (click)="addAllowedMural(allowedMuralsInput.value);allowedMuralsInput.value=''">Send</button>
+      </div>
+
+      <ul class="mt-2 ">
+        <li *ngFor="let item of allowedMuralsList; let i = index" (click)="allowedMuralsList.splice(i,1)" class="linethrough-on-hover">{{ item }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="submitChangeVisibility(selectForVisibility.value)"><i class="fa-solid fa-floppy-disk"></i> Confirm</button>
   </div>
 </div>
 </ng-template>
