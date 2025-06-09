@@ -1,7 +1,10 @@
 package codeurjc_students.ATRA.exception;
 
-public class HttpException extends Exception{
-    private int status;
+import lombok.Getter;
+
+@Getter
+public class HttpException extends RuntimeException{
+    private final int status;
     public HttpException(int status) {
         this.status = status;
     }
@@ -11,7 +14,4 @@ public class HttpException extends Exception{
         this.status = status;
     }
 
-    public int getStatus() {
-        return status;
-    }
 }
