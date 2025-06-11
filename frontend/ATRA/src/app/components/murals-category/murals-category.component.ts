@@ -19,10 +19,6 @@ export class MuralsCategoryComponent implements OnInit, OnDestroy {
   constructor(private muralService: MuralService, private router:Router, private location:Location) {}
 
   ngOnInit(): void {
-    // Allows scrolling
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-
     const category = this.location.path().split("/")[2];
     if (!['owned', 'member', 'other'].includes(category) || category == null) {
       console.error("MuralsComponent called with invalid path: " + this.location.path() + "\n'" + category + "' is not a valid argument. Valid arguments are: 'owned', 'member', 'other'" );
@@ -30,6 +26,12 @@ export class MuralsCategoryComponent implements OnInit, OnDestroy {
       return;
     }
     this.muralService.getData(category).subscribe(murals => this.murals = murals);
+
+    setTimeout(() => {
+      // Allows scrolling. On a timeout, to avoid ngOnDestroy of another component from overwriting it
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }, 500);
   }
 
   ngOnDestroy(): void {

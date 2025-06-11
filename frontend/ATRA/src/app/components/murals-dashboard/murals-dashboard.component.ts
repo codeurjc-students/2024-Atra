@@ -29,9 +29,11 @@ export class MuralsDashboardComponent implements OnInit, OnDestroy{
       },
       error:(err)=>this.alertService.alert("Something went wrong fetching the Mural. Try reloading the page. If the error persists, try again later", "Something went wrong!") //could reload the page on dismiss
     })
-    // Allows scrolling
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
+    setTimeout(() => {
+      // Allows scrolling. On a timeout, to avoid ngOnDestroy of another component from overwriting it
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }, 500);
   }
 
   ngOnDestroy(): void {

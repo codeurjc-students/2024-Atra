@@ -108,7 +108,7 @@ export class MuralsNewComponent {
       banner:this.bannerImage,
     }).subscribe({
       next:(mural:Mural)=>{
-        this.alertService.confirm("The mural has been created, would you like to view it?", "Mural created", {accept:"Yes", cancel:"No"}).subscribe(
+        this.alertService.confirm("The mural has been created, would you like to see it?", "Mural created", {accept:"Yes", cancel:"No"}).subscribe(
           (shouldRedirect)=>{
             if (shouldRedirect) {
               this.router.navigate(["/murals",mural.id,"dashboard"])
