@@ -57,7 +57,7 @@ public class Visibility {
         return type.equals(VisibilityType.MURAL_PUBLIC);
     }
 
-    public boolean isVisibleByMural(long id) {
+    public boolean isVisibleByMural(Long id) {
         return isMuralPublic() || isPublic() || allowedMurals.contains(id);
     }
 
