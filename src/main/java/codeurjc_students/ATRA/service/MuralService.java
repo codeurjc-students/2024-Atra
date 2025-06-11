@@ -6,6 +6,9 @@ import codeurjc_students.ATRA.repository.MuralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 @Service
@@ -57,5 +60,22 @@ public class MuralService {
 		Set<Mural> hashSet = new HashSet<>(findAll());
 		memberMurals.forEach(hashSet::remove);
 		return hashSet;
+	}
+
+	public static byte[] getDefaultThumbnailBytes() {
+		File file = new File("target/classes/static/defaultThumbnailImage.png");
+		try {
+			return Files.readAllBytes(file.toPath());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public static byte[] getDefaultBannerBytes() {
+		File file = new File("target/classes/static/defaultBannerImage.png");
+		try {
+			return Files.readAllBytes(file.toPath());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

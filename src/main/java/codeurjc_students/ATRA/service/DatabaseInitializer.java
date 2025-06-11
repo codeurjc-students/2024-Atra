@@ -61,24 +61,26 @@ public class DatabaseInitializer {
             if (name.contains("vuelta"))      routeService.addRouteToActivity("Miercoles vuelta", activity, activityService);
         });
         for (int i = 0; i < 3; i++) {
-            muralService.newMural(new Mural("mural"+i, muralGuy, List.of(user2)));
+            createMural("mural"+i, muralGuy, List.of(user2));
         }
+
+        createMural(null, user, List.of(user2));
+        createMural(null, user2, List.of(user));
+
+        userService.save(user);
+        userService.save(user2);
+    }
+
+    private void createMural(String name, User owner, Collection<User> members) throws IOException {
         File file = new File("target/classes/static/defaultThumbnailImage.png");
         byte[] thumbnailBytes = Files.readAllBytes(file.toPath());
         file = new File("target/classes/static/defaultBannerImage.png");
         byte[] bannerBytes = Files.readAllBytes(file.toPath());
 
-        Mural mural = new Mural(user, List.of(user2));
+        Mural mural = name!=null ? new Mural(name, owner, members): new Mural(owner, members);
         mural.setBanner(bannerBytes);
         mural.setThumbnail(thumbnailBytes);
-        //mural.getActivities().addAll(activityService.findAll().subList(0,3));
-        System.out.println("Mural initialized with " + activityService.findAll().stream().filter(a->"Morning Run".equals(a.getName())).toList().size() + " activities");
-        Mural mural2 = new Mural(user2, List.of(user));
 
         muralService.newMural(mural);
-        muralService.newMural(mural2);
-
-        userService.save(user);
-        userService.save(user2);
     }
 }

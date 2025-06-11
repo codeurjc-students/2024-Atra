@@ -47,7 +47,10 @@ public class MuralController {
     public ResponseEntity<byte[]> getThumbnail(@PathVariable Long id){
         Optional<Mural> muralOpt = muralService.findById(id);
         if (muralOpt.isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(muralOpt.get().getThumbnail());
+        byte[] body = muralOpt.get().getThumbnail();
+        if (body==null) body = MuralService.getDefaultThumbnailBytes();
+
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(body);
     }
     @GetMapping("/{id}/banner")
     public ResponseEntity<byte[]> getBanner(@PathVariable Long id){
