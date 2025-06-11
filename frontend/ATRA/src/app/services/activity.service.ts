@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Activity } from '../models/activity.model';
-import { catchError, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -80,6 +80,12 @@ export class ActivityService {
     return this.http.get<any[]>("/api/activities");
   }
 
+
+  currentActivity: BehaviorSubject<Activity | null> = new BehaviorSubject<Activity | null>(null);
+  readonly CACHE_DURATION: number = 1000 * 30; // 30 seconds for testing, should bump to 1000 * 60 * 5 for 5 minutes in production
+  loadingActivity: boolean = false;
+
+
   process(value: any[]): Activity[] {
     var result: Activity[] = [];
     value.forEach(activity => {
@@ -94,7 +100,11 @@ export class ActivityService {
   }
 
   get(id: number){
-    return this.http.get<any[]>("/api/activities/" + id);
+    if (this.currentActivity.getValue()==null || this.currentActivity.getValue()?.id!=id) {
+      this.loadingActivity=true;
+      this.http.get<any>("/api/activities/" + id).subscribe(a=>{this.currentActivity.next(this.process1(a));this.loadingActivity=false;setTimeout(()=>this.currentActivity.next(null),this.CACHE_DURATION)});
+    }
+    return this.currentActivity.asObservable();
   }
 
   removeRoute(id: number){

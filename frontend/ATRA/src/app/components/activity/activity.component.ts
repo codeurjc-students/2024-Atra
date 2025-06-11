@@ -189,11 +189,12 @@ export class ActivityComponent implements OnInit {
 
   //#endregion
 
-  receivedAnActivityHandler(act:any, msg?:string) {
+  receivedAnActivityHandler(act:Activity |null, msg?:string) {
+    if (act==null) return;
     if (msg) console.log(msg);
     this.owned = this.authService.user.getValue()?.id==act.user.id;
 
-    this.activity = this.activityService.process1(act);
+    this.activity = act; //this.activityService.process1(act); this is now being done in the service
     this.stats = this.activity.getOverview()
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1;
     this.currentVisibility = this.activity.visibility
