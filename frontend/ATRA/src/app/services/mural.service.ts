@@ -14,16 +14,25 @@ export class MuralService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getOwned(): Observable<Mural[] | null>{
-    if (this.ownedMurals.getValue() == null && this.loadingOwned) this.http.get<Mural[]>("/api/murals?type=owned").subscribe(murals  => {this.ownedMurals.next(murals);  setTimeout(() => this.ownedMurals.next(null),  this.CACHE_DURATION);});
+  getOwned(): Observable<Mural[] | null>{ //shouldn't this be && !this.loadingOnwned
+    if (this.ownedMurals.getValue() == null && !this.loadingOwned) {
+      this.loadingOwned = true;
+      this.http.get<Mural[]>("/api/murals?type=owned").subscribe(murals  => {this.ownedMurals.next(murals); this.loadingOwned=false; setTimeout(() => this.ownedMurals.next(null),  this.CACHE_DURATION);});
+    }
     return this.ownedMurals.asObservable();
   }
   getMember(): Observable<Mural[] | null>{
-    if (this.memberMurals.getValue() == null && this.loadingMember) this.http.get<Mural[]>("/api/murals?type=member").subscribe(murals  => {this.memberMurals.next(murals);  setTimeout(() => this.memberMurals.next(null),  this.CACHE_DURATION);});
+    if (this.memberMurals.getValue() == null && !this.loadingMember) {
+      this.loadingMember = true;
+      this.http.get<Mural[]>("/api/murals?type=member").subscribe(murals  => {this.memberMurals.next(murals); this.loadingMember=false;  setTimeout(() => this.memberMurals.next(null),  this.CACHE_DURATION);});
+    }
     return this.memberMurals.asObservable();
   }
   getOther(): Observable<Mural[] | null>{ // this can also be done with tap and switchMap, but this is just as good
-    if (this.otherMurals.getValue() == null && this.loadingOther) this.http.get<Mural[]>("/api/murals?type=other").subscribe(murals  => {this.otherMurals.next(murals);  setTimeout(() => this.otherMurals.next(null),  this.CACHE_DURATION);});
+    if (this.otherMurals.getValue() == null && !this.loadingOther) {
+      this.loadingOther = true;
+      this.http.get<Mural[]>("/api/murals?type=other").subscribe(murals  => {this.otherMurals.next(murals); this.loadingOther=false;  setTimeout(() => this.otherMurals.next(null),  this.CACHE_DURATION);});
+    }
     return this.otherMurals.asObservable();
   }
 
