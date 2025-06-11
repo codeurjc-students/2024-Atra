@@ -2,6 +2,7 @@ package codeurjc_students.ATRA.security;
 
 import codeurjc_students.ATRA.security.jwt.JwtRequestFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -116,7 +117,10 @@ public class RestSecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 			// Add JWT Token filter
-			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+
+			// Return 401 when trying to access a protected endpoint without a session
+			.exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))); //it appears that when tokens time out the restSecurityConfig treats it as you not having appropriate permissions, which is technically true, but it returns 403 when it should be 401. This will, whenever the token is invalid/null, return a 401 in theory
 		return http.build();
 	}
 }
