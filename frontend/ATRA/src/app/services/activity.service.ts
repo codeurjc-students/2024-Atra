@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Activity } from '../models/activity.model';
-import { BehaviorSubject, catchError, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -23,7 +23,10 @@ export class ActivityService {
 
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 
-  constructor(private http: HttpClient, private router: Router, private authService: AuthService, private alertService:AlertService) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService, private alertService:AlertService) {
+    this.currentActivity.subscribe((a)=>console.log("------------------------------------\nActivity updated: ", a));
+
+  }
 
   uploadActivity(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -194,7 +197,25 @@ export class ActivityService {
 
   changeVisibility(id: number, newVis: ActivityVisibility, allowedMuralsList:number[]) {
     if (isActivityVisibility(newVis) == false) throw new Error("WHAT. THE. FUCK. How the fuck is newVis this value: " + newVis);
-    return this.http.patch("/api/activities/" + id + "/visibility", {visibility: newVis, allowedMuralsList:JSON.stringify(allowedMuralsList)})
+    return this.http.patch<Activity>("/api/activities/" + id + "/visibility", {visibility: newVis, allowedMuralsList:JSON.stringify(allowedMuralsList)}).pipe(tap({
+      next: (a:Activity) => {
+        this.currentActivity.next(this.process1(a));
+        setTimeout(() => {
+            this.currentActivity.next(null);
+          },
+          this.CACHE_DURATION
+        );
+
+        //To update locally
+        //const activity = this.currentActivity.getValue()
+        //if (activity==null) return;
+        //activity.visibility = newVis;
+        //this.currentActivity.next(activity)
+      },
+      error: (err) => { //though this should be handled by the backend and the interceptor
+        this.alertService.alert("Error changing visibility");
+      }
+    }))
   };
 }
 

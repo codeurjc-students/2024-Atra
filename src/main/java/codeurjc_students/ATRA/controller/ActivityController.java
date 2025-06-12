@@ -146,7 +146,7 @@ public class ActivityController {
     }
 
     @PatchMapping("/{id}/visibility")
-    public ResponseEntity<Boolean> changeVisibility(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<ActivityDTO> changeVisibility(@PathVariable Long id, @RequestBody Map<String, String> body) {
         String visibilityString = body.get("visibility");
         try {
             VisibilityType visibilityType = VisibilityType.valueOf(visibilityString);
@@ -154,7 +154,7 @@ public class ActivityController {
             List<Long> allowedMuralsIds = csvMuralIds.isEmpty() ? null:Arrays.stream(csvMuralIds.split(",")).map(Long::parseLong).toList(); //use a fucking string and just parse it, I'm done with this crap
             boolean success = activityService.changeVisibility(id, visibilityType, allowedMuralsIds);
             if (!success) return ResponseEntity.notFound().build();
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(dtoService.toDTO(activityService.findById(id).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
         } catch (IllegalArgumentException e) {
             throw new HttpException(400, visibilityString + " is not a valid Visibility Type");
         }
