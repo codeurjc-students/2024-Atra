@@ -87,6 +87,7 @@ export class ActivityService {
   currentActivity: BehaviorSubject<Activity | null> = new BehaviorSubject<Activity | null>(null);
   readonly CACHE_DURATION: number = 1000 * 30; // 30 seconds for testing, should bump to 1000 * 60 * 5 for 5 minutes in production
   loadingActivity: boolean = false;
+  timeout: number | undefined = undefined;
 
 
   process(value: any[]): Activity[] {
@@ -105,7 +106,8 @@ export class ActivityService {
   get(id: number){
     if (this.currentActivity.getValue()==null || this.currentActivity.getValue()?.id!=id) {
       this.loadingActivity=true;
-      this.http.get<any>("/api/activities/" + id).subscribe(a=>{this.currentActivity.next(this.process1(a));this.loadingActivity=false;setTimeout(()=>this.currentActivity.next(null),this.CACHE_DURATION)});
+      window.clearTimeout(this.timeout);
+      this.http.get<any>("/api/activities/" + id).subscribe(a=>{this.currentActivity.next(this.process1(a));this.loadingActivity=false;this.timeout=window.setTimeout(()=>{this.currentActivity.next(null);this.timeout=undefined;},this.CACHE_DURATION)});
     }
     return this.currentActivity.asObservable();
   }
@@ -200,8 +202,9 @@ export class ActivityService {
     return this.http.patch<Activity>("/api/activities/" + id + "/visibility", {visibility: newVis, allowedMuralsList:JSON.stringify(allowedMuralsList)}).pipe(tap({
       next: (a:Activity) => {
         this.currentActivity.next(this.process1(a));
-        setTimeout(() => {
+        this.timeout = window.setTimeout(() => {
             this.currentActivity.next(null);
+            this.timeout=undefined;
           },
           this.CACHE_DURATION
         );
