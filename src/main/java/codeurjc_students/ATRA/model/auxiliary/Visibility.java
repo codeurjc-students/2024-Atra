@@ -86,7 +86,10 @@ public class Visibility {
 
     public void changeTo(VisibilityType visibilityType, Collection<Long> allowedMurals) {
         type = visibilityType;
-        if (visibilityType==VisibilityType.MURAL_SPECIFIC) this.allowedMurals = new HashSet<>(allowedMurals);
+        if (visibilityType==VisibilityType.MURAL_SPECIFIC) {
+            this.allowedMurals = new HashSet<>();
+            if (allowedMurals!=null) this.allowedMurals.addAll(allowedMurals);
+        }
         else this.allowedMurals = null;
     }
     /*
