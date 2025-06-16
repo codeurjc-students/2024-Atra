@@ -43,12 +43,20 @@ label {
   height: 30% !important;
 }
 
+.h-60 {
+  height: 60% !important;
+}
+
 .h-90 {
   height: 90% !important;
 }
 
 .w-20 {
   width: 20% !important;
+}
+
+.w-60 {
+  width: 60% !important;
 }
 
 .w-70 {

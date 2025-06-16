@@ -7,17 +7,17 @@
           <img src="../assets/running.svg" class="v-75 w-75">
         </a>
         <a routerLink="/social" class="icon-link mx-1">
-          <i class="fa-solid fa-user-group" style="color: #000000;"></i>
+          <i class="fa-solid fa-user-group" style="color: #000000; font-size: 30px"></i>
           <!-- <i class="fa-solid fa-people-group"></i> -->
         </a>
         <a routerLink="/murals/" class="icon-link mx-1" [class.active]="this.isMuralRoute()">
-          <i class="fa-regular fa-image fa-xl" style="color: #000000;"></i>
+          <i class="fa-regular fa-image fa-xl" style="color: #000000; font-size: 30px;"></i>
           <!-- <i class="fa-solid fa-people-group"></i> -->
         </a>
       </div>
       <div>
         <a routerLink="/me" class="icon-link mx-5" [class.active]="this.isProfileRoute()">
-          <i class="fa-solid fa-user" style="color: #000000;"></i>
+          <i class="fa-solid fa-user" style="color: #000000;font-size:30px"></i>
         </a>
       </div>
     </div>
@@ -27,16 +27,16 @@
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
           <a [routerLink]="[urlStart, 'home']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute()">
-            <i class="fa-solid fa-house" style="color: #000000;"></i>
+            <i class="fa-solid fa-house" style="color: #000000; font-size: 30px;"></i>
           </a>
           <!--house icon / back arrow from category. Leads to /murals-->
           <a [routerLink]="[urlStart]" [routerLinkActiveOptions]="{ exact: true }" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute()">
-            <i class="fa-solid fa-house" style="color: #000000;" *ngIf="!isMuralRouteCategory() && !isMuralRouteSelected()"></i>
-            <i class="fa-solid fa-arrow-left fa-2xl" style="color: #000000;" *ngIf="isMuralRouteCategory() || isMuralRouteSelected()"></i>
+            <i class="fa-solid fa-house" style="color: #000000;font-size: 30px;" *ngIf="!isMuralRouteCategory() && !isMuralRouteSelected()"></i>
+            <i class="fa-solid fa-arrow-left fa-2xl" style="color: #000000;font-size: 30px;" *ngIf="isMuralRouteCategory() || isMuralRouteSelected()"></i>
           </a>
           <!--house icon inside selected mural, leads to /murals/id/dashboard-->
           <a [routerLink]="[urlStart, 'dashboard']" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute() && this.isMuralRouteSelected()">
-            <i class="fa-solid fa-house" style="color: #000000;"></i>
+            <i class="fa-solid fa-house" style="color: #000000;font-size: 30px;"></i>
           </a>
           <a [routerLink]="[urlStart, 'activities']"  [routerLinkActive]="'active'" style="color: black;" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
             <i class="fa-solid fa-list" [ngStyle]="{'font-size':'40px'}" *ngIf="!isRouteStudy() && !isRouteCompare()"></i>
@@ -44,18 +44,18 @@
             <img src="../assets/compare.svg" class="v-100 w-100" *ngIf="isRouteCompare()">
           </a>
           <a [routerLink]="[urlStart, 'routes']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
-            <img src="../assets/map.svg" class="v-50 w-50">
+            <img src="../assets/map.svg" class="h-60 w-60">
           </a>
         </li>
       </ul>
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
           <a (click)="fileInput.click()" class="icon-link">
-            <i class="fa-solid fa-upload"></i>
+            <i class="fa-solid fa-upload" style="color: #000000;font-size: 30px;"></i>
           </a>
           <input type="file" #fileInput style="display: none" (change)="uploadFile($event)">
           <a (click)="linkWithStrava()" class="icon-link">
-            <i class="fa-brands fa-strava"></i>
+            <i class="fa-brands fa-strava" style="color: #000000;font-size: 35px;"></i>
           </a>
         </li>
       </ul>
