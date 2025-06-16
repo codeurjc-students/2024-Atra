@@ -78,9 +78,9 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   defaultSubmit(){
     if (this.selected.size === 0 ) { this.alertService.alert("You must select at least one activity") }
     else if (this.selected.size === 1) {
-      this.router.navigate([`/me/activity-view/${Array.from(this.selected)[0]}`])
+      this.router.navigate([`/me/activities/${Array.from(this.selected)[0]}`])
     } else if (this.selected.size === 2) {
-      this.router.navigate([`/me/activity-comparison/${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
+      this.router.navigate([`/me/activities/compare/${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
     } else {
       this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
     }

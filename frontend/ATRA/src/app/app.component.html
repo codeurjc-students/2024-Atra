@@ -38,11 +38,10 @@
           <a [routerLink]="[urlStart, 'dashboard']" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute() && this.isMuralRouteSelected()">
             <i class="fa-solid fa-house" style="color: #000000;"></i>
           </a>
-          <a [routerLink]="[urlStart, 'activity-view']"  [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
-            <img src="../assets/study.svg" class="v-75 w-75">
-          </a>
-          <a [routerLink]="[urlStart, 'activity-comparison']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
-            <img src="../assets/compare.svg" class="v-100 w-100">
+          <a [routerLink]="[urlStart, 'activities']"  [routerLinkActive]="'active'" style="color: black;" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
+            <i class="fa-solid fa-list" [ngStyle]="{'font-size':'40px'}" *ngIf="!isRouteStudy() && !isRouteCompare()"></i>
+            <img src="../assets/study.svg" class="v-75 w-75" *ngIf="isRouteStudy()">
+            <img src="../assets/compare.svg" class="v-100 w-100" *ngIf="isRouteCompare()">
           </a>
           <a [routerLink]="[urlStart, 'routes']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
             <img src="../assets/map.svg" class="v-50 w-50">

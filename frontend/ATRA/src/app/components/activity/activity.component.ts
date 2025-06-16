@@ -70,7 +70,7 @@ export class ActivityComponent implements OnInit {
     this.activityService.delete(this.id).subscribe({
       next: () => {
         this.alertService.alert("Route deleted")
-        this.router.navigate(["/me/activity-view"])
+        this.router.navigate(["/me/activities"])
       },
       error: (e) => {this.alertService.alert("ERROR: "+e.error)},
     });

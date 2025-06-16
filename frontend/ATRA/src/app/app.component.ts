@@ -56,6 +56,18 @@ export class AppComponent implements OnInit{
   isMuralRoute(){return this.location.path().startsWith("/murals")}
   isMuralRouteSelected() {return this.location.path().startsWith("/murals/") && this.location.path().split("/").length>3}
   isMuralRouteCategory() {return this.location.path().startsWith("/murals/") && this.location.path().split("/").length==3}
+  isRouteActivities() {
+    const p = this.location.path().split("/")
+    return p.length==3 && p[2]=="activities"
+  }
+  isRouteStudy() {
+    const p = this.location.path().split("/")
+    return p.length>3 && !Number.isNaN(Number(p[3]));
+  }
+  isRouteCompare() {
+    const p = this.location.path().split("/")
+    return p.length>3 && p[3]=="compare"
+  }
 
   uploadFile(event: Event) {
     this.activityService.uploadActivity(event)

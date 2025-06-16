@@ -64,7 +64,7 @@ export class ActivityService {
         this.alertService.confirm("Activity has been added. Do you want to see it?").subscribe({
           next:(accepted) => {
             if (accepted)
-              this.router.navigate(["/me/activity-view/", activity.id])
+              this.router.navigate(["/me/activities/", activity.id])
             //else reload current page
           }
         })
