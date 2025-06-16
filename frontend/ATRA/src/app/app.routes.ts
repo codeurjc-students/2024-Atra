@@ -30,7 +30,7 @@ export const routes: Routes = [
   {path: 'me/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},
   {path: 'murals', component: MuralsComponent, canActivate: [AuthGuard],},
   {path: 'murals/:category', component: MuralsComponent, canActivate: [AuthGuard],},
-  {path: 'murals/:id/activity-comparison', component: ComparisonComponent, canActivate: [AuthGuard],},
+  //{path: 'murals/:id/activity-comparison', component: ComparisonComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/activities', component: ActivitySelectComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/dashboard', component: MuralsDashboardComponent, canActivate: [AuthGuard],},
