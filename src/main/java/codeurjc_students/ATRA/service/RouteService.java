@@ -59,8 +59,14 @@ public class RouteService {
 		if (route.getName()==null || route.getName().isEmpty()){
 			route.setName("Route from Activity " + activity.getId());
 		}
+		if (route.getDescription()==null || route.getDescription().isEmpty()){
+			route.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus auctor ligula sit amet fermentum ornare. Integer mauris justo, fermentum et arcu ac, vulputate ultrices metus.");
+		}
 		if (route.getTotalDistance()==null || route.getTotalDistance()==0) {
 			route.setTotalDistance(activityService.totalDistance(activity));
+		}
+		if (route.getElevationGain()==null || route.getElevationGain()==0) {
+			route.setElevationGain(activityService.elevationGain(activity));
 		}
 
 		route.addActivity(activity);

@@ -64,12 +64,12 @@ export class RoutesComponent {
     })
   }
 
-  getXFromY(X: string, Y: Route) { //Y should be an activity
+  getXFromY(X: string, Y: Route) { //Y should be a Route
     switch(X.toLowerCase())  {
       case 'id': return Y.id
       case 'name': return Y.name
-      case 'desc': return Y.description
-      case 'ele': return Y.elevationGain
+      case 'desc': return Y.description.substring(0,26) + "..."
+      case 'ele': return Number(Y.elevationGain.toFixed(2)) + "m"
       case 'distance': return Y.totalDistance.toFixed(2) + "km"
       default : throw new Error(`Property '${X}' does not exist on object ${typeof Y}}.`)
     }

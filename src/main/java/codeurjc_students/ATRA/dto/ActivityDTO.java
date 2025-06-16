@@ -40,7 +40,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		startTime = activity.getStartTime();
 		user = new BasicNamedId(activity.getUser());
 		dataPoints = activity.getDataPoints();
-		setUpStreams(activity.getDataPoints());
+		streams = setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 		visibility = activity.getVisibility().getType();
@@ -55,7 +55,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		user = new BasicNamedId(activity.getUser());
 		route = routeIdAndName;
 		dataPoints = activity.getDataPoints();
-		setUpStreams(activity.getDataPoints());
+		streams = setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 		visibility = activity.getVisibility().getType();
 	}
@@ -69,16 +69,16 @@ public class ActivityDTO implements ActivityDtoInterface {
 		this.user = new BasicNamedId(activity.getUser());
 		this.route = new BasicNamedId(route);
 		this.dataPoints = activity.getDataPoints();
-		setUpStreams(activity.getDataPoints());
+		streams = setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 		visibility = activity.getVisibility().getType();
 	}
 
 
 
-	private void setUpStreams(List<DataPoint> dataPoints) {
-		streams = new HashMap<>();
-		Double distance = 0.0;
+	public static Map<String, List<String>> setUpStreams(List<DataPoint> dataPoints) {
+		Map<String, List<String>> streams = new HashMap<>();
+		double distance = 0.0;
 		Double prevLat = null;
 		Double prevLon = null;
 		Double prevEle = null;
@@ -115,9 +115,10 @@ public class ActivityDTO implements ActivityDtoInterface {
 			prevLon = dP.get_long();
 			prevEle = dP.get_ele();
 		}
+		return streams;
 	}
 
-	private String getPace(int currentPos, List<DataPoint> dataPoints) {
+	private static String getPace(int currentPos, List<DataPoint> dataPoints) {
 		DataPoint currentDP = dataPoints.get(currentPos);
 		DataPoint prevDP =  currentPos-1>=0 ? dataPoints.get(currentPos-1):currentDP;
 		DataPoint nextDP =  currentPos+1<=dataPoints.size()-1 ? dataPoints.get(currentPos+1):currentDP;

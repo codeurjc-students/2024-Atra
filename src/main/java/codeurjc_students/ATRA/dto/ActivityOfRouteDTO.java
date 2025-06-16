@@ -17,43 +17,41 @@ public class ActivityOfRouteDTO implements ActivityDtoInterface {
 	private Long id;
 	private String name;
 	private Long user;
-	private Double totalDistance;
-	private Long totalTime; //seconds
-	private Double elevationGain;
+	private  ActivitySummary summary;
 
 	public ActivityOfRouteDTO(Activity activity) {
 		id = activity.getId();
 		name = activity.getName();
 		user = activity.getUser().getId();
-		calcDistanceAndElevation(activity);
-		totalTime = calcTotalTime(activity);
+		summary = new ActivitySummary(id, activity);
+
 	}
 
-	private void calcDistanceAndElevation(Activity activity) {
-		DataPoint prevDp = null;
-		Double prevEle = null;
-		Double distanceTotal = 0.0;
-		Double eleTotal = 0.0;
-		for (var dp : activity.getDataPoints()) {
-			if (prevDp==null) prevDp=dp;
-			if (prevEle==null) prevEle=dp.get_ele();
-
-		    distanceTotal += ActivityService.totalDistance(prevDp, dp);
-			double eleDelta = dp.get_ele() - prevEle;
-			eleTotal +=  eleDelta>=0 ? eleDelta:0;
-
-			prevDp = dp;
-			prevEle = dp.get_ele();
-		}
-
-		totalDistance = distanceTotal;
-		elevationGain = eleTotal;
-	}
-
-	private long calcTotalTime(Activity activity) {
-		Instant start = activity.getStartTime();
-		Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
-		Duration duration = Duration.between(start, end);
-		return duration.toSeconds();
-	}
+	//private void calcDistanceAndElevation(Activity activity) {
+	//	DataPoint prevDp = null;
+	//	Double prevEle = null;
+	//	Double distanceTotal = 0.0;
+	//	Double eleTotal = 0.0;
+	//	for (var dp : activity.getDataPoints()) {
+	//		if (prevDp==null) prevDp=dp;
+	//		if (prevEle==null) prevEle=dp.get_ele();
+//
+	//	    distanceTotal += ActivityService.totalDistance(prevDp, dp);
+	//		double eleDelta = dp.get_ele() - prevEle;
+	//		eleTotal +=  eleDelta>=0 ? eleDelta:0;
+//
+	//		prevDp = dp;
+	//		prevEle = dp.get_ele();
+	//	}
+//
+	//	totalDistance = distanceTotal;
+	//	elevationGain = eleTotal;
+	//}
+//
+	//private long calcTotalTime(Activity activity) {
+	//	Instant start = activity.getStartTime();
+	//	Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
+	//	Duration duration = Duration.between(start, end);
+	//	return duration.toSeconds();
+	//}
 }

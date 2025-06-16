@@ -162,7 +162,7 @@ public class ActivityService {
 		Double total = 0.0;
 		DataPoint prevDp = null;
 		for (var dp : dataPoints) {
-			totalDistance(prevDp==null ? dp:prevDp, dp);
+			total += totalDistance(prevDp==null ? dp:prevDp, dp);
 			prevDp = dp;
 		}
 		return total;
@@ -273,4 +273,18 @@ public class ActivityService {
         };
     }
 
+	public Double elevationGain(Activity activity) {
+		//can be done in a single line with filter and reduce like in activity summary, but this only iterates once
+		double runningTotal = 0.0;
+		DataPoint prevDp = null;
+		for (var dp : activity.getDataPoints()) {
+		    if (prevDp==null) prevDp=dp;
+			double diff = dp.get_ele()-prevDp.get_ele();
+			if (diff>0) {
+				runningTotal += diff;
+			}
+			prevDp = dp;
+		}
+		return runningTotal;
+	}
 }

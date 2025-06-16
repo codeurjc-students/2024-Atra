@@ -15,16 +15,13 @@ import java.util.List;
 public class RouteWithActivityDTO implements RouteDtoInterface {
 
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+
 	private Long id;
 	private Double totalDistance;
 	private Double elevationGain;
-	@ElementCollection
-	@OrderColumn(name = "position")
+
 	private List<Coordinates> coordinates = new ArrayList<>();
 	private String name;
-	@Nullable
 	private String description;
 
 	private List<ActivityOfRouteDTO> activities = new ArrayList<>();

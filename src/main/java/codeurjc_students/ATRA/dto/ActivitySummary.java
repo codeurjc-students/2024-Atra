@@ -1,5 +1,7 @@
 package codeurjc_students.ATRA.dto;
 
+import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.service.ActivityService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,21 @@ public class ActivitySummary {
     private Map<String, Double> averages;
     private Map<String, String> records;
 
+
+    public ActivitySummary(Long id, Activity activity) {
+        this.id = id;
+        startTime = activity.getStartTime();
+
+        Map<String, List<String>> streams = ActivityDTO.setUpStreams(activity.getDataPoints());
+
+        totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
+        elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
+        totalTime = calcTotalTime(activity.getStartTime(), activity.getDataPoints());
+
+        averages = setUpAverages(streams);
+        records = setUpRecords(streams);
+    }
+
     ActivitySummary(ActivityDTO activity) {
         id = activity.getId();
         startTime = activity.getStartTime();
@@ -29,15 +46,15 @@ public class ActivitySummary {
 
         totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
         elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
-        totalTime = calcTotalTime(activity);
+        totalTime = calcTotalTime(activity.getStartTime(), activity.getDataPoints());
 
-        averages = setUpAverages(activity);
-        records = setUpRecords(activity);
+        averages = setUpAverages(streams);
+        records = setUpRecords(streams);
     }
 
-    private Map<String, String> setUpRecords(ActivityDTO activity) {
-        List<String> positionStream = activity.getStreams().get("position");
-        List<String> timeStream = activity.getStreams().get("time");
+    private Map<String, String> setUpRecords(Map<String, List<String>> streams) {
+        List<String> positionStream = streams.get("position");
+        List<String> timeStream = streams.get("time");
 
         List<String> distanceRecordTitles = Arrays.asList("1km", "5km", "10km", "21km", "42km");
         List<String> timeRecordTitles = Arrays.asList("1min", "5min", "10min", "30min", "1hour");
@@ -60,7 +77,6 @@ public class ActivitySummary {
 
     //this one alongside distanceGoal should go in some service or be static or otherwise be accessible by others.
     //especially if we ever want to allow users to create their own goals (which is supposed to be a functionality)
-
     /**
      *
      * @param positionStream
@@ -144,12 +160,11 @@ public class ActivitySummary {
         return bestTime==Long.MAX_VALUE ? -1:bestTime; //seconds
     }
 
-    private Map<String, Double> setUpAverages(ActivityDTO activity) {
+    private Map<String, Double> setUpAverages(Map<String, List<String>> streams) {
         List<String> averageableMetrics = Arrays.asList("altitude", "heartrate", "cadence", "pace");
 
         Map<String, Double> averages = new HashMap<>();
 
-        Map<String, List<String>> streams = activity.getStreams();
         for (String metric : averageableMetrics) {
             if (metric.equals("pace")) { //cause "ratio of averages != average of ratios"
                 averages.put("pace", totalTime/totalDistance);
@@ -167,9 +182,8 @@ public class ActivitySummary {
         return averages;
     }
 
-    private long calcTotalTime(ActivityDTO activity) {
-        Instant start = activity.getStartTime();
-        Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
+    private long calcTotalTime(Instant start, List<DataPoint> dataPoints) {
+        Instant end = dataPoints.get(dataPoints.size()-1).get_time();
         Duration duration = Duration.between(start, end);
         return duration.toSeconds();
     }
