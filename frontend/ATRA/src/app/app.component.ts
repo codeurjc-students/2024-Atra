@@ -1,3 +1,4 @@
+import { AuthService } from './services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
@@ -18,7 +19,7 @@ export class AppComponent implements OnInit{
   showSideBar: boolean = true;
   urlStart: string = '/me';
 
-  constructor(private location:Location, private router: Router, private activityService: ActivityService, private alertService: AlertService){}
+  constructor(private location:Location, private router: Router, private activityService: ActivityService, private alertService: AlertService, private authService:AuthService){}
 
   ngOnInit(){
     //disable scroll
@@ -76,4 +77,13 @@ export class AppComponent implements OnInit{
   linkWithStrava() {
     this.alertService.alert("This function is yet to be implemented")
   }
+
+  logout() {
+  this.alertService.confirm("Are you sure you want to log out?", "Logging out", {accept:'Yes', cancel:'No'}).subscribe((shouldLogOut)=>{
+    if (shouldLogOut) {
+      this.authService.logout()
+      this.router.navigate(["/"])
+    }
+  })
+}
 }

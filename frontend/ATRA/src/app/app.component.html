@@ -15,9 +15,12 @@
           <!-- <i class="fa-solid fa-people-group"></i> -->
         </a>
       </div>
-      <div>
-        <a routerLink="/me" class="icon-link mx-5" [class.active]="this.isProfileRoute()">
+      <div class="d-flex justify-content-end">
+        <a routerLink="/me" class="icon-link mx-1" [class.active]="this.isProfileRoute()">
           <i class="fa-solid fa-user" style="color: #000000;font-size:30px"></i>
+        </a>
+        <a class="icon-link ms-1 me-3" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket" style="color: #000000; font-size: 30px;"></i>
         </a>
       </div>
     </div>
