@@ -9,6 +9,8 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AlertService {
 
+  modalRef: any;
+
   constructor(private modalService: NgbModal, private toastService: ToastrService) {}
 
   toast(msg:string, title?:string, type:MsgType='info') {
@@ -68,12 +70,16 @@ export class AlertService {
     );
   }
 
-  loading(){
-    const modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
-    modalRef.componentInstance.title = "Loading...";
-    modalRef.componentInstance.message = "Wait a second while we take care of some things\n This message should disappear shortly.";
-    modalRef.componentInstance.type = 'loading';
-    return
+  loading(isLight:boolean=true){
+    this.modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
+    this.modalRef.componentInstance.title = "Loading...";
+    this.modalRef.componentInstance.message = "Wait a second while we take care of some things\n This message should disappear shortly. If it doesn't, try reloading the page.";
+    this.modalRef.componentInstance.type = isLight ? 'loading-light':'loading-heavy';
+  }
+
+  loaded() {
+    if (this.modalRef==null) console.error("loaded called with no open modal");
+    this.modalRef.close();
   }
 
   // Confirm method (returns a promise resolving to true/false)
