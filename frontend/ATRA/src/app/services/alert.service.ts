@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { AlertComponent } from '../components/alert/alert.component';
 import { catchError, from, map, Observable, of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -37,8 +37,14 @@ export class AlertService {
   }
 
   // Alert method (just shows a message)
-  alert(message: string, title?: string, onDismiss?:()=>void) {
-    const modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
+  alert(message: string, title?: string, onDismiss?:()=>void, easyDismiss:boolean=true) {
+    var options;
+    if (easyDismiss) {
+      options = { keyboard: true, centered:true, windowClass:'remove-modal-background' };
+    } else {
+      options = { backdrop:'static', keyboard: false, centered:true, windowClass:'remove-modal-background' };
+    }
+    const modalRef = this.modalService.open(AlertComponent, options as NgbModalOptions);
     modalRef.componentInstance.title = title ?? "Warning";
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.type = 'alert';
