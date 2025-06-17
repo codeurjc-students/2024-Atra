@@ -2,13 +2,37 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertComponent } from '../components/alert/alert.component';
 import { catchError, from, map, Observable, of } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AlertService {
 
-  constructor(private modalService: NgbModal) {}
+  constructor(private modalService: NgbModal, private toastService: ToastrService) {}
+
+  toast(msg:string, title?:string, type:MsgType='info') {
+    switch (type) {
+      case 'success': this.toastService.success(msg, title); break;
+      case 'info': this.toastService.info(msg, title); break;
+      case 'warning': this.toastService.warning(msg, title); break;
+      case 'error': this.toastService.error(msg, title); break;
+    }
+  }
+
+  //for convenience
+  toastError(msg:string, title?:string) {
+    this.toastService.error(msg, title);
+  }
+  toastWarning(msg:string, title?:string) {
+    this.toastService.warning(msg, title);
+  }
+  toastSuccess(msg:string, title?:string) {
+    this.toastService.success(msg, title);
+  }
+  toastInfo(msg:string, title?:string) {
+    this.toastService.info(msg, title);
+  }
 
   // Alert method (just shows a message)
   alert(message: string, title?: string, onDismiss?:()=>void) {
@@ -75,3 +99,5 @@ export class AlertService {
     );
   }
 }
+
+type MsgType = 'info' | 'warning' | 'success' | 'error'
