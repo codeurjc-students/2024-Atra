@@ -14,7 +14,7 @@ import { MapService } from '../../services/map.service';
   standalone: true,
   imports: [CommonModule, NgbPopoverModule],
   templateUrl: './activity-select.component.html',
-  styleUrl: './activity-select.component.css'
+  styleUrl: './activity-select.component.scss'
 })
 export class ActivitySelectComponent implements OnInit, AfterViewInit{
   selected: Set<number> = new Set();

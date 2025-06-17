@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
   standalone: true,
   imports: [CommonModule, ActivitySelectComponent],
   templateUrl: './routes.component.html',
-  styleUrl: './routes.component.css'
+  styleUrl: './routes.component.scss'
 })
 export class RoutesComponent {
 

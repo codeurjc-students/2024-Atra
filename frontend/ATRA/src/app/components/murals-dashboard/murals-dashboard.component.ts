@@ -11,7 +11,7 @@ import { AlertService } from '../../services/alert.service';
   standalone: true,
   imports: [GridTableComponent],
   templateUrl: './murals-dashboard.component.html',
-  styleUrl: './murals-dashboard.component.css'
+  styleUrl: './murals-dashboard.component.scss'
 })
 export class MuralsDashboardComponent implements OnInit, OnDestroy{
   mural!: Mural;

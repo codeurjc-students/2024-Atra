@@ -11,7 +11,7 @@ import { MuralsNewComponent } from '../murals-new/murals-new.component';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './murals-list.component.html',
-  styleUrl: './murals-list.component.css'
+  styleUrl: './murals-list.component.scss'
 })
 export class MuralsListComponent implements OnChanges, OnInit {
 

@@ -9,7 +9,7 @@ import { MuralService } from '../../services/mural.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './murals-category.component.html',
-  styleUrl: './murals-category.component.css'
+  styleUrl: './murals-category.component.scss'
 })
 export class MuralsCategoryComponent implements OnInit, OnDestroy {
 

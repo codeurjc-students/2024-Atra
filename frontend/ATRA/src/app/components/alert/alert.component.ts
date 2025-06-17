@@ -8,7 +8,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './alert.component.html',
-  styleUrl: './alert.component.css'
+  styleUrl: './alert.component.scss'
 })
 export class AlertComponent {
   @Input() title!: string;

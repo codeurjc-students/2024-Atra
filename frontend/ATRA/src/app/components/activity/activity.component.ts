@@ -20,7 +20,7 @@ import { AlertService } from '../../services/alert.service';
   standalone: true,
   imports: [CommonModule, FormsModule, NgxChartsModule, ActivityStudyComponent],
   templateUrl: './activity.component.html',
-  styleUrl: './activity.component.css'
+  styleUrl: './activity.component.scss'
 })
 export class ActivityComponent implements OnInit {
 

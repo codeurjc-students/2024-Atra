@@ -8,7 +8,7 @@ import { ComponentType, GridItemService } from '../../../services/grid-item.serv
   standalone: true,
   imports: [CommonModule],
   templateUrl: './grid-table.component.html',
-  styleUrl: './grid-table.component.css'
+  styleUrl: './grid-table.component.scss'
 })
 export class GridTableComponent implements OnInit{
   @Input() title!:string;

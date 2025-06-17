@@ -8,7 +8,7 @@ import { Location } from '@angular/common';
   standalone: true,
   imports: [],
   templateUrl: './error.component.html',
-  styleUrl: './error.component.css'
+  styleUrl: './error.component.scss'
 })
 export class ErrorComponent {
 

@@ -11,7 +11,7 @@ import { AlertService } from './services/alert.service';
   standalone: true,
   imports: [RouterOutlet, CommonModule, RouterModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit{
 

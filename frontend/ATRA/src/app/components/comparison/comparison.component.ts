@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './comparison.component.html',
-  styleUrl: './comparison.component.css'
+  styleUrl: './comparison.component.scss'
 })
 export class ComparisonComponent {
 

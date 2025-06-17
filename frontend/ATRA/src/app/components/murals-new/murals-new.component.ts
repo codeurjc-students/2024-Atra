@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './murals-new.component.html',
-  styleUrl: './murals-new.component.css'
+  styleUrl: './murals-new.component.scss'
 })
 export class MuralsNewComponent {
 

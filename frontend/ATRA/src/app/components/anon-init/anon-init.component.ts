@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './anon-init.component.html',
-  styleUrl: './anon-init.component.css'
+  styleUrl: './anon-init.component.scss'
 })
 export class AnonInitComponent {
   constructor(private activityService: ActivityService, private alertService:AlertService){}

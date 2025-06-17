@@ -9,7 +9,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   standalone: true,
   imports: [],
   templateUrl: './user-init.component.html',
-  styleUrl: './user-init.component.css'
+  styleUrl: './user-init.component.scss'
 })
 export class UserInitComponent {
   constructor(private modalService: NgbModal, private alertService:AlertService){}

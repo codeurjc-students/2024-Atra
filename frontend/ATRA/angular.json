@@ -26,11 +26,11 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "node_modules/leaflet/dist/leaflet.css",
-              "node_modules/ngx-toastr/toastr.css"
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.scss",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.scss",
+              "node_modules/leaflet/dist/leaflet.scss",
+              "node_modules/ngx-toastr/toastr.scss"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
@@ -96,7 +96,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": []
           }

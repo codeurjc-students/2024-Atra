@@ -16,7 +16,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
   standalone: true,
   imports: [CommonModule, FormsModule, NgxChartsModule],
   templateUrl: './activity-study.component.html',
-  styleUrl: './activity-study.component.css'
+  styleUrl: './activity-study.component.scss'
 })
 export class ActivityStudyComponent implements OnInit {
 

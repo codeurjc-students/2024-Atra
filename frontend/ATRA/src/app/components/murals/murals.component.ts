@@ -10,7 +10,7 @@ import { MuralsCategoryComponent } from "../murals-category/murals-category.comp
   standalone: true,
   imports: [CommonModule, RouterModule, MuralsListComponent, MuralsCategoryComponent],
   templateUrl: './murals.component.html',
-  styleUrl: './murals.component.css'
+  styleUrl: './murals.component.scss'
 })
 export class MuralsComponent implements OnInit {
 

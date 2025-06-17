@@ -8,7 +8,7 @@ import { AnonInitComponent } from "../anon-init/anon-init.component";
   standalone: true,
   imports: [CommonModule, UserInitComponent, AnonInitComponent],
   templateUrl: './welcome.component.html',
-  styleUrl: './welcome.component.css'
+  styleUrl: './welcome.component.scss'
 })
 export class WelcomeComponent {
 
