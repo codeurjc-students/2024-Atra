@@ -15,7 +15,7 @@ export class AlertComponent {
   @Input() message!: string;
   @Input() accept: string = "YES";
   @Input() cancel: string = "NO";
-  @Input() type: 'alert' | 'confirm' | 'inputConfirm' |'loading' = 'alert';
+  @Input() type: 'alert' | 'confirm' | 'inputConfirm' |'loading-light' | 'loading-heavy' = 'alert';
   @Input() placeholder: string = 'delete';
   text:string = "";
 

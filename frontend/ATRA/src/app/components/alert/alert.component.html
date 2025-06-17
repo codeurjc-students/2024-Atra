@@ -1,6 +1,5 @@
-<div class="custom-alert">
+<div class="custom-alert" *ngIf="type!='loading-light' && type!='loading-heavy'">
   <div class="fw-bold mb-2">{{ title }}</div>
-
   <div class="alert-body mb-5">
     {{ message }}
     <input type="text" [placeholder]="placeholder" *ngIf="type=='inputConfirm'" [(ngModel)]="text">
@@ -11,4 +10,21 @@
 
     <button type="button" class="alert-button " (click)="dismiss()" *ngIf="type=='alert'">OK</button>
   </div>
+</div>
+
+
+<div class="loading-backdrop" *ngIf="type=='loading-heavy'">
+  <div class="custom-alert">
+    <div class="fw-bold mb-2">{{ title }}</div>
+    <div class="alert-body mb-5">
+      {{ message }}
+    </div>
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-backdrop" *ngIf="type=='loading-light'">
+  <div class="spinner"></div>
 </div>
