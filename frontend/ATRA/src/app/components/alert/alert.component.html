@@ -1,7 +1,7 @@
 <div class="custom-alert" *ngIf="type!='loading-light' && type!='loading-heavy'">
   <div class="fw-bold mb-2">{{ title }} <span *ngIf="times>1"> (x{{ times }}) </span></div>
   <div class="alert-body mb-5">
-    {{ message }}
+    <div *ngFor="let m of messages">{{ m }}</div>
     <input type="text" [placeholder]="placeholder" *ngIf="type=='inputConfirm'" [(ngModel)]="text">
   </div>
   <div class="d-flex justify-content-end">
@@ -17,7 +17,7 @@
   <div class="custom-alert">
     <div class="fw-bold mb-2">{{ title }}</div>
     <div class="alert-body mb-5">
-      {{ message }}
+      {{ messages[0] }}
     </div>
     <div class="d-flex justify-content-center align-items-center">
       <div class="spinner"></div>

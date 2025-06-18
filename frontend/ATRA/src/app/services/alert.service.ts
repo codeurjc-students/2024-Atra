@@ -44,10 +44,11 @@ export class AlertService {
   // Alert method (just shows a message)
   alert(message: string, title?: string, onDismiss?:()=>void, easyDismiss:boolean=true) {
     //check comment on this.alerts
-    if (this.confirm!=null) console.warn("alert called with open confirm");
+    const messages: string[] = message.includes('\n') ? message.split('\n'):[message]
+    if (this.confirm!=null) console.warn("alert called with open confirm"); //could be interesting to show it as a toast, but what'd happen with onDismiss then?
     title = title ?? "Warning";
     for (let element of this.alerts) {
-      if (element.componentInstance.title==title && element.componentInstance.message==message) {
+      if (element.componentInstance.title==title && arraysEqual(element.componentInstance.messages, messages)) {
         element.componentInstance.times += 1;
         //onDismiss won't happen multiple times, but that's probably a good thing
         return;
@@ -62,7 +63,7 @@ export class AlertService {
     }
     const modalRef = this.modalService.open(AlertComponent, options as NgbModalOptions);
     modalRef.componentInstance.title = title;
-    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.messages = messages;
     modalRef.componentInstance.type = 'alert';
     this.alerts.push(modalRef)
 
@@ -83,9 +84,10 @@ export class AlertService {
   confirm(message: string, title?: string, options?:{accept:string, cancel:string}): Observable<boolean> {
     if (this.alerts.length!=0) console.warn("confirm called with open alerts");
 
+    const messages: string[] = message.includes('\n') ? message.split('\n'):[message]
     if (this.confirmModalRef!=null) {
       title = title ?? "Warning";
-      if (this.confirmModalRef.componentInstance.title==title && this.confirmModalRef.componentInstance.message==message) {
+      if (this.confirmModalRef.componentInstance.title==title && arraysEqual(this.confirmModalRef.componentInstance.messages, messages)) {
         this.confirmModalRef.componentInstance.times += 1;
         console.error("Opened the same confirm multiple times. This should not be done. ");
         this.toastError("Attempted to open the same confirm multiple times")
@@ -98,7 +100,7 @@ export class AlertService {
 
     this.confirmModalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
     this.confirmModalRef.componentInstance.title = title ?? "Warning";
-    this.confirmModalRef.componentInstance.message = message;
+    this.confirmModalRef.componentInstance.messages = messages;
     this.confirmModalRef.componentInstance.type = 'confirm';
     if (options){
       this.confirmModalRef.componentInstance.accept = options.accept;
@@ -114,9 +116,11 @@ export class AlertService {
   }
 
   loading(isLight:boolean=true){
+    const message = "Wait a second while we take care of some things\n This message should disappear shortly. If it doesn't, try reloading the page.";
+    const messages: string[] = message.includes('\n') ? message.split('\n'):[message]
     this.loadingModalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background', animation:false });
     this.loadingModalRef.componentInstance.title = "Loading...";
-    this.loadingModalRef.componentInstance.message = "Wait a second while we take care of some things\n This message should disappear shortly. If it doesn't, try reloading the page.";
+    this.loadingModalRef.componentInstance.messages = messages;
     this.loadingModalRef.componentInstance.type = isLight ? 'loading-light':'loading-heavy';
   }
 
@@ -138,9 +142,10 @@ export class AlertService {
       throw Error("Attempted to open an input confirm while one is already open. This is not allowed");
     }
 
+    const messages: string[] = message.includes('\n') ? message.split('\n'):[message]
     const modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
     modalRef.componentInstance.title = title ?? "Warning";
-    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.messages = messages;
     modalRef.componentInstance.type = 'inputConfirm';
     modalRef.componentInstance.placeholder = placeholder ?? 'delete';
 
@@ -161,3 +166,8 @@ export class AlertService {
 }
 
 type MsgType = 'info' | 'warning' | 'success' | 'error'
+
+function arraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((val, index) => val === b[index]);
+}

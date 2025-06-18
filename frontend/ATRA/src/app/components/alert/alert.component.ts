@@ -12,7 +12,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class AlertComponent {
   @Input() title!: string;
-  @Input() message!: string;
+  @Input() messages!: string[];
   @Input() accept: string = "YES";
   @Input() cancel: string = "NO";
   @Input() type: 'alert' | 'confirm' | 'inputConfirm' |'loading-light' | 'loading-heavy' = 'alert';
