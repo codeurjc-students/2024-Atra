@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
       countDuplicates:true,
       resetTimeoutOnDuplicate:true,
       includeTitleDuplicates:true,
-      positionClass:'toast-center-center',
+      positionClass:'toast-top-right',
       closeButton:true
 
     })

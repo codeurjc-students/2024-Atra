@@ -69,10 +69,11 @@ export class ActivityComponent implements OnInit {
   deleteActivity() {
     this.activityService.delete(this.id).subscribe({
       next: () => {
-        this.alertService.alert("Route deleted")
+        this.alertService.toastSuccess("Route deleted")
         this.router.navigate(["/me/activities"])
       },
-      error: (e) => {this.alertService.alert("ERROR: "+e.error)},
+      error: (e) => {this.alertService.toastError("There was an error deleting the activity"); console.error("Error deleting activity with id " + this.id + ": "+e.error);
+      },
     });
   }
 
@@ -80,14 +81,14 @@ export class ActivityComponent implements OnInit {
   modal!: any;
   routes : Route[] = [];
   selectedRoute : number =-1;
-  errorLoadingRoutes : boolean = false;
+  errorLoadingRoutes : boolean = false; //unsure why this is here. Should probably be deleted
   routeMap: L.Map | null = null;
   routePath !: L.Polyline;
   displayRoute : Route | null = null;
   owned: boolean = false;
 
   open(content: TemplateRef<any>) {
-    if (this.errorLoadingRoutes) return this.alertService.alert("There seem to be no activities with no route assigned.")
+    if (this.errorLoadingRoutes) return this.alertService.alert("There seem to be no activities with no route assigned.") //check this alongside errorLoadingRoutes
     this.modal = this.modalService.open(content)
 
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1
@@ -96,18 +97,21 @@ export class ActivityComponent implements OnInit {
   }
 
   createRoute(name:string, desc:string, distance:string, elevation:string) {
+    this.alertService.loading();
     this.routeService.createRoute(name,desc, parseFloat(distance), parseFloat(elevation), this.activity.id).subscribe({
       next: () => {
+        this.alertService.loaded()
         this.modalService.dismissAll()
         this.alertService.confirm("The route has been created properly. Do you want to be redirected to the routes page?").subscribe({
           next:(accepted)=>{
             if (accepted) {
               this.router.navigate(["/me/routes/"])
             } else {
+              // why not just this.location.reload() ? It pretty much does the same thing methinks (reloads the whole page)
               this.fetchRoutes()
               this.activityService.get(this.id).subscribe({
                 next: (act) => this.receivedAnActivityHandler(act),
-                error: () => {this.alertService.alert("There was an error fetching the updated activity. Try reloading the page.")}
+                error: () => {this.alertService.toastError("There was an error fetching the updated activity. Try reloading the page.", "Activity may not reflect latest changes")}
               })
             }
           }
@@ -115,6 +119,7 @@ export class ActivityComponent implements OnInit {
 
       },
       error: (e) => {
+        this.alertService.loaded()
         console.log(e);
       }
     });
@@ -127,7 +132,7 @@ export class ActivityComponent implements OnInit {
       },
       error: (e) => {
         console.log(e);
-        this.alertService.alert("There was an error fetching the routes. Try again later or after refreshing the page.")
+        this.alertService.toastError("You may be unable to change the activity's route. Try refreshing the page.", "Error fetching routes")
       }
     })
   }
@@ -139,7 +144,7 @@ export class ActivityComponent implements OnInit {
         next: (activity:any) => this.receivedAnActivityHandler(activity, "success at deleting existing connection"),
         error: () => {
           console.log("fail");
-          this.alertService.alert("Couldn't remove the route from the activity. Try again later, or after reloading.")
+          this.alertService.toastError("Couldn't remove the route from the activity.")
         }
       })
       return
@@ -148,13 +153,14 @@ export class ActivityComponent implements OnInit {
       next: (activity:any) => this.receivedAnActivityHandler(activity, "success at creating new connection"),
       error: () => {
         console.log("fail");
-        this.alertService.alert("Couldn't add the route to the activity. Try again later, or after reloading.")
+        this.alertService.toastError("Couldn't add the route to the activity.")
       }
     })
     return
   }
 
   selectedRouteChange(){
+    //all of this is used for the change route functionality
     if (this.selectedRoute==-1) return this.routeMap = null
     if (this.routeMap==null || this.routeMap == undefined) {
       setTimeout(() => {
@@ -171,6 +177,7 @@ export class ActivityComponent implements OnInit {
     return
   }
   updateMap() {
+    //all of this is used for the change route functionality
     this.displayRoute = null;
     for (var r of this.routes) {
       console.log("routeId: "+r.id);
@@ -209,7 +216,7 @@ export class ActivityComponent implements OnInit {
   addAllowedMural(muralIdString: string) {
     const muralId = parseInt(muralIdString);
     if (isNaN(muralId)) {
-      this.alertService.alert("Invalid mural ID. Please enter a valid number.");
+      this.alertService.toastError("Invalid mural ID. Please enter a valid number.");
       return;
     }
     if (this.allowedMuralsList.includes(muralId)) {

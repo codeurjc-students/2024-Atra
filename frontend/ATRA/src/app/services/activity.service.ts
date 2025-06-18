@@ -36,7 +36,7 @@ export class ActivityService {
       console.log("file name: " + file.name); // Example: Print file name
 
       if (!file.name.toLowerCase().endsWith(".gpx")){
-        this.alertService.alert("File upload failed. The file must be a gpx file!")
+        this.alertService.toastError("File upload failed. The file must be a gpx file!")
         return
       }
       this.authService.isLoggedIn().subscribe({
@@ -71,9 +71,9 @@ export class ActivityService {
       },
       error: (error) => {
         if (error.status == 413) {
-          this.alertService.alert("Upload failed! The file uploaded exceeds the 10MB limit.")
+          this.alertService.toastError("Upload failed! The file uploaded exceeds the 10MB limit.", "File too big")
         } else {
-          this.alertService.alert("Upload failed! Try again later")
+          this.alertService.toastError("Upload failed! Try again later")
         }
       }
     });
@@ -216,7 +216,7 @@ export class ActivityService {
         //this.currentActivity.next(activity)
       },
       error: (err) => { //though this should be handled by the backend and the interceptor
-        this.alertService.alert("Error changing visibility");
+        this.alertService.toastError("Error changing visibility");
       }
     }))
   };

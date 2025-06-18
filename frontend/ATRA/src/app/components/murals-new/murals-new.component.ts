@@ -55,7 +55,7 @@ export class MuralsNewComponent {
           setTimeout(()=>
             this.form.get(type)?.setErrors({invalidFile:true})
         );
-          this.alertService.alert("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
+          this.alertService.toastError("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
         }
         //re-enable form submission
       })
@@ -93,7 +93,7 @@ export class MuralsNewComponent {
 
   submitForm() {
     if (!this.form.valid || this.thumbnailImage==null || this.bannerImage==null) {
-      this.alertService.alert("The form is invalid","Something went wrong")
+      this.alertService.toastError("The form is invalid. This shouldn't happen","Something went wrong")
       return
     }
 

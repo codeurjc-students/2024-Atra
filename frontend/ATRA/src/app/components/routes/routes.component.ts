@@ -45,11 +45,11 @@ export class RoutesComponent {
           })
         }
         else {
-          this.alertService.alert("No routes were found. You can create one by clicking on create route.")
+          this.alertService.toastInfo("No routes were found. You can create one by clicking on create route.") //fix: instead of this, the component itself should show a message when there are no routes methinks
           this.routes = new Map()
         }
       },
-      error: (err) => {this.alertService.alert("There was an error fetching the Routes"); console.log("There was an error fetching the Routes", err)}
+      error: (err) => {this.alertService.toastError("Try reloading the page", "Error fetching routes"); console.log("There was an error fetching the Routes", err)}
     })
 
     this.fetchActivitiesWithNoRoute()
@@ -132,7 +132,7 @@ export class RoutesComponent {
       },
       error: () => {
         console.log("fail");
-        this.alertService.alert("Couldn't remove the activity. Try again later, or after reloading.")
+        this.alertService.toastError("Couldn't remove the activity. Try again later, or after reloading.")
       }
     })
   }
@@ -151,7 +151,7 @@ export class RoutesComponent {
       },
       error: () => {
         console.log("fail");
-        this.alertService.alert("Couldn't remove the activity. Try again later, or after reloading.")
+        this.alertService.toastError("Couldn't remove the route. Try again later, or after reloading.")
       }
     })
   }
@@ -164,7 +164,7 @@ export class RoutesComponent {
   modalSelected: Set<number> = new Set();
 
   open(content: TemplateRef<any>) {
-    if (this.errorLoadingActivities) return this.alertService.alert("There seem to be no activities with no route assigned.")
+    if (this.errorLoadingActivities) return this.alertService.toastInfo("There seem to be no activities with no route assigned.")
     this.modal = this.modalService.open(content, {size:'lg'})
   }
   submit(){}
@@ -181,9 +181,9 @@ export class RoutesComponent {
         this.fetchActivitiesWithNoRoute()
 
       },
-      error: () => {
-        console.log("fail");
-        this.alertService.alert("Couldn't add the activities to the route. Try again later, or after reloading.")
+      error: (e) => {
+        console.error("Error adding activities to route: " + e);
+        this.alertService.toastError("Try again later.", "Error adding activities to route")
       }
     })
   }

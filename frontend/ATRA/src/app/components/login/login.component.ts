@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     if (this.loginForm.invalid) {
-      this.alertService.alert("Something went wrong, the form is not valid")
+      this.alertService.toastError("Something went wrong, the form is not valid", "This shouldn't happen")
       return
     }
     this.activeModal.close();
@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         console.error('Login failed', error);
-        this.alertService.alert('Login failed. Please check your credentials and try again.');
+        this.alertService.toastError('Login failed. Please check your credentials and try again.');
       }
     });
   }

@@ -49,7 +49,7 @@ export class GridItemService {
           this.activityList.next(activities)
                 },
         error: (err) => {
-          this.alertService.alert("There was an error fetching the Mural activities. Try reloading the page.", "Something went wrong!");
+          this.alertService.toastError("Some functionality won't be available. Try reloading the page.", "Error fetching activities");
         }
       })
     this.fetchRoutes(entity.routes).subscribe({
@@ -57,7 +57,7 @@ export class GridItemService {
         this.routes.next(routes)
       },
       error: (err) => {
-        this.alertService.alert("There was an error fetching the Mural routes. Try reloading the page.", "Something went wrong!");
+        this.alertService.toastError("Some functionality won't be available. Try reloading the page.", "Error fetching routes");
       }
     })
     this.populateRowValues()

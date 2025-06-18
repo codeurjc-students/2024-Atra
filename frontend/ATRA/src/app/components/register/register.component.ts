@@ -48,7 +48,7 @@ export class RegisterComponent implements OnInit{
       this.step = 'optional';
     }
     else {
-      this.alertService.alert("Debes completar todos los campos antes de continuar")
+      this.alertService.toastWarning("Debes completar todos los campos antes de continuar")
     }
   }
 
@@ -65,7 +65,7 @@ export class RegisterComponent implements OnInit{
 
   onSubmit() {
     if (this.registerForm.invalid) {
-      this.alertService.alert("Something went wrong, the form is not valid")
+      this.alertService.toastError("Something went wrong, the form is not valid", "This shouldn't happen")
       return
     }
 

@@ -6,6 +6,7 @@ import { AlertService } from '../../services/alert.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -22,7 +23,7 @@ export class ProfileComponent implements OnInit {
   generalForm !: FormGroup;
   passwordForm !: FormGroup;
 
-  constructor(private modalService:NgbModal, private userService:UserService, private alertService:AlertService, private router:Router, private fb: FormBuilder){
+  constructor(private modalService:NgbModal, private userService:UserService, private alertService:AlertService, private router:Router, private fb: FormBuilder, private authService:AuthService){
     this.user = {
       id: 1,
       username: "username",
@@ -60,11 +61,10 @@ export class ProfileComponent implements OnInit {
       error:(e)=>{
         console.log("There's been an error.");
         console.log("Message " + e.message);
-        if (e.status==401) {
+        if (e.status==401) { //this is handled by the interceptor, this could be removed
           this.alertService.alert("You are not logged in. You'll be redirected to the login screen.", "Not logged in", ()=>this.router.navigate(["/"]))
         }
       }
-
     })
   }
 
@@ -109,7 +109,7 @@ export class ProfileComponent implements OnInit {
         this.profileModal.close()
       },
       error:()=>{
-        this.alertService.alert("Error message", "Something went wrong", this.profileModal.close())
+        this.alertService.alert("Error updating user info", "Something went wrong", ()=>this.profileModal.close()) //left as alert since it's a direct consequence of user's actions. Not sure why we're closing the modal
       }
     })
   }
@@ -128,8 +128,8 @@ export class ProfileComponent implements OnInit {
             next:(accepted) => {
               if (accepted) {
                 this.userService.updatePassword(this.passwordForm.get('newPassword')?.value).subscribe({
-                  next:()=>{this.modalService.dismissAll(); this.router.navigate(["/"])},
-                  error:(error:any) => {this.alertService.alert("An error ocurred. Your password could not be changed.", "Something went wrong", this.modalService.dismissAll)}
+                  next:()=>{this.modalService.dismissAll(); this.authService.logout(); this.router.navigate(["/"])},
+                  error:(error:any) => {this.alertService.alert("An error ocurred. Your password could not be changed.", "Something went wrong", this.modalService.dismissAll)} //left as alert since it's a direct consequence of user's actions. I seem to have insisted on closing the modals when errors happen. Not sure why, it's a pain to have to re-enter all the
                 })
               } else {
                 this.passwordForm.reset()
@@ -138,7 +138,7 @@ export class ProfileComponent implements OnInit {
             }
           })
         } else {
-          this.alertService.alert("The password provided does not match your current password", "Wrong Password")
+          this.alertService.toastError("The password provided does not match your current password", "Wrong Password")
         }
       }
     })
@@ -170,12 +170,17 @@ export class ProfileComponent implements OnInit {
         this.alertService.inputConfirm("Type 'delete' and click 'delete account' to delete your account.", "Deleting Account", {accept:"delete account", cancel:"cancel"}, "delete").subscribe({
           next:(answer)=>{
             if (!answer.accept) return this.alertService.alert("The operation was cancelled. Your account is still up.", "Operation cancelled")
-            if (answer.text!=='delete') return this.alertService.alert("The text typed does not match 'delete'. The operation was cancelled.", "Operation cancelled")
+            if (answer.text!=='delete') return this.alertService.toastWarning("The text typed does not match 'delete'. The operation was cancelled.", "Operation cancelled")
             this.userService.delete().subscribe(response => {
               if (response.status==200) this.alertService.alert("Your account has been deleted successfully. All your activities have been deleted. You have been removed from any Murals you were part of.", "Account deleted")
-              else if (response.status==401) this.alertService.alert("You are not authorized to perform this operation. It has been cancelled. The account is still up.", "Operation cancelled")
+              else if (response.status==401) this.alertService.alert("You must be signed in to perform this operation. It has not gone through.", "Operation cancelled")
+              else if (response.status==403) this.alertService.alert("You are not authorized to perform this operation. It has been cancelled. The account is still up.", "Operation cancelled")
               else if (response.status==404) this.alertService.alert("Could not find the user to be deleted. The operation has been cancelled.", "Operation cancelled")
-              else this.alertService.alert("An unexpected error ocurred, try again later.", "Error")
+              else {
+                this.alertService.alert("An unexpected error ocurred, try again later.", "Error")
+                console.error("Unexpected error deleting user account: " + response);
+
+              }
             })
             this.router.navigate(["/"])
           }

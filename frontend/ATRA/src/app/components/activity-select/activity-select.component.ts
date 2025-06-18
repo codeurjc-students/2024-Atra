@@ -38,7 +38,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
     if (this.activities!=null) return
     this.activityService.getAuthenticatedUserActivities().subscribe({
       next: (value) => this.activities = this.activityService.process(value),
-      error: (err) => {this.alertService.alert("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+      error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
     })
   }
 

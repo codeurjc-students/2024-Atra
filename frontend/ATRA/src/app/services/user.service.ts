@@ -32,7 +32,7 @@ export class UserService {
         email: user.email
       }).subscribe({
         next: () => {
-          this.alertService.alert("You have successfully created your account")
+          this.alertService.toastSuccess("You have successfully created your account")
           window.location.reload()
         },
         error: () => {
