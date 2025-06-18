@@ -102,14 +102,17 @@ export class ProfileComponent implements OnInit {
     this.user.name = name
     this.user.email = email
 
+    this.alertService.loading();
     this.userService.update(this.user).subscribe({
       next:(u:any)=>{
         this.user = u;
         this.generalForm.get('username')?.setAsyncValidators(this.userService.isUserNameTaken(this.user.username));
         this.profileModal.close()
+        this.alertService.loaded()
       },
       error:()=>{
         this.alertService.alert("Error updating user info", "Something went wrong", ()=>this.profileModal.close()) //left as alert since it's a direct consequence of user's actions. Not sure why we're closing the modal
+        this.alertService.loaded()
       }
     })
   }

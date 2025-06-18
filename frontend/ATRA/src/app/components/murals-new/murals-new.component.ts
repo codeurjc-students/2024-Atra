@@ -96,7 +96,7 @@ export class MuralsNewComponent {
       this.alertService.toastError("The form is invalid. This shouldn't happen","Something went wrong")
       return
     }
-
+    this.alertService.loading();
     const name = this.form.get('name')?.value;
     const description = this.form.get('description')?.value;
 
@@ -108,6 +108,7 @@ export class MuralsNewComponent {
       banner:this.bannerImage,
     }).subscribe({
       next:(mural:Mural)=>{
+        this.alertService.loaded()
         this.alertService.confirm("The mural has been created, would you like to see it?", "Mural created", {accept:"Yes", cancel:"No"}).subscribe(
           (shouldRedirect)=>{
             if (shouldRedirect) {
@@ -120,7 +121,7 @@ export class MuralsNewComponent {
 
             }
         )},
-      error:()=>{}
+      error:()=>{this.alertService.loaded(); this.alertService.toastError("Error creating mural")}
     });
   }
 

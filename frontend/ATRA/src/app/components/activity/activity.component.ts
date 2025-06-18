@@ -36,6 +36,9 @@ export class ActivityComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService, private alertService:AlertService, private authService:AuthService) {}
 
   ngOnInit(): void {
+    console.log("NgOnInit for activityComponent");
+    this.alertService.loading()
+
     if (this.map==null)
       this.map = MapService.mapSetup("map")
 
@@ -47,12 +50,14 @@ export class ActivityComponent implements OnInit {
     this.id = parseInt(stringId);
 
     this.activityService.get(this.id).subscribe({
-      next: (act) => this.receivedAnActivityHandler(act),
-      error: () => {this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
+      next: (act) => {
+        this.receivedAnActivityHandler(act)
+        if (act!=null) this.alertService.loaded();
+      },
+      error: () => {this.alertService.loaded();console.log("Error: done loading");this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
     })
     this.fetchRoutes()
   }
-
 
 
   addPathToMap() {
@@ -102,7 +107,7 @@ export class ActivityComponent implements OnInit {
       next: () => {
         this.alertService.loaded()
         this.modalService.dismissAll()
-        this.alertService.confirm("The route has been created properly. Do you want to be redirected to the routes page?").subscribe({
+        this.alertService.confirm("The route has been created properly. Do you want to be redirected to the routes page?", "Route created").subscribe({
           next:(accepted)=>{
             if (accepted) {
               this.router.navigate(["/me/routes/"])
@@ -139,20 +144,23 @@ export class ActivityComponent implements OnInit {
 
   submitChangeRoute(routeId: string){
     this.modal.dismiss();
+    this.alertService.loading();
     if (routeId=="-1") {
       this.activityService.removeRoute(this.id).subscribe({
-        next: (activity:any) => this.receivedAnActivityHandler(activity, "success at deleting existing connection"),
+        next: (activity:any) => {this.alertService.loaded();this.receivedAnActivityHandler(activity, "success at deleting existing connection")},
         error: () => {
-          console.log("fail");
+          console.error("Error removing the route from the activity");
+          this.alertService.loaded()
           this.alertService.toastError("Couldn't remove the route from the activity.")
         }
       })
       return
     }
     this.activityService.addRoute(this.id, parseInt(routeId)).subscribe({
-      next: (activity:any) => this.receivedAnActivityHandler(activity, "success at creating new connection"),
+      next: (activity:any) => {this.alertService.loaded();this.receivedAnActivityHandler(activity, "success at creating new connection")},
       error: () => {
-        console.log("fail");
+        console.error("Error changing the avtivity's route");
+        this.alertService.loaded()
         this.alertService.toastError("Couldn't add the route to the activity.")
       }
     })
@@ -227,12 +235,12 @@ export class ActivityComponent implements OnInit {
 
   submitChangeVisibility(newVis: string) {
     if (!["PRIVATE", "MURAL_SPECIFIC", "MURAL_PUBLIC", "PUBLIC"].includes(newVis)) throw new Error("WHAT. THE. FUCK. How the fuck is newVis this value: " + newVis);
-    //show loading screen
+    this.alertService.loading();
     if ("MURAL_SPECIFIC" !== newVis) this.allowedMuralsList = [];
     this.activityService.changeVisibility(this.id, newVis as "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC", this.allowedMuralsList).subscribe({
       next:() => {
         console.log("Visibility changed");
-        //close loading screen
+        this.alertService.loaded();
         this.modal.close()
 
       }

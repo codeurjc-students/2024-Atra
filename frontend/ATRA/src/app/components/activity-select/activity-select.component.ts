@@ -36,6 +36,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
   ngOnInit(): void {
     if (this.activities!=null) return
+    //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
     this.activityService.getAuthenticatedUserActivities().subscribe({
       next: (value) => this.activities = this.activityService.process(value),
       error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}

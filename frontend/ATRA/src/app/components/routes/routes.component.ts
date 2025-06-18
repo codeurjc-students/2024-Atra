@@ -35,6 +35,8 @@ export class RoutesComponent {
 
 
   ngOnInit(): void {
+    //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
+
     this.routeService.getRoutes().subscribe({
       next: (value:Route[]) => {
         if (value.length!=0) {

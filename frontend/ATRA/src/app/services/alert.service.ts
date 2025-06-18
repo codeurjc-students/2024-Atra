@@ -77,7 +77,7 @@ export class AlertService {
   }
 
   loading(isLight:boolean=true){
-    this.modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background' });
+    this.modalRef = this.modalService.open(AlertComponent, { backdrop: 'static', keyboard: false, centered:true, windowClass:'remove-modal-background', animation:false });
     this.modalRef.componentInstance.title = "Loading...";
     this.modalRef.componentInstance.message = "Wait a second while we take care of some things\n This message should disappear shortly. If it doesn't, try reloading the page.";
     this.modalRef.componentInstance.type = isLight ? 'loading-light':'loading-heavy';
