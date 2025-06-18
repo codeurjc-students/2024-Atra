@@ -17,6 +17,7 @@ export class AlertComponent {
   @Input() cancel: string = "NO";
   @Input() type: 'alert' | 'confirm' | 'inputConfirm' |'loading-light' | 'loading-heavy' = 'alert';
   @Input() placeholder: string = 'delete';
+  @Input() times: number = 1;
   text:string = "";
 
   constructor(public activeModal: NgbActiveModal) {}

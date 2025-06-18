@@ -1,5 +1,5 @@
 <div class="custom-alert" *ngIf="type!='loading-light' && type!='loading-heavy'">
-  <div class="fw-bold mb-2">{{ title }}</div>
+  <div class="fw-bold mb-2">{{ title }} <span *ngIf="times>1"> (x{{ times }}) </span></div>
   <div class="alert-body mb-5">
     {{ message }}
     <input type="text" [placeholder]="placeholder" *ngIf="type=='inputConfirm'" [(ngModel)]="text">
