@@ -8,7 +8,7 @@
     <button type="button" class="alert-button mx-1" (click)="confirm()" *ngIf="type=='confirm' || type=='inputConfirm'">{{ accept }}</button>
     <button type="button" class="alert-cancel-button mx-1" (click)="dismiss()" *ngIf="type=='confirm' || type=='inputConfirm'">{{ cancel }}</button>
 
-    <button type="button" class="alert-button " (click)="dismiss()" *ngIf="type=='alert'">OK</button>
+    <button type="button" class="alert-button " (click)="dismiss()" *ngIf="type=='alert'">{{ accept }}</button>
   </div>
 </div>
 

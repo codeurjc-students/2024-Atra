@@ -42,7 +42,7 @@ export class AlertService {
   }
 
   // Alert method (just shows a message)
-  alert(message: string, title?: string, onDismiss?:()=>void, easyDismiss:boolean=true) {
+  alert(message: string, title?: string, onDismiss?:()=>void, easyDismiss:boolean=true, acceptText:string='OK') {
     //check comment on this.alerts
     const messages: string[] = message.includes('\n') ? message.split('\n'):[message]
     if (this.confirm!=null) console.warn("alert called with open confirm"); //could be interesting to show it as a toast, but what'd happen with onDismiss then?
@@ -64,6 +64,7 @@ export class AlertService {
     const modalRef = this.modalService.open(AlertComponent, options as NgbModalOptions);
     modalRef.componentInstance.title = title;
     modalRef.componentInstance.messages = messages;
+    modalRef.componentInstance.accept = acceptText;
     modalRef.componentInstance.type = 'alert';
     this.alerts.push(modalRef)
 
