@@ -105,13 +105,13 @@ export class ActivityComponent implements OnInit {
   createRoute(name:string, desc:string, distance:string, elevation:string) {
     this.alertService.loading();
     this.routeService.createRoute(name,desc, parseFloat(distance), parseFloat(elevation), this.activity.id).subscribe({
-      next: () => {
+      next: (r:Route) => {
         this.alertService.loaded()
         this.modalService.dismissAll()
         this.alertService.confirm("The route has been created properly. Do you want to be redirected to the routes page?", "Route created").subscribe({
           next:(accepted)=>{
             if (accepted) {
-              this.router.navigate(["/me/routes/"])
+              this.router.navigate(["/me/routes"], { queryParams: { selected:r.id }})
             } else {
               // why not just this.location.reload() ? It pretty much does the same thing methinks (reloads the whole page)
               this.fetchRoutes()

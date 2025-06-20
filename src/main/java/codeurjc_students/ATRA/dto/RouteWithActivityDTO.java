@@ -35,4 +35,14 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 		this.description = route.getDescription();
 		this.activities = activities;
 	}
+
+	public RouteWithActivityDTO(Route route) {
+		this.id = route.getId();
+		this.totalDistance = route.getTotalDistance();
+		this.elevationGain = route.getElevationGain();
+		this.coordinates = route.getCoordinates();
+		this.name = route.getName();
+		this.description = route.getDescription();
+		this.activities = route.getActivities().stream().map(ActivityOfRouteDTO::new).toList();
+	}
 }

@@ -60,14 +60,14 @@ public class RouteController {
         return ResponseEntity.ok(dtoService.toDtoRoute(routes));
     }
     @PostMapping
-    public ResponseEntity<Route> createRoute(@RequestBody Route route){
+    public ResponseEntity<RouteWithActivityDTO> createRoute(@RequestBody Route route){
         //Route should have in its id field the id of the route from which it is to be created
         Long activityId = route.getId();
         if (!activityService.exists(activityId)) return ResponseEntity.notFound().build();
         Activity activity = activityService.get(activityId);
         if (activity==null) return ResponseEntity.badRequest().build();
         Route resultRoute = routeService.newRoute(activity, activityService);
-        return ResponseEntity.ok(route);
+        return ResponseEntity.ok(new RouteWithActivityDTO(resultRoute));
 
     }
 

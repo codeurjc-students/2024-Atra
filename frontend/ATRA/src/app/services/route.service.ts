@@ -18,7 +18,7 @@ export class RouteService {
   constructor(private http: HttpClient, private router: Router) {}
 
   createRoute(name:string, desc:string, distance:number, elevation:number, id:number) {
-    return this.http.post("/api/routes",
+    return this.http.post<Route>("/api/routes",
     {
       name:name,
       description:desc,
