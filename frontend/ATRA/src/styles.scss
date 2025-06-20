@@ -39,36 +39,25 @@ label {
   cursor: pointer !important;
 }
 
-.h-30 {
-  height: 30% !important;
-}
-
-.h-60 {
-  height: 60% !important;
-}
-
-.h-90 {
-  height: 90% !important;
-}
-
-.w-20 {
-  width: 20% !important;
-}
-
-.w-60 {
-  width: 60% !important;
-}
-
-.w-70 {
-  width: 70% !important;
-}
-
-.w-80 {
-  width: 80% !important;
-}
-
-.w-90 {
-  width: 90% !important;
+@for $i from 0 through 100 {
+  .w-#{$i} {
+    width: $i * 1% !important;
+  }
+  .h-#{$i} {
+    height: $i * 1% !important;
+  }
+  .max-w-#{$i} {
+    max-width: $i * 1% !important;
+  }
+  .max-h-#{$i} {
+    max-height: $i * 1% !important;
+  }
+  .min-w-#{$i} {
+    min-width: $i * 1% !important;
+  }
+  .min-h-#{$i} {
+    min-height: $i * 1% !important;
+  }
 }
 
 .thin-grey-border {
@@ -81,34 +70,6 @@ label {
 
 .thin-red-border {
   border: 1px solid red;
-}
-
-.max-w-25 {
-  max-width: 25% !important;
-}
-
-.max-w-75 {
-  max-width: 75% !important;
-}
-
-.max-w-20 {
-  max-width: 20% !important;
-}
-
-.min-w-20 {
-  min-width: 20% !important;
-}
-
-.min-w-100 {
-  min-width: 100% !important;
-}
-
-.max-w-100 {
-  max-width: 100% !important;
-}
-
-.max-h-90 {
-  max-height: 90% !important;
 }
 
 .z-index-10 {
