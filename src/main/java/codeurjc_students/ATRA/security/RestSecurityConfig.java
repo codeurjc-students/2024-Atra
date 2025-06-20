@@ -65,6 +65,7 @@ public class RestSecurityConfig {
 		
 				// URLs that need authentication to access to it
 					.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/auth/IsLoggedIn").permitAll()
 					.requestMatchers(HttpMethod.POST, "/api/auth/refresh").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
@@ -91,7 +92,7 @@ public class RestSecurityConfig {
 					.requestMatchers(HttpMethod.GET, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.POST, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
-					.requestMatchers(HttpMethod.DELETE, "/api/routes/{\\\\d+}/activities/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.DELETE, "/api/routes/{rid}/activities/{aid}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.GET, "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.DELETE, "/api/routes/{id}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.POST, "/api/routes/{id}/activities/").hasAnyRole(USER_ROLE, ADMIN_ROLE)

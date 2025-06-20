@@ -92,18 +92,18 @@
     <form *ngIf="passwordForm" [formGroup]="passwordForm">
       <div id="oldPassword" class="form-floating mb-3 w-100">
         <input id="oldPassword" type="password" class="form-control" formControlName="oldPassword" required>
-        <label for="oldPassword" class="mr-3 text-muted">Password</label>
+        <label for="oldPassword" class="mr-3 text-muted">Current Password</label>
         <small class="text-danger d-block" *ngIf="passwordForm.get('oldPassword')?.touched && passwordForm.get('oldPassword')?.value===''">You must include your current password</small>
       </div>
       <div id="passwordContainer" class="form-floating mb-3 w-100">
         <input id="newPassword" type="password" class="form-control" formControlName="newPassword" required>
-        <label for="newPassword" class="mr-3 text-muted">Password</label>
+        <label for="newPassword" class="mr-3 text-muted">New Password</label>
         <small class="text-danger d-block" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.value===''">You must include a new password</small>
         <small class="text-danger d-block" *ngIf="passwordForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
       </div>
       <div id="confirmContainer" class="form-floating mb-3 w-100">
         <input id="confirmPassword" type="password" class="form-control" formControlName="confirmPassword" required>
-        <label for="confirmPassword" class="mr-3 text-muted">Confirm Password</label>
+        <label for="confirmPassword" class="mr-3 text-muted">Confirm New Password</label>
         <small class="text-danger d-block" *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.value===''">You must include a new password</small>
         <small class="text-danger d-block" *ngIf="passwordForm.errors?.['differentPasswords']">Las contraseñas deben ser iguales</small>
       </div>

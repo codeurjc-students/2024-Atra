@@ -5,9 +5,9 @@
     <h2 class="h5 mb-0" *ngIf="activity">{{activity.name}}</h2>
     <h2 class="h5 mb-0" *ngIf="!activity">Loading</h2>
     <div>
-      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
-      <button class="btn btn-primary mx-1" *ngIf="activity && this.owned && this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
-      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
+      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
+      <button class="btn btn-primary mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
+      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
       <button class="btn btn-info mx-1"    *ngIf="activity && this.owned" (click)="open(visibilityModal)"><i class="fa-solid fa-eye"></i> Change Visibility</button>
       <button class="btn btn-danger mx-1"  *ngIf="activity && this.owned" (click)="deleteActivity()"><i class="fa-solid fa-trash"></i> Delete</button>
 

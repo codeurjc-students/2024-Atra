@@ -59,17 +59,13 @@ export class ProfileComponent implements OnInit {
         this.createForms()
       },
       error:(e)=>{
-        console.log("There's been an error.");
-        console.log("Message " + e.message);
-        if (e.status==401) { //this is handled by the interceptor, this could be removed
-          this.alertService.alert("You are not logged in. You'll be redirected to the login screen.", "Not logged in", ()=>this.router.navigate(["/"]))
-        }
+        console.error("There's been an error. Current user could not be loaded: ", e);
       }
     })
   }
 
   open(template: TemplateRef<any>, password?:boolean) {
-    const modal = this.modalService.open(template, {backdrop:'static'});
+    const modal = this.modalService.open(template, {backdrop:'static'}); //consider centering. Not doing it now cause it covers more content when centered
     if (password) {
       this.passwordModal = modal
     } else {
@@ -174,18 +170,23 @@ export class ProfileComponent implements OnInit {
           next:(answer)=>{
             if (!answer.accept) return this.alertService.alert("The operation was cancelled. Your account is still up.", "Operation cancelled")
             if (answer.text!=='delete') return this.alertService.toastWarning("The text typed does not match 'delete'. The operation was cancelled.", "Operation cancelled")
-            this.userService.delete().subscribe(response => {
-              if (response.status==200) this.alertService.alert("Your account has been deleted successfully. All your activities have been deleted. You have been removed from any Murals you were part of.", "Account deleted")
-              else if (response.status==401) this.alertService.alert("You must be signed in to perform this operation. It has not gone through.", "Operation cancelled")
-              else if (response.status==403) this.alertService.alert("You are not authorized to perform this operation. It has been cancelled. The account is still up.", "Operation cancelled")
-              else if (response.status==404) this.alertService.alert("Could not find the user to be deleted. The operation has been cancelled.", "Operation cancelled")
-              else {
-                this.alertService.alert("An unexpected error ocurred, try again later.", "Error")
-                console.error("Unexpected error deleting user account: " + response);
 
+            this.userService.delete().subscribe({
+              next: () => {
+                this.alertService.alert("Your account has been deleted successfully. All your activities have been deleted. You have been removed from any Murals you were part of.", "Account deleted")
+                this.authService.logout();
+                this.router.navigate(["/"])
+              },
+              error: err => {
+                if (err.status==401) this.alertService.alert("You must be signed in to perform this operation. It has not gone through.", "Operation cancelled")
+                else if (err.status==403) this.alertService.alert("You are not authorized to perform this operation. It has been cancelled. The account is still up.", "Operation cancelled")
+                else if (err.status==404) this.alertService.alert("Could not find the user to be deleted. The operation has been cancelled.", "Operation cancelled")
+                else {
+                  this.alertService.alert("An unexpected error ocurred, try again later.", "Error")
+                  console.error("Unexpected error deleting user account: " + err);
+                }
               }
             })
-            this.router.navigate(["/"])
           }
         })
       }

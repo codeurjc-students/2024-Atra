@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
@@ -53,5 +55,11 @@ public class LoginController {
 			content = @Content(schema = @Schema(implementation = AuthResponse.class)))
 	public ResponseEntity<AuthResponse> logOut(HttpServletRequest request, HttpServletResponse response) {
 		return ResponseEntity.ok(new AuthResponse(Status.SUCCESS, userLoginService.logout(request, response)));
+	}
+
+	@GetMapping("/IsLoggedIn")
+	public ResponseEntity<Boolean> isLoggedIn(Principal principal) {
+		if (principal==null || !userService.existsByUsername(principal.getName())) return ResponseEntity.ok(false);
+		return ResponseEntity.ok(true);
 	}
 }

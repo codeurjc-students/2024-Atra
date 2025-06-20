@@ -54,7 +54,7 @@ export class ActivityComponent implements OnInit {
         this.receivedAnActivityHandler(act)
         if (act!=null) this.alertService.loaded();
       },
-      error: () => {this.alertService.loaded();console.log("Error: done loading");this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
+      error: (e) => {this.alertService.loaded();this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
     })
     this.fetchRoutes()
   }
@@ -72,14 +72,18 @@ export class ActivityComponent implements OnInit {
     this.map.fitBounds(this.path.getBounds());
   }
   deleteActivity() {
-    this.activityService.delete(this.id).subscribe({
-      next: () => {
-        this.alertService.toastSuccess("Route deleted")
-        this.router.navigate(["/me/activities"])
-      },
-      error: (e) => {this.alertService.toastError("There was an error deleting the activity"); console.error("Error deleting activity with id " + this.id + ": "+e.error);
-      },
-    });
+    this.alertService.confirm("This action is irreversible, are you sure you want to continue?", "Deleting activity").subscribe((accepted)=>{
+      if (accepted) {
+        this.activityService.delete(this.id).subscribe({
+          next: () => {
+            this.alertService.toastSuccess("Route deleted")
+            this.router.navigate(["/me/activities"])
+          },
+          error: (e) => {this.alertService.toastError("There was an error deleting the activity"); console.error("Error deleting activity with id " + this.id + ": "+e.error);}
+        });
+      }
+    })
+
   }
 
   //#region route shenanigans
@@ -94,7 +98,7 @@ export class ActivityComponent implements OnInit {
 
   open(content: TemplateRef<any>) {
     if (this.errorLoadingRoutes) return this.alertService.alert("There seem to be no activities with no route assigned.") //check this alongside errorLoadingRoutes
-    this.modal = this.modalService.open(content)
+    this.modal = this.modalService.open(content, { centered:true })
 
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1
     this.routeMap = null;
@@ -147,7 +151,7 @@ export class ActivityComponent implements OnInit {
     this.alertService.loading();
     if (routeId=="-1") {
       this.activityService.removeRoute(this.id).subscribe({
-        next: (activity:any) => {this.alertService.loaded();this.receivedAnActivityHandler(activity, "success at deleting existing connection")},
+        next: (activity:Activity) => {this.alertService.loaded();this.receivedAnActivityHandler(activity, "success at deleting existing connection")},
         error: () => {
           console.error("Error removing the route from the activity");
           this.alertService.loaded()
@@ -157,7 +161,7 @@ export class ActivityComponent implements OnInit {
       return
     }
     this.activityService.addRoute(this.id, parseInt(routeId)).subscribe({
-      next: (activity:any) => {this.alertService.loaded();this.receivedAnActivityHandler(activity, "success at creating new connection")},
+      next: (activity:Activity) => {this.alertService.loaded();this.receivedAnActivityHandler(activity, "success at creating new connection")},
       error: () => {
         console.error("Error changing the avtivity's route");
         this.alertService.loaded()
@@ -204,12 +208,12 @@ export class ActivityComponent implements OnInit {
 
   //#endregion
 
-  receivedAnActivityHandler(act:Activity |null, msg?:string) {
+  receivedAnActivityHandler(act:Activity | null, msg?:string) {
     if (act==null) return;
     if (msg) console.log(msg);
     this.owned = this.authService.user.getValue()?.id==act.user.id;
 
-    this.activity = act; //this.activityService.process1(act); this is now being done in the service
+    this.activity = new Activity(act); //equivalent to activityService.proces1(). Neccessary to use activity methods
     this.stats = this.activity.getOverview()
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1;
     this.currentVisibility = this.activity.visibility

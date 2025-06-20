@@ -78,7 +78,7 @@ export class MuralsListComponent implements OnChanges, OnInit {
   }
 
   createMural(){
-    const modal = this.ngbModal.open(MuralsNewComponent);
+    const modal = this.ngbModal.open(MuralsNewComponent, { centered:true });
     modal.result.then(
       (result) => {
         if (result=="reloadOwnedAndMember") {

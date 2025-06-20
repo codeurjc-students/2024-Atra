@@ -15,9 +15,9 @@ export class UserInitComponent {
   constructor(private modalService: NgbModal, private alertService:AlertService){}
 
   openRegisterModal() {
-    const modalRef = this.modalService.open(RegisterComponent);
+    const modalRef = this.modalService.open(RegisterComponent, { centered:true });
   }
   openLoginModal() {
-    const modalRef = this.modalService.open(LoginComponent);
+    const modalRef = this.modalService.open(LoginComponent, { centered:true });
   }
 }

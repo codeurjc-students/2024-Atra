@@ -14,17 +14,6 @@
         <input type="text" name="description" id="description" placeholder="description" #description class="form-control" formControlName="description">
         <label for="description">Description</label>
       </div>
-      <!--
-      <div class="form-group my-3">
-        <label for="members" class="d-block mb-1">Members</label>
-        <select name="members" id="members" #members class="form-select">
-          <option value="-- select a user --">-- select a user --</option><!-Options loaded dinamically as user types->
-        </select>
-        <ul>
-          <!-Items populated as the user adds members->
-          <li *ngFor="let user of selectedUsers">{{ user.name }} <button class="btn btn-danger" (click)="deleteUser(user.id)"><i class="fa-solid fa-trash"></i></button></li>
-        </ul>
-      </div>-->
       <div class="my-3">
         <label for="thumbnail" class="mb-1">Thumbnail Image</label>
         <input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" formControlName="thumbnail" (change)="onFileSelected($event, 'thumbnail')">
@@ -43,7 +32,7 @@
     </form>
   </div>
   <div class="modal-footer d-flex justify-content-end">
-    <button class="btn btn-danger" (click)="logShit()"><i class="fa-solid fa-xmark me-1"></i>Cancel</button>
+    <button class="btn btn-danger" (click)="activeModal.dismiss()"><i class="fa-solid fa-xmark me-1"></i>Cancel</button>
     <button class="btn btn-primary" [disabled]="!form.valid" (click)="submitForm()"><i class="fa-solid fa-floppy-disk me-1"></i>Create Mural</button>
 
   </div>

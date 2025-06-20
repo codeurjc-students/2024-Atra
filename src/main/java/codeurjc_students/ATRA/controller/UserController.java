@@ -99,11 +99,6 @@ public class UserController {
         return ResponseEntity.ok(userService.existsByUsername(username));
     }
 
-    @GetMapping("/IsLoggedIn")
-    public ResponseEntity<Boolean> isLoggedIn(Principal principal){
-        return ResponseEntity.ok(principal != null);
-    }
-
     @PostMapping("/verify-password")
     public ResponseEntity<Boolean> verifyPassword(@RequestBody String password, Principal principal){
         if (principal==null) return ResponseEntity.status(401).build();
@@ -146,6 +141,7 @@ public class UserController {
     public ResponseEntity<User> deleteCurrentlyAuthenticatedUser(Principal principal){
         try {
             User user = this.principalVerification(principal);
+
             deletionService.deleteUser(user);
             return ResponseEntity.ok().build();
         } catch (HttpException e) {

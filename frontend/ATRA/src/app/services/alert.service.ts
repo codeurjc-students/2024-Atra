@@ -15,6 +15,7 @@ export class AlertService {
   //I deem it not a big deal, and so I won't implement it. If it happens to be important, it can be done by waiting to open until modalRef.close resolves in the open alert.
 
   loadingModalRef: NgbModalRef | null = null;
+  loadingModalTimeout: number | null = null;
 
   constructor(private modalService: NgbModal, private toastService: ToastrService) {}
 
@@ -123,6 +124,12 @@ export class AlertService {
     this.loadingModalRef.componentInstance.title = "Loading...";
     this.loadingModalRef.componentInstance.messages = messages;
     this.loadingModalRef.componentInstance.type = isLight ? 'loading-light':'loading-heavy';
+
+    this.loadingModalTimeout = window.setTimeout(()=>{
+      this.toastInfo("Seems like this is taking a while");
+      setTimeout(()=> this.toastInfo("Something might have gone wrong."), 1000)
+      setTimeout(()=> this.toastInfo("Consider reloading the page."), 2500)
+    }, 10000)
   }
 
   loaded() {
@@ -130,6 +137,11 @@ export class AlertService {
       console.error("loaded called with no open modal");
       return
     }
+    if (this.loadingModalTimeout==null) {
+      console.error("loaded called with null timeout. This should be impossible");
+      return
+    }
+    window.clearTimeout(this.loadingModalTimeout)
     this.loadingModalRef.close();
     this.loadingModalRef = null;
   }

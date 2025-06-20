@@ -167,7 +167,7 @@ export class RoutesComponent {
 
   open(content: TemplateRef<any>) {
     if (this.errorLoadingActivities) return this.alertService.toastInfo("There seem to be no activities with no route assigned.")
-    this.modal = this.modalService.open(content, {size:'lg'})
+    this.modal = this.modalService.open(content, {size:'lg', centered:true})
   }
   submit(){}
   addActivitiesToRoute(activities: Set<number>){

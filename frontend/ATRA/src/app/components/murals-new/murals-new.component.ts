@@ -17,7 +17,6 @@ import { Router } from '@angular/router';
 })
 export class MuralsNewComponent {
 
-  selectedUsers: {id:number, name:string}[] = [];
   form!: FormGroup;
   thumbnailImage!:File;
   bannerImage!:File;
@@ -60,10 +59,6 @@ export class MuralsNewComponent {
         //re-enable form submission
       })
     }
-  }
-
-  deleteUser(id:number) {
-    this.selectedUsers = this.selectedUsers.filter(user=>user.id!=id)
   }
 
   checkAspectRatio(file: File, desiredRatio:number, tolerance:number=0.01): Observable<boolean> {
@@ -123,12 +118,5 @@ export class MuralsNewComponent {
         )},
       error:()=>{this.alertService.loaded(); this.alertService.toastError("Error creating mural")}
     });
-  }
-
-  logShit() {
-    console.log("-----------------------------");
-    console.log("Errors: " + this.form.errors)
-    console.log("Thumbnail: " + this.form.errors?.["invalidThumbnail"])
-    console.log("Banner: " + this.form.errors?.["invalidBanner"])
   }
 }

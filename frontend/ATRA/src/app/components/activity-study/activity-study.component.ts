@@ -77,7 +77,7 @@ export class ActivityStudyComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private graphService:GraphService, private alertService:AlertService) {}
 
   open(content: TemplateRef<any>) {
-    this.modal = this.modalService.open(content)
+    this.modal = this.modalService.open(content/*, { centered:true }*/) //commented cause if it's above we can better see the changes to the graph as they happen
   }
 
   @HostListener('window:resize', ['$event'])

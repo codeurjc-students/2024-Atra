@@ -71,6 +71,6 @@ export class Activity {
   }
 
   hasRoute(): boolean {
-    return this.route == null
+    return this.route != null
   }
 }

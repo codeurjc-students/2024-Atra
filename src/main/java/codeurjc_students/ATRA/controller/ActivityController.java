@@ -126,11 +126,11 @@ public class ActivityController {
         route.addActivity(activity);
         routeService.save(route);
         //danger warning warn problema cuidado
-        return ResponseEntity.ok(new ActivityDTO(activity, new BasicNamedId(routeId, route.getName())));
+        return ResponseEntity.ok(dtoService.toDTO(activity)); //was new ActivityDTO(activity, new BasicNamedId(routeId, route.getName()))
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteActivity(@PathVariable Long id) {
+    public ResponseEntity<ActivityDTO> deleteActivity(@PathVariable Long id) {
         //gotta check permissions. If not allowed, should return 404 instead of 403, so as to not show ids in use
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
@@ -142,7 +142,7 @@ public class ActivityController {
 
         deletionService.deleteActivity(id);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(dtoService.toDTO(activity));
     }
 
     @PatchMapping("/{id}/visibility")

@@ -70,7 +70,7 @@ export class UserService {
   }
 
   delete() {
-    return this.http.delete("/api/users", {observe: 'response'})
+    return this.http.delete("/api/users")
   }
 
   //#region form validators

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Activity } from '../models/activity.model';
-import { BehaviorSubject, catchError, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -24,8 +24,7 @@ export class ActivityService {
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService, private alertService:AlertService) {
-    this.currentActivity.subscribe((a)=>console.log("------------------------------------\nActivity updated: ", a));
-
+    this.currentActivity.subscribe((a)=>console.log("(ActivityService) ------------------------------------ Cached activity updated: ", a));
   }
 
   uploadActivity(event: Event) {
@@ -40,17 +39,16 @@ export class ActivityService {
         return
       }
       this.authService.isLoggedIn().subscribe({
-        next: (response) => {
-          if (!response) {
+        next: (isLoggedIn:boolean) => {
+          if (isLoggedIn) this.uploadGPX(file)
+          else {
+            console.log('Attempted to upload a file without logging in');
             this.alertService.alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without login")
-            return
-          } else {
-            this.uploadGPX(file);
           }
         },
         error: (error) => {
-          console.error('Error ', error);
-          this.alertService.alert('Login failed. Please check your credentials and try again.');
+          console.error('An error ocurred trying to check if the user is logged in: ', error);
+          this.alertService.alert("Couldn't verify if you are logged in. Know that you need to be logged in to access this functionality. Try again later.", "An unexpected error ocurred")
         }
       });
     }
@@ -61,18 +59,20 @@ export class ActivityService {
     formData.append('file', file);
     this.http.post('/api/activities', formData).subscribe({
       next: (activity:any) => {
-        this.alertService.confirm("Activity has been added. Do you want to see it?").subscribe({
-          next:(accepted) => {
+        this.alertService.confirm("Activity has been added. Do you want to see it?").subscribe(
+          (accepted) => {
             if (accepted)
               this.router.navigate(["/me/activities/", activity.id])
             //else reload current page
+            else window.location.reload()
           }
-        })
+        )
       },
       error: (error) => {
         if (error.status == 413) {
           this.alertService.toastError("Upload failed! The file uploaded exceeds the 10MB limit.", "File too big")
         } else {
+          console.error("(ActivityService.uploadGPX) Error uploading activity: ", error);
           this.alertService.toastError("Upload failed! Try again later")
         }
       }
@@ -103,21 +103,27 @@ export class ActivityService {
     return new Activity(value);
   }
 
-  get(id: number){
+  get(id: number): Observable<Activity|null>{
     if (this.currentActivity.getValue()==null || this.currentActivity.getValue()?.id!=id) {
       this.loadingActivity=true;
       window.clearTimeout(this.timeout);
-      this.http.get<any>("/api/activities/" + id).subscribe(a=>{this.currentActivity.next(this.process1(a));this.loadingActivity=false;this.timeout=window.setTimeout(()=>{this.currentActivity.next(null);this.timeout=undefined;},this.CACHE_DURATION)});
+      return this.http.get<Activity>("/api/activities/" + id).pipe(
+        map((a)=>{this.currentActivity.next(this.process1(a));this.loadingActivity=false;this.timeout=window.setTimeout(()=>{this.currentActivity.next(null);this.timeout=undefined;},this.CACHE_DURATION);return this.process1(a)}),
+        catchError((e) => {
+          this.loadingActivity=false;
+          return throwError(()=>e)
+        })
+      );
     }
-    return this.currentActivity.asObservable();
+    return of(this.currentActivity.getValue());
   }
 
   removeRoute(id: number){
-    return this.http.delete("/api/activities/" + id + "/route");
+    return this.http.delete<Activity>("/api/activities/" + id + "/route");
   }
 
   addRoute(activityId: number, routeId:number){
-    return this.http.post("/api/activities/" + activityId + "/route", routeId);
+    return this.http.post<Activity>("/api/activities/" + activityId + "/route", routeId);
   }
 
   delete(id:number): Observable<string> {
