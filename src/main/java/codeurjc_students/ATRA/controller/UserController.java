@@ -1,7 +1,6 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.ActivityDTO;
-import codeurjc_students.ATRA.dto.DtoService;
 import codeurjc_students.ATRA.dto.NewUserDTO;
 import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.exception.HttpException;
@@ -35,8 +34,6 @@ public class UserController {
 	private ActivityService activityService;
     @Autowired
     private DeletionService deletionService;
-    @Autowired
-    private DtoService dtoService;
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id){
@@ -81,13 +78,13 @@ public class UserController {
         User requestedUser = userService.findById(userId).orElseThrow(()->new HttpException(404, "Requested user not found. Can't fetch their activities."));
         if (!user.equals(requestedUser) && !user.hasRole("ADMIN")) {//return public activities
             if (visibility!=null || muralId != null) throw new HttpException(400, "When requesting the activities of a different user than the one authenticated, you can't specify visibility");
-            return ResponseEntity.ok(dtoService.toDtoActivity(activityService.getActivitiesFromUser(VisibilityType.PUBLIC, user)));
+            return ResponseEntity.ok(ActivityDTO.toDto(activityService.getActivitiesFromUser(VisibilityType.PUBLIC, user)));
         }
         //return all according to requested visibility. Default is private (meaning return all)
         try {
             VisibilityType vis = VisibilityType.valueOf(visibility);
             List<Activity> activities = activityService.getActivitiesFromUser(vis, user, muralId);
-            return ResponseEntity.ok(dtoService.toDtoActivity(activities));
+            return ResponseEntity.ok(ActivityDTO.toDto(activities));
         } catch (IllegalArgumentException e) {
             throw new HttpException(400, "Received visibility has an invalid value. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. " +
                     "If the visibility is MURAL_SPECIFIC, a muralId RequestParam must be included. This param must be a Long" + e.getMessage());

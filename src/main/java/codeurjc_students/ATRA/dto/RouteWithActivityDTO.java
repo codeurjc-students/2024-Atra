@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Setter
@@ -44,5 +45,9 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 		this.name = route.getName();
 		this.description = route.getDescription();
 		this.activities = route.getActivities().stream().map(ActivityOfRouteDTO::new).toList();
+	}
+
+	public static List<RouteWithActivityDTO> toDto(Collection<Route> routes) {
+		return routes.stream().map(RouteWithActivityDTO::new).toList();
 	}
 }

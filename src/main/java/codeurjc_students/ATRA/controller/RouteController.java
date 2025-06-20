@@ -29,8 +29,6 @@ public class RouteController {
     @Autowired
     private ActivityService activityService;
     @Autowired
-    private DtoService dtoService;
-    @Autowired
     private DeletionService deletionService;
 
 
@@ -50,14 +48,14 @@ public class RouteController {
         Route route = routeOpt.get();
         List<Activity> activities = route.getActivities();
 
-        return ResponseEntity.ok((List<ActivityOfRouteDTO>) dtoService.toDTO(activities, DtoType.ACTIVITY_OF_ROUTE));
+        return ResponseEntity.ok(ActivityOfRouteDTO.toDto(activities));
     }
     @GetMapping
     public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(@RequestParam(name="type", required = false) String type){
         //probably could/should add some authentication, but for now this works
         List<Route> routes = routeService.findAll();
-        if ("noActivities".equals(type))  return ResponseEntity.ok(dtoService.toDto(routes, DtoType.ROUTE_WITHOUT_ACTIVITY)); //ideally we'd just return Routes, but we kinda can't
-        return ResponseEntity.ok(dtoService.toDtoRoute(routes));
+        if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes)); //ideally we'd just return Routes, but we kinda can't
+        return ResponseEntity.ok(RouteWithActivityDTO.toDto(routes));
     }
     @PostMapping
     public ResponseEntity<RouteWithActivityDTO> createRoute(@RequestBody Route route){
@@ -91,7 +89,7 @@ public class RouteController {
             activity.setRoute(null);
             routeService.save(route);
             activityService.save(activity);
-            return ResponseEntity.ok(dtoService.toDTO(route));
+            return ResponseEntity.ok(new RouteWithActivityDTO(route));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -116,7 +114,7 @@ public class RouteController {
                 activityService.save(act);
             }
             routeService.save(route);
-            return ResponseEntity.ok(dtoService.toDTO(route));
+            return ResponseEntity.ok(new RouteWithActivityDTO(route));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }

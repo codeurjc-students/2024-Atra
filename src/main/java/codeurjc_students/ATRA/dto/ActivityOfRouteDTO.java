@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 @Setter
 @Getter
@@ -27,31 +29,7 @@ public class ActivityOfRouteDTO implements ActivityDtoInterface {
 
 	}
 
-	//private void calcDistanceAndElevation(Activity activity) {
-	//	DataPoint prevDp = null;
-	//	Double prevEle = null;
-	//	Double distanceTotal = 0.0;
-	//	Double eleTotal = 0.0;
-	//	for (var dp : activity.getDataPoints()) {
-	//		if (prevDp==null) prevDp=dp;
-	//		if (prevEle==null) prevEle=dp.get_ele();
-//
-	//	    distanceTotal += ActivityService.totalDistance(prevDp, dp);
-	//		double eleDelta = dp.get_ele() - prevEle;
-	//		eleTotal +=  eleDelta>=0 ? eleDelta:0;
-//
-	//		prevDp = dp;
-	//		prevEle = dp.get_ele();
-	//	}
-//
-	//	totalDistance = distanceTotal;
-	//	elevationGain = eleTotal;
-	//}
-//
-	//private long calcTotalTime(Activity activity) {
-	//	Instant start = activity.getStartTime();
-	//	Instant end = activity.getDataPoints().get(activity.getDataPoints().size()-1).get_time();
-	//	Duration duration = Duration.between(start, end);
-	//	return duration.toSeconds();
-	//}
+	public static List<ActivityOfRouteDTO> toDto(Collection<Activity> activities) {
+		return activities.stream().map(ActivityOfRouteDTO::new).toList();
+	}
 }

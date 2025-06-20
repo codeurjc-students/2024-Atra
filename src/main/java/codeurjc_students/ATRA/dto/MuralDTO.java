@@ -6,6 +6,7 @@ import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -44,4 +45,8 @@ public class MuralDTO {
 			this.routes.add(new BasicNamedId(route.getId(), route.getName()));
 		});
 	}
+
+    public static List<MuralDTO> toDto(Collection<Mural> murals) {
+		return murals.stream().map(MuralDTO::new).toList();
+    }
 }

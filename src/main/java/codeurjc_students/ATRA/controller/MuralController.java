@@ -31,8 +31,6 @@ public class MuralController {
     @Autowired
     private MuralService muralService;
     @Autowired
-    private DtoService dtoService;
-    @Autowired
     private DeletionService deletionService;
 
 
@@ -40,7 +38,7 @@ public class MuralController {
     public ResponseEntity<MuralDTO> getMural(@PathVariable Long id){
         Optional<Mural> muralOpt = muralService.findById(id);
         if (muralOpt.isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(dtoService.toDto(muralOpt.get()));
+        return ResponseEntity.ok(new MuralDTO(muralOpt.get()));
     }
 
     @GetMapping("/{id}/thumbnail")
@@ -63,9 +61,9 @@ public class MuralController {
     public ResponseEntity<List<MuralDTO>> getMurals(Principal principal, @RequestParam(name = "type") String type){
         try {
             User user = principalVerification(principal);
-            if ("owned".equals(type)) return ResponseEntity.ok(dtoService.toDto(user.getOwnedMurals()));
-            else if ("member".equals(type)) return ResponseEntity.ok(dtoService.toDto(user.getMemberMurals()));
-            else if ("other".equals(type)) return ResponseEntity.ok(dtoService.toDto(muralService.findOther(user.getMemberMurals())));
+            if ("owned".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(user.getOwnedMurals()));
+            else if ("member".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(user.getMemberMurals()));
+            else if ("other".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(muralService.findOther(user.getMemberMurals())));
             else throw new HttpException(500, "500 Internal Server Error: Unknown type for GET /api/murals");
 
         } catch (HttpException e) {
@@ -91,7 +89,7 @@ public class MuralController {
                     banner.getBytes()
             );
             this.muralService.newMural(newMural);
-            return ResponseEntity.ok(dtoService.toDto(newMural));
+            return ResponseEntity.ok(new MuralDTO(newMural));
         } catch (HttpException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -109,7 +107,7 @@ public class MuralController {
         if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "User is not in Mural, thus, they can't access its activities");
         //user and mural both exists, and user is in the mural
         //now return the mural's activities
-        return ResponseEntity.ok(dtoService.toDtoActivity(mural.getActivities()));
+        return ResponseEntity.ok(ActivityDTO.toDto(mural.getActivities()));
     }
 
     private User principalVerification(Principal principal) throws HttpException {

@@ -13,10 +13,7 @@ import lombok.Setter;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Setter
 @Getter
@@ -133,4 +130,8 @@ public class ActivityDTO implements ActivityDtoInterface {
 		}
 		return String.valueOf(Math.round((double) totalTime / totalDistance)); //seconds / kilometer
 	}
+
+    public static List<ActivityDTO> toDto(Collection<Activity> activities) {
+		return activities.stream().map(ActivityDTO::new).toList();
+    }
 }

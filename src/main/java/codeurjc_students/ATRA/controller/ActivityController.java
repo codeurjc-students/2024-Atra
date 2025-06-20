@@ -1,12 +1,10 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.ActivityDTO;
-import codeurjc_students.ATRA.dto.DtoService;
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.ActivityService;
 import codeurjc_students.ATRA.service.RouteService;
@@ -30,8 +28,6 @@ public class ActivityController {
     private UserService userService;
     @Autowired
     private RouteService routeService;
-    @Autowired
-    private DtoService dtoService;
     @Autowired
     private DeletionService deletionService;
 
@@ -58,7 +54,7 @@ public class ActivityController {
             if (!activity.getUser().equals(user) && !activity.getVisibility().isPublic()) return ResponseEntity.status(403).build();
             //fetch and return the activity
 
-            return ResponseEntity.ok(dtoService.toDTO(activity));
+            return ResponseEntity.ok(new ActivityDTO(activity));
         }
         return ResponseEntity.badRequest().build();
     }
@@ -71,7 +67,7 @@ public class ActivityController {
         Optional<User> userOpt = userService.findByUserName(principal.getName());
         if (userOpt.isEmpty()) return ResponseEntity.status(404).build(); //this should never happen. Maybe should be 500
         User user = userOpt.get();
-        return ResponseEntity.ok(dtoService.toDtoActivity(user.getActivities()));
+        return ResponseEntity.ok(ActivityDTO.toDto(user.getActivities()));
         //this can be extracted, returning User and throwing errors
     }
 
@@ -126,7 +122,7 @@ public class ActivityController {
         route.addActivity(activity);
         routeService.save(route);
         //danger warning warn problema cuidado
-        return ResponseEntity.ok(dtoService.toDTO(activity)); //was new ActivityDTO(activity, new BasicNamedId(routeId, route.getName()))
+        return ResponseEntity.ok(new ActivityDTO(activity)); //was new ActivityDTO(activity, new BasicNamedId(routeId, route.getName()))
     }
 
     @DeleteMapping("/{id}")
@@ -142,7 +138,7 @@ public class ActivityController {
 
         deletionService.deleteActivity(id);
 
-        return ResponseEntity.ok(dtoService.toDTO(activity));
+        return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @PatchMapping("/{id}/visibility")
@@ -154,7 +150,7 @@ public class ActivityController {
             List<Long> allowedMuralsIds = csvMuralIds.isEmpty() ? null:Arrays.stream(csvMuralIds.split(",")).map(Long::parseLong).toList(); //use a fucking string and just parse it, I'm done with this crap
             boolean success = activityService.changeVisibility(id, visibilityType, allowedMuralsIds);
             if (!success) return ResponseEntity.notFound().build();
-            return ResponseEntity.ok(dtoService.toDTO(activityService.findById(id).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
+            return ResponseEntity.ok(new ActivityDTO(activityService.findById(id).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
         } catch (IllegalArgumentException e) {
             throw new HttpException(400, visibilityString + " is not a valid Visibility Type");
         }
