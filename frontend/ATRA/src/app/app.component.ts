@@ -18,6 +18,7 @@ export class AppComponent implements OnInit{
   title = 'ATRA';
   showSideBar: boolean = true;
   urlStart: string = '/me';
+  showLogout: boolean = false;
 
   constructor(private location:Location, private router: Router, private activityService: ActivityService, private alertService: AlertService, private authService:AuthService){}
 
@@ -50,6 +51,8 @@ export class AppComponent implements OnInit{
         }
       }
     )
+
+    this.authService.user.subscribe((u)=>{if (u==null)this.showLogout=false; else this.showLogout=true})
   }
 
   isProfileRoute(){return this.router.url==("/me")}
@@ -85,5 +88,5 @@ export class AppComponent implements OnInit{
       this.router.navigate(["/"])
     }
   })
-}
+  }
 }

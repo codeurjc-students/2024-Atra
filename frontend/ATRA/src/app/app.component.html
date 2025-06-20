@@ -15,11 +15,11 @@
           <!-- <i class="fa-solid fa-people-group"></i> -->
         </a>
       </div>
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-end me-3">
         <a routerLink="/me" class="icon-link mx-1" [class.active]="this.isProfileRoute()">
           <i class="fa-solid fa-user" style="color: #000000;font-size:30px"></i>
         </a>
-        <a class="icon-link ms-1 me-3" (click)="logout()">
+        <a class="icon-link ms-1" (click)="logout()" *ngIf="showLogout">
           <i class="fa-solid fa-right-from-bracket" style="color: #000000; font-size: 30px;"></i>
         </a>
       </div>
