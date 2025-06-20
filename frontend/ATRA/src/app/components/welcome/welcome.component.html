@@ -1,16 +1,46 @@
 
-<div class="container">
-  <div class="row">
-    <h1 class="d-flex justify-content-center align-items-center mb-5">Welcome to ATRA!</h1>
+<div class="d-flex justify-content-center align-items-center flex-column h-75 ">
+  <div class="d-flex justify-content-center align-items-center mb-5">
+    <h1 class="display-1 mb-5">Welcome to ATRA!</h1>
   </div>
-  <div class="row">
+  <div class="d-flex justify-content-center align-items-center w-100">
     <!-- Left Column -->
-    <div class="col-md-6 d-flex justify-content-center align-items-center">
-      <app-anon-init class="col-md-12"></app-anon-init>
+    <div class="d-flex justify-content-around align-items-center  w-50">
+      <div></div> <!--for spacing-->
+      <div></div> <!--for spacing-->
+      <div class="card w-40">
+        <div class="card-header"><h4 class="card-title">Start by uploading a GPX file</h4></div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-2 align-items-center">
+            <!--<input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" formControlName="thumbnail">-->
+            <button type="button" class="btn btn-primary"><i class="fa-solid fa-upload me-2"></i>Upload file</button>
+
+          </div>
+        </div>
+
+        <div class="card-header" style="border-top: 1px solid #D2D2D2;"><h4 class="card-title">Or syncing to Strava</h4></div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-2 align-items-center">
+            <button type="button" class="btn btn-primary" onclick="this.alertService.alert('Sorry, this function is not yet supported.')"><i class="fa-brands fa-strava me-2"></i> Sync with Strava</button>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- Right Column -->
-    <div class="col-md-6 d-flex justify-content-center align-items-center">
-      <app-user-init class="col-md-12"></app-user-init>
+    <div class="d-flex justify-content-around align-items-center w-50">
+      <div class="card w-40">
+        <div class="card-header"><h4 class="card-title">Alternatively, you can:</h4></div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-2 align-items-center">
+            <button type="button" class="btn btn-primary w-35" (click)="openLoginModal()"> <i class="fa-solid fa-right-to-bracket me-2"></i> Log in</button>
+            <button type="button" class="btn btn-primary w-35" (click)="openRegisterModal()"><i class="fa-solid fa-user-plus me-2"></i> Sign up</button>
+            <p style="font-weight: 500;font-size: 20px;">or</p>
+            <button type="button" class="btn btn-primary w-70" onclick="this.alertService.alert('Sorry, this function is not yet supported.')"><i class="fa-solid fa-file-import me-2"></i>Import    a previous session</button>
+          </div>
+        </div>
+      </div>
+      <div></div> <!--for spacing-->
+      <div></div> <!--for spacing-->
     </div>
   </div>
 </div>
