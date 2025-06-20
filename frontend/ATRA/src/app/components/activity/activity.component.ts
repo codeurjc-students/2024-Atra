@@ -90,16 +90,13 @@ export class ActivityComponent implements OnInit {
   modal!: any;
   routes : Route[] = [];
   selectedRoute : number =-1;
-  errorLoadingRoutes : boolean = false; //unsure why this is here. Should probably be deleted
   routeMap: L.Map | null = null;
   routePath !: L.Polyline;
   displayRoute : Route | null = null;
   owned: boolean = false;
 
   open(content: TemplateRef<any>) {
-    if (this.errorLoadingRoutes) return this.alertService.alert("There seem to be no activities with no route assigned.") //check this alongside errorLoadingRoutes
     this.modal = this.modalService.open(content, { centered:true })
-
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1
     this.routeMap = null;
     this.selectedRouteChange();
