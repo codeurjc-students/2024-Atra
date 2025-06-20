@@ -140,22 +140,25 @@ export class RoutesComponent {
   }
 
   deleteSelectedRoute() {
-    if (this.selectedRoute==null) throw new Error("Trying to delete null route")
-    this.routeService.deleteRoute(this.selectedRoute.id).subscribe({
-      next: (reply: Route[]) => {
-        console.log("success at deleting connection");
-        if (this.selectedRoute==null) throw new Error("Trying to delete null route")
-        this.routes.delete(this.selectedRoute.id)
-        this.routes = new Map(reply.map(x=>[x.id, x])) //to trigger change detection. should be careful with that
-        this.select(null)
-        this.fetchActivitiesWithNoRoute()
 
-      },
-      error: () => {
-        console.log("fail");
-        this.alertService.toastError("Couldn't remove the route. Try again later, or after reloading.")
-      }
-    })
+    this.alertService.confirm("This action is irreversible, are you sure you want to continue?", "Deleting route").subscribe(
+      (accept)=> {
+        if (this.selectedRoute==null) throw new Error("Trying to delete null route")
+        if (accept) this.routeService.deleteRoute(this.selectedRoute.id).subscribe({
+          next: (reply: Route[]) => {
+            console.log("success at deleting connection");
+            if (this.selectedRoute==null) throw new Error("Trying to delete null route")
+            this.routes.delete(this.selectedRoute.id)
+            this.routes = new Map(reply.map(x=>[x.id, x])) //to trigger change detection. should be careful with that
+            this.select(null)
+            this.fetchActivitiesWithNoRoute()
+
+          },
+          error: () => {
+            console.log("fail");
+            this.alertService.toastError("Couldn't remove the route. Try again later, or after reloading.")
+          }
+    })})
   }
 
 
