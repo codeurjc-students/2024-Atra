@@ -26,12 +26,12 @@ export const routes: Routes = [
                                                                         // this depends on wether I want to differentiate the elements being compared. If there is one important one
                                                                         // being compared against others, it should be /:id?ids=1,2. If all take the same importance, it should be
                                                                         // /activity-comparison?ids=1,2,
-  {path: 'me/activities', component: ActivitySelectComponent, canActivate: [AuthGuard],},
+  {path: 'me/activities', component: ActivitySelectComponent, data: { loadFrom:'authUser' }, canActivate: [AuthGuard],},
   {path: 'me/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},
   {path: 'murals', component: MuralsComponent, canActivate: [AuthGuard],},
   {path: 'murals/:category', component: MuralsComponent, canActivate: [AuthGuard],},
   //{path: 'murals/:id/activity-comparison', component: ComparisonComponent, canActivate: [AuthGuard],},
-  {path: 'murals/:id/activities', component: ActivitySelectComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/activities', component: ActivitySelectComponent, data: { loadFrom:'mural' }, canActivate: [AuthGuard],},
   {path: 'murals/:id/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/dashboard', component: MuralsDashboardComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/routes', component: RoutesComponent, canActivate: [AuthGuard],},

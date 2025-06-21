@@ -83,6 +83,10 @@ export class ActivityService {
     return this.http.get<any[]>("/api/activities");
   }
 
+  getMuralActivities(id: string) {
+    return this.http.get<any[]>("/api/activities?from=mural&id="+id);
+  }
+
 
   currentActivity: BehaviorSubject<Activity | null> = new BehaviorSubject<Activity | null>(null);
   readonly CACHE_DURATION: number = 1000 * 30; // 30 seconds for testing, should bump to 1000 * 60 * 5 for 5 minutes in production

@@ -3,13 +3,11 @@ package codeurjc_students.ATRA.controller;
 import codeurjc_students.ATRA.dto.ActivityDTO;
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.service.ActivityService;
-import codeurjc_students.ATRA.service.RouteService;
-import codeurjc_students.ATRA.service.UserService;
-import codeurjc_students.ATRA.service.DeletionService;
+import codeurjc_students.ATRA.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +26,8 @@ public class ActivityController {
     private UserService userService;
     @Autowired
     private RouteService routeService;
+    @Autowired
+    private MuralService muralService;
     @Autowired
     private DeletionService deletionService;
 
@@ -60,27 +60,22 @@ public class ActivityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @RequestParam(required=false) List<Long> ids){
-        if (ids!=null) return getMultipleActivities(principal, ids);
-        //this can be extracted, returning User and throwing errors
-        if (principal==null) return ResponseEntity.status(401).build();
-        Optional<User> userOpt = userService.findByUserName(principal.getName());
-        if (userOpt.isEmpty()) return ResponseEntity.status(404).build(); //this should never happen. Maybe should be 500
-        User user = userOpt.get();
-        return ResponseEntity.ok(ActivityDTO.toDto(user.getActivities()));
-        //this can be extracted, returning User and throwing errors
-    }
+    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @RequestParam(required=false) String from, @RequestParam(required=false) Long id){
+        User user = principalVerification(principal);
 
-    private ResponseEntity<List<ActivityDTO>> getMultipleActivities(Principal principal, List<Long> ids) {
-        //principal should be used to check permissions, but it's complex
-        //Actually shouldn't even be using the principal.
-        //should check that the principal is in the mural, and that the mural has access to the activity
-        List<ActivityDTO> activityDTOS = new ArrayList<>();
-        List<Activity> activities = activityService.findById(ids);
-        activities.forEach(activity -> {
-            activityDTOS.add(new ActivityDTO(activity));
-        });
-        return ResponseEntity.ok(activityDTOS);
+        if (from==null || "authUser".equals(from))
+            return ResponseEntity.ok(ActivityDTO.toDto(user.getActivities()));
+        if (id==null) throw new HttpException(400, "Requested activities from a specific user/mural without providing their id");
+        if ("mural".equals(from)) {
+            Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
+            if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
+            return ResponseEntity.ok(ActivityDTO.toDto(mural.getActivities()));
+        }
+        if ("user".equals(from)) //this is currently not in use.
+            return ResponseEntity.ok(
+                    ActivityDTO.toDto(userService.findById(id).orElseThrow(()->new HttpException(404, "User not found"))
+                            .getActivities().stream().filter(activity -> activity.getVisibility().isPublic()).toList()));
+        throw new HttpException(400, "Activities requested from an unknown/unhandled entity: " + from);
     }
 
     @PostMapping
@@ -159,6 +154,7 @@ public class ActivityController {
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);
         return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));
+        //404 should never happen. Maybe should be 500
     }
 
 }

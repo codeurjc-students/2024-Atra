@@ -1,7 +1,7 @@
 import { AlertService } from './../../services/alert.service';
 import { Activity } from './../../models/activity.model';
 import { ActivityService } from './../../services/activity.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { RouteService } from '../../services/route.service';
@@ -19,6 +19,12 @@ import { MapService } from '../../services/map.service';
 export class ActivitySelectComponent implements OnInit, AfterViewInit{
   selected: Set<number> = new Set();
   shouldSelectAll: boolean = true;
+  urlStart: string = 'me';
+
+  //When used as a main component, loadFrom should be used to have ActivitySelect fetch its own activities
+  @Input() loadFrom: 'authUser' | 'user' | 'mural' = 'authUser';
+
+  //But when it's used as a selector within another component, it should simply receive the activities to display
   @Input() activities !: Activity[];
   @Input() submit: () => void = () => this.defaultSubmit();
   @Output() emitter = new EventEmitter<Set<number>>();
@@ -31,16 +37,33 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
   columns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
 
-  constructor(private router: Router, private activityService: ActivityService, private routeService: RouteService, private alertService:AlertService){}
+  constructor(private router: Router, private activityService: ActivityService, private alertService:AlertService, private urlRoute:ActivatedRoute){}
 
 
   ngOnInit(): void {
     if (this.activities!=null) return
     //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
-    this.activityService.getAuthenticatedUserActivities().subscribe({
-      next: (value) => this.activities = this.activityService.process(value),
-      error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
-    })
+    this.loadFrom = this.urlRoute.snapshot.data['loadFrom'];
+    if (this.loadFrom=='authUser')
+      this.activityService.getAuthenticatedUserActivities().subscribe({
+        next: (value) => this.activities = this.activityService.process(value),
+        error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+      })
+    else if (this.loadFrom=='mural') {
+      const id = this.urlRoute.snapshot.paramMap.get('id');
+      if (id==null) {
+        this.alertService.toastError("Something went wrong, try reloading the page");
+        console.error("(ActivitySelectComponent) Trying to load activities from mural but couldn't find its id in the paramMap");
+        return
+      }
+      this.urlStart = "murals/"+id
+      this.activityService.getMuralActivities(id).subscribe({
+        next: (value) => this.activities = this.activityService.process(value),
+        error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+      })
+    } else if (this.loadFrom=='user') {
+      throw new Error("Not implemented yet, as there's no real need for it")
+     }
   }
 
   toggle(id: number) {
@@ -79,9 +102,9 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   defaultSubmit(){
     if (this.selected.size === 0 ) { this.alertService.alert("You must select at least one activity") }
     else if (this.selected.size === 1) {
-      this.router.navigate([`/me/activities/${Array.from(this.selected)[0]}`])
+      this.router.navigate([this.urlStart, "activities", Array.from(this.selected)[0]])
     } else if (this.selected.size === 2) {
-      this.router.navigate([`/me/activities/compare/${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
+      this.router.navigate([this.urlStart, "activities", "compare", `${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
     } else {
       this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
     }
