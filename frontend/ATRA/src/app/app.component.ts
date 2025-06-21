@@ -66,11 +66,11 @@ export class AppComponent implements OnInit{
   }
   isRouteStudy() {
     const p = this.location.path().split("/")
-    return p.length>3 && !Number.isNaN(Number(p[3]));
+    return (p.length==4 && !Number.isNaN(Number(p[3]))) || (p.length==5 && !Number.isNaN(Number(p[4])));
   }
   isRouteCompare() {
     const p = this.location.path().split("/")
-    return p.length>3 && p[3]=="compare"
+    return (p.length==5 && p[3]=="compare") || (p.length==6 && p[4]=="compare")
   }
 
   uploadFile(event: Event) {
