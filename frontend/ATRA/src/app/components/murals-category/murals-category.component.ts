@@ -25,7 +25,7 @@ export class MuralsCategoryComponent implements OnInit, OnDestroy {
       this.router.navigate(['/murals']);
       return;
     }
-    this.muralService.getData(category).subscribe(murals => this.murals = murals);
+    this.muralService.getData(category).subscribe(murals => {if (murals!=null) this.murals = murals});
 
     setTimeout(() => {
       // Allows scrolling. On a timeout, to avoid ngOnDestroy of another component from overwriting it
