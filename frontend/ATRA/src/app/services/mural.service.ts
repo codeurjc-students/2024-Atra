@@ -12,7 +12,11 @@ import { Mural } from '../models/mural.model';
 export class MuralService {
   public static defaultThumbnail: string = 'assets/thumbnailImage.png'; // Default thumbnail path
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    this.ownedMurals.subscribe((m)=>console.log("(MuralService) ------------------------------- Owned Murals updated: ", m?.length ?? null ));
+    this.memberMurals.subscribe((m)=>console.log("(MuralService) ------------------------------- Member Murals updated: ", m?.length ?? null ));
+    this.otherMurals.subscribe((m)=>console.log("(MuralService) ------------------------------- Other Murals updated: ", m?.length ?? null ));
+  }
 
   getOwned(): Observable<Mural[] | null>{ //shouldn't this be && !this.loadingOnwned
     if (this.ownedMurals.getValue() == null && !this.loadingOwned) {

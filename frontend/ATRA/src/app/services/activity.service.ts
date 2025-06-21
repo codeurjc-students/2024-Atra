@@ -24,7 +24,7 @@ export class ActivityService {
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService, private alertService:AlertService) {
-    this.currentActivity.subscribe((a)=>console.log("(ActivityService) ------------------------------------ Cached activity updated: ", a));
+    this.currentActivity.subscribe((a)=>console.log("(ActivityService) ------------------------------- Cached activity updated: ", a));
   }
 
   uploadActivity(event: Event) {
