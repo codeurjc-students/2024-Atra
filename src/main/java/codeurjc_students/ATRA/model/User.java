@@ -92,4 +92,7 @@ public class User implements NamedId {
 	}
 
 
+    public void addMemberMural(Mural mural) {
+		memberMurals.add(mural);
+    }
 }

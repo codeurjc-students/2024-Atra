@@ -7,6 +7,8 @@ export interface Mural {
     name: string;
     description: string;
 
+    code:string;
+
     owner: {name:string;id:number};
     members: {name:string;id:number}[];
 

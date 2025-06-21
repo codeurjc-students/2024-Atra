@@ -10,6 +10,9 @@ import { Mural } from '../models/mural.model';
   providedIn: 'root'
 })
 export class MuralService {
+  joinMural(muralCode: string): Observable<number> {
+    return this.http.post<number>(`/api/murals/join`,muralCode)
+  }
   public static defaultThumbnail: string = 'assets/thumbnailImage.png'; // Default thumbnail path
 
   constructor(private http: HttpClient, private router: Router) {
@@ -89,11 +92,23 @@ export class MuralService {
     this.getMemberNoCache().subscribe(murals => {this.memberMurals.next(murals); window.clearTimeout(this.timeoutMember); this.timeoutMember=window.setTimeout(() => this.memberMurals.next(null), this.CACHE_DURATION);});
     this.getOtherNoCache().subscribe(murals  => {this.otherMurals.next(murals);  window.clearTimeout(this.timeoutOther); this.timeoutOther=window.setTimeout(() => this.otherMurals.next(null),  this.CACHE_DURATION);});
   }
-  unloadData(): void {
+  unloadData(unloadOnly?:Partial<Record<'owned' | 'member' | 'other', true>>): void {
     //not necessarily necessary, it's not used, but good for completion's sake
-    this.ownedMurals.next(null);
-    this.memberMurals.next(null);
-    this.otherMurals.next(null);
+    if (unloadOnly==null) {
+      window.clearTimeout(this.timeoutOwned);
+      window.clearTimeout(this.timeoutMember);
+      window.clearTimeout(this.timeoutOther);
+
+      this.ownedMurals.next(null);
+      this.memberMurals.next(null);
+      this.otherMurals.next(null);
+
+    } else {
+      if (unloadOnly.owned) {window.clearTimeout(this.timeoutOwned);this.ownedMurals.next(null);}
+      if (unloadOnly.member) {window.clearTimeout(this.timeoutMember);this.memberMurals.next(null);}
+      if (unloadOnly.other) {window.clearTimeout(this.timeoutOther);this.otherMurals.next(null);}
+
+    }
   }
 
   getData(category: string): Observable<Mural[] | null> {

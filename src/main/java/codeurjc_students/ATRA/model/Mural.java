@@ -23,6 +23,9 @@ public class Mural implements NamedId {
 	private String name;
 	private String description;
 
+	@Column(unique = true)
+	private String code;
+
 	@ToString.Exclude
 	@ManyToOne
 	private User owner;
@@ -121,7 +124,7 @@ public class Mural implements NamedId {
 		this.activities.add(activity);
 	}
 
-	public void addUser(User user) {
+	public void addMember(User user) {
 		members.add(user);
 		activities.addAll(user.getActivities().stream().filter(activity -> activity.getVisibility().isVisibleByMural(this.id)).toList());
 	}

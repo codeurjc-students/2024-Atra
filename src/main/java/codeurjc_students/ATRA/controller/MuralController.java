@@ -7,15 +7,14 @@ import codeurjc_students.ATRA.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
@@ -108,6 +107,19 @@ public class MuralController {
         //user and mural both exists, and user is in the mural
         //now return the mural's activities
         return ResponseEntity.ok(ActivityDTO.toDto(mural.getActivities()));
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<Integer> joinMural(Principal principal, @RequestBody String muralCode) {
+        User user = principalVerification(principal);
+        Mural mural = muralService.findByCode(muralCode).orElseThrow(() -> new HttpException(404, "Mural with specified code not found. Cannot join specified mural."));
+        if (mural.getMembers().contains(user)) return ResponseEntity.ok(1); //1 for user already in mural
+        //join mural, return 0
+        mural.addMember(user);
+        user.addMemberMural(mural);
+        muralService.save(mural);
+        userService.save(user);
+        return ResponseEntity.ok(0);
     }
 
     private User principalVerification(Principal principal) throws HttpException {

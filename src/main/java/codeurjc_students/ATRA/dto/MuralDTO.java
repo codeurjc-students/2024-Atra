@@ -18,6 +18,7 @@ public class MuralDTO {
 	private Long id;
 	private String name;
 	private String description;
+	private String code;
 	private String thumbnailUrl;
 	private String bannerUrl;
 
@@ -31,6 +32,7 @@ public class MuralDTO {
 		id = mural.getId();
 		name = mural.getName();
 		description = mural.getDescription();
+		//code = mural.getCode(); //code should be somewhat confidential. Only visible to owner and maybe members
 		thumbnailUrl = "/api/murals/"+id+"/thumbnail";
 		bannerUrl = "/api/murals/"+id+"/banner";
 

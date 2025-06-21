@@ -45,8 +45,17 @@ public class MuralService {
 	}
 
 	public void newMural(Mural mural) {
+		String code;
+		do {
+			String[] parts = UUID.randomUUID().toString().split("-");
+			code = parts[1] + "-" + parts[2] + "-" + parts[3];
+		} while (repository.findByCode(code).isPresent()); //repeat until empty, to make sure it's not repeated
+		mural.setCode(code);
+		System.out.println(code);
 		repository.save(mural);
+		//generate code
 
+		repository.save(mural);
 		User owner = mural.getOwner();
 		owner.getOwnedMurals().add(mural);
 		userService.save(owner);
@@ -77,5 +86,9 @@ public class MuralService {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Optional<Mural> findByCode(String muralCode) {
+		return repository.findByCode(muralCode);
 	}
 }

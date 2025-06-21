@@ -58,7 +58,10 @@
   <div class="w-75 h-30 mt-2">
     <div class="d-flex justify-content-between my-1">
       <h4>Discover</h4>
-      <button class="btn btn-info z-index-10" [routerLink]="['/murals', 'other']">see all</button>
+      <div class="z-index-10">
+        <button class="btn btn-warning mx-1" (click)="openJoinMural(joinMuralModal)"><i class="fa-solid fa-plus"></i></button>
+        <button class="btn btn-info z-index-10" [routerLink]="['/murals', 'other']">see all</button>
+      </div>
     </div>
     <div class="d-flex justify-content-start thin-grey-border position-relative grey-bg">
       <!--murales-->
@@ -80,3 +83,25 @@
     </div>
   </div>
 </div>
+
+<ng-template #joinMuralModal>
+  <div class="modal-content" >
+    <div class="modal-header">
+      <h3>Join Mural</h3>
+      <button type="button" class="btn-close" aria-label="Close" (click)="activeModal?.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <div>In order to join a Mural, you need to input its code.</div>
+      <div>You can get the code by asking a member of the mural for it.</div>
+      <div class="my-3">Mural codes have the following format: aaaa-bbbb-cccc</div>
+      <div class="form-floating my-3">
+        <input type="text" name="muralCode" id="muralCode" placeholder="aaaa-bbbb-cccc" #muralCode class="form-control" formControlName="muralCode">
+        <label for="muralCode">Mural Code</label>
+      </div>
+    </div>
+    <div class="modal-footer d-flex justify-content-end">
+      <button class="btn btn-danger" (click)="activeModal?.dismiss()"><i class="fa-solid fa-xmark me-1"></i>Close</button>
+      <button class="btn btn-primary" (click)="joinMural(muralCode.value)"><i class="fa-solid fa-plus me-1"></i>Join</button>
+    </div>
+  </div>
+</ng-template>
