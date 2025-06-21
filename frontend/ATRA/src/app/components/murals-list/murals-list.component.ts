@@ -150,7 +150,9 @@ export class MuralsListComponent implements OnChanges, OnInit {
 
      }
    })
+  }
 
-
+  muralClicked(id: number) {
+    this.alertService.alert("You are not yet part of this mural.\nIf you want to join, you should ask its owner, " + this.otherMurals.find((m)=>m.id==id)?.owner.name + ", for the code","Not yet part of this mural")
   }
 }
