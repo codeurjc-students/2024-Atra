@@ -3,7 +3,6 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { HomeComponent } from './components/home/home.component';
-import { MuralsComponent } from './components/murals/murals.component';
 import { ActivitySelectComponent } from './components/activity-select/activity-select.component';
 import { ComparisonComponent } from './components/comparison/comparison.component';
 import { ActivityComponent } from './components/activity/activity.component';
@@ -12,6 +11,8 @@ import { ErrorComponent } from './components/error/error.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { MuralsDashboardComponent } from './components/murals-dashboard/murals-dashboard.component';
 import { AuthGuard } from './services/auth-guard.service';
+import { MuralsListComponent } from './components/murals-list/murals-list.component';
+import { MuralsCategoryComponent } from './components/murals-category/murals-category.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent}, //pretty sure login and register should be removed, they are actually handled by the root
@@ -28,8 +29,8 @@ export const routes: Routes = [
                                                                         // /activity-comparison?ids=1,2,
   {path: 'me/activities', component: ActivitySelectComponent, data: { loadFrom:'authUser' }, canActivate: [AuthGuard],},
   {path: 'me/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},
-  {path: 'murals', component: MuralsComponent, canActivate: [AuthGuard],},
-  {path: 'murals/:category', component: MuralsComponent, canActivate: [AuthGuard],},
+  {path: 'murals', component: MuralsListComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:category', component: MuralsCategoryComponent, canActivate: [AuthGuard],},
   //{path: 'murals/:id/activity-comparison', component: ComparisonComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/activities', component: ActivitySelectComponent, data: { loadFrom:'mural' }, canActivate: [AuthGuard],},
   {path: 'murals/:id/activities/:id', component: ActivityComponent, canActivate: [AuthGuard],},

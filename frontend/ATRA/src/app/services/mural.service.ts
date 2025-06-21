@@ -94,9 +94,9 @@ export class MuralService {
 
   getData(category: string): Observable<Mural[] | null> {
     switch (category) {
-      case 'owned': return this.ownedMurals.asObservable();
-      case 'member': return this.memberMurals.asObservable();
-      case 'other': return this.otherMurals.asObservable();
+      case 'owned': return this.getOwned();
+      case 'member': return this.getMember();
+      case 'other': return this.getOther();
       default:
         throw new Error('Invalid category');
     }
