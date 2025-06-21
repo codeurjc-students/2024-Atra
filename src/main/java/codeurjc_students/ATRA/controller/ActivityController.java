@@ -156,5 +156,10 @@ public class ActivityController {
         }
     }
 
+    private User principalVerification(Principal principal) throws HttpException {
+        if (principal==null) throw new HttpException(401);
+        return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));
+    }
+
 }
 

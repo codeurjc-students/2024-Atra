@@ -156,9 +156,7 @@ public class UserController {
 
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);
-        User user = userService.findByUserName(principal.getName()).orElse(null);
-        if (user == null) throw new HttpException(404);
-        else return user;
+        return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));
     }
     // <editor-fold>
 
