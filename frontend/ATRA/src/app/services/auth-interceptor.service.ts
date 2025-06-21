@@ -20,6 +20,13 @@ export class AuthInterceptorService {
     // Ideally, there'd be a way to deactivate some of the interceptor's functionality for a specific request when making it,
     // or the interceptor's message could be configured when the request is made (though this runs into concurrency issues)
 
+    const ignoredUrls = ['/api/auth/login'];
+
+    // Ignore the request if url in ignoredUrls
+    if (ignoredUrls.some(url => req.url.includes(url))) {
+      return next.handle(req);
+    }
+
     return next.handle(req).pipe(
       catchError(err => {
         if (err.status === 400) {
