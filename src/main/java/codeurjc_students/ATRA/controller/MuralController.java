@@ -3,6 +3,7 @@ package codeurjc_students.ATRA.controller;
 import codeurjc_students.ATRA.dto.*;
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.*;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -75,15 +76,18 @@ public class MuralController {
     public ResponseEntity<MuralDTO> createMural(Principal principal,
                                                 @RequestParam("name") String name,
                                                 @RequestParam("description") String description,
+                                                @RequestParam("visibility") String visibility,
                                                 @RequestParam("thumbnail")MultipartFile thumbnail,
                                                 @RequestParam("banner") MultipartFile banner
                                                 ) {
         try {
+            if (!"PRIVATE".equals(visibility) && !"PUBLIC".equals(visibility)) throw new HttpException(400, "Invalid visibility");
             User owner = principalVerification(principal);
             Mural newMural = new Mural(
                     name,
                     description,
                     owner,
+                    VisibilityType.valueOf(visibility),
                     thumbnail.getBytes(),
                     banner.getBytes()
             );
@@ -110,9 +114,15 @@ public class MuralController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<Integer> joinMural(Principal principal, @RequestBody String muralCode) {
+    public ResponseEntity<Integer> joinMural(Principal principal, @RequestBody String muralCodeOrId) {
         User user = principalVerification(principal);
-        Mural mural = muralService.findByCode(muralCode).orElseThrow(() -> new HttpException(404, "Mural with specified code not found. Cannot join specified mural."));
+        Mural mural;
+        if (muralCodeOrId.contains("-")) {
+            mural = muralService.findByCode(muralCodeOrId).orElseThrow(() -> new HttpException(404, "Mural with specified code not found. Cannot join specified mural."));
+        } else {
+            mural = muralService.findById(Long.parseLong(muralCodeOrId)).orElseThrow(() -> new HttpException(404, "Mural with specified id not found. Cannot join specified mural."));
+        }
+
         if (mural.getMembers().contains(user)) return ResponseEntity.ok(1); //1 for user already in mural
         //join mural, return 0
         mural.addMember(user);

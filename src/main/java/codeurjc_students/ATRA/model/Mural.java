@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.model;
 
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class Mural implements NamedId {
 
 	@Column(unique = true)
 	private String code;
+	private VisibilityType visibility = VisibilityType.PUBLIC; //Only uses private and public
 
 	@ToString.Exclude
 	@ManyToOne
@@ -79,11 +81,12 @@ public class Mural implements NamedId {
 		populateActivities();
 	}
 
-	public Mural(String name, String description, User owner, byte[] thumbnail, byte[] banner) {
+	public Mural(String name, String description, User owner, VisibilityType visibility, byte[] thumbnail, byte[] banner) {
 		this.name = name;
 		this.description = description;
 		this.owner = owner;
 		this.members.add(owner);
+		this.visibility = visibility;
 		this.thumbnail = thumbnail;
 		this.banner = banner;
 		populateActivities();

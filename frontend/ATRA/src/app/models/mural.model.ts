@@ -8,6 +8,7 @@ export interface Mural {
     description: string;
 
     code:string;
+    visibility:"PRIVATE" | "PUBLIC";
 
     owner: {name:string;id:number};
     members: {name:string;id:number}[];

@@ -2,6 +2,7 @@ package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.MuralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,7 +69,7 @@ public class MuralService {
 	public Collection<Mural> findOther(List<Mural> memberMurals) {
 		Set<Mural> hashSet = new HashSet<>(findAll());
 		memberMurals.forEach(hashSet::remove);
-		return hashSet;
+		return hashSet.stream().filter(mural -> mural.getVisibility() == VisibilityType.PUBLIC).toList();
 	}
 
 	public static byte[] getDefaultThumbnailBytes() {

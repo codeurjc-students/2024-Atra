@@ -29,6 +29,17 @@
         <small class="text-danger d-block" *ngIf="form.get('banner')?.touched && form.get('banner')?.errors?.['invalidFile']">The file must be an image with a 5:1 aspect ratio</small>
         <!--onSelect="checkImageHasProperAspectRatio()"-->
       </div>
+      <div>You cannot change visibility once set. Make sure you set it correctly. <span class="fw-bold">Public murals</span> can be joined by anyone. <span class="fw-bold">Private murals</span> can be joined with a code</div>
+      <div class="form-floating my-3">
+        <select class="form-select" id="visibility" formControlName="visibility">
+          <option value="PRIVATE">Private</option>
+          <option value="PUBLIC">Public</option>
+        </select>
+        <label for="visibility">Visibility</label>
+      </div>
+
+
+
     </form>
   </div>
   <div class="modal-footer d-flex justify-content-end">

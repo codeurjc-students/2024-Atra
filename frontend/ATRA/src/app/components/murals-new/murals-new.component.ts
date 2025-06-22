@@ -29,7 +29,8 @@ export class MuralsNewComponent {
       name: ['', Validators.required],
       description: [''],
       thumbnail: [null, Validators.required],
-      banner: [null, Validators.required]
+      banner: [null, Validators.required],
+      visibility: ['PUBLIC', Validators.required]
     }, {
       updateOn: 'blur'
     });
@@ -94,11 +95,13 @@ export class MuralsNewComponent {
     this.alertService.loading();
     const name = this.form.get('name')?.value;
     const description = this.form.get('description')?.value;
+    const visibility = this.form.get('visibility')?.value;
 
 
     this.muralService.createMural({
       name:name,
       description:description,
+      visibility:visibility,
       thumbnail:this.thumbnailImage,
       banner:this.bannerImage,
     }).subscribe({

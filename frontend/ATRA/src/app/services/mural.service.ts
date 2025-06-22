@@ -10,8 +10,11 @@ import { Mural } from '../models/mural.model';
   providedIn: 'root'
 })
 export class MuralService {
-  joinMural(muralCode: string): Observable<number> {
+  joinMuralCode(muralCode: string): Observable<number> {
     return this.http.post<number>(`/api/murals/join`,muralCode)
+  }
+  joinMuralId(muralId: number): Observable<number> {
+    return this.http.post<number>(`/api/murals/join`,muralId)
   }
   public static defaultThumbnail: string = 'assets/thumbnailImage.png'; // Default thumbnail path
 
@@ -61,10 +64,11 @@ export class MuralService {
     return this.http.get<Mural>("/api/murals/"+id)
   }
 
-  createMural(mural: { name: string; description: string; thumbnail: File; banner: File; }) {
+  createMural(mural: { name: string; description: string; visibility:"PUBLIC"|"PRIVATE"; thumbnail: File; banner: File; }) {
     const formData = new FormData();
     formData.append('name', mural.name);
     formData.append('description', mural.description);
+    formData.append('visibility', mural.visibility);
     formData.append('thumbnail', mural.thumbnail);  // File object
     formData.append('banner', mural.banner);  // File object
 

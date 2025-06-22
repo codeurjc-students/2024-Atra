@@ -130,8 +130,19 @@ export class MuralsListComponent implements OnChanges, OnInit {
   joinMural(muralCode: string) {
     if (muralCode.split("-").length!=3 || !muralCode.split("-").every(s=>s.length==4)) return this.alertService.toastWarning("correct format is aaaa-bbbb-cccc", "Incorrect code format, try again")
    this.alertService.loading()
-   this.muralService.joinMural(muralCode).subscribe({
-     next:(result)=>{
+   this.muralService.joinMuralCode(muralCode).subscribe(this.onJoinMuralSubscribe)
+  }
+
+  muralClicked(id: number) {
+    this.alertService.confirm("You are not yet part of this mural, but since it's public, you can join it.\nDo you want to join this mural?","Join mural?").subscribe((accept)=>{
+      if (accept) {
+        this.muralService.joinMuralId(id).subscribe(this.onJoinMuralSubscribe);
+      }
+    })
+  }
+
+  onJoinMuralSubscribe = {
+     next:(result: number)=>{
        this.alertService.loaded()
        this.activeModal?.close();
 
@@ -142,17 +153,12 @@ export class MuralsListComponent implements OnChanges, OnInit {
          this.loadOther();
        }
      },
-     error:(e)=>{
+     error:(e: any)=>{
        //interceptor should ignore these
        this.alertService.loaded()
        this.alertService.toastError("Error joining mural");
        console.error("Error joining mural: ", e);
 
      }
-   })
-  }
-
-  muralClicked(id: number) {
-    this.alertService.alert("You are not yet part of this mural.\nIf you want to join, you should ask its owner, " + this.otherMurals.find((m)=>m.id==id)?.owner.name + ", for the code","Not yet part of this mural")
-  }
+   }
 }
