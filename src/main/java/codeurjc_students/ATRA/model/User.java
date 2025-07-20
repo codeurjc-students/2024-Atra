@@ -22,6 +22,7 @@ public class User implements NamedId {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Column(unique = true)
 	private String username;
 	private String password;
 
@@ -32,10 +33,13 @@ public class User implements NamedId {
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-	private List<Mural> ownedMurals = new ArrayList<>();;
+	private List<Mural> ownedMurals = new ArrayList<>();
 	@ToString.Exclude
 	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-	private List<Mural> memberMurals = new ArrayList<>();;
+	private List<Mural> memberMurals = new ArrayList<>();
+
+	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+	private List<Route> createdRoutes = new ArrayList<>();
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY) //delete Activity if its User is deleted, twice over.
@@ -95,4 +99,8 @@ public class User implements NamedId {
     public void addMemberMural(Mural mural) {
 		memberMurals.add(mural);
     }
+
+	public void addRoute(Route route) {
+		createdRoutes.add(route);
+	}
 }

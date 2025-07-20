@@ -4,8 +4,13 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-1">
       <h2 class="h5 mb-0">Routes</h2>
-      <button class="btn btn-danger" [ngClass]="{'invisible-btn': this.selectedRoute == null}" (click)="deleteSelectedRoute()"><i class="fa-solid fa-xmark"></i> Delete Selected</button>
-    </div>
+      <div>
+        <button class="btn btn-primary" (click)="open(filterModal, true)"><i class="fa-solid fa-filter"></i></button>
+
+        <button class="btn btn-info mx-1" *ngIf="selectedRoute!=null && currentVis!='PUBLIC'" (click)="open(changeVisModal, true, false)"><i class="fa-solid fa-eye"></i></button>
+        <button class="btn btn-danger" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC'" (click)="deleteSelectedRoute()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      </div>
 
     <!-- Scrollable Table -->
     <div class="white-bg thin-grey-border h-75">
@@ -20,7 +25,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let x of routes | keyvalue" >
+            <tr *ngFor="let x of shownRoutes | keyvalue" >
               <td class="first-col">
                 <input type="radio" name="routeGroup" class="form-check-input" [checked]="selectedRoute?.id===x.key" (change)="select(x.key)">
               </td>
@@ -102,5 +107,67 @@
   </div>
   <div class="modal-body">
     <app-activity-select [submit]="submit" (emitter)="addActivitiesToRoute($event)" [activities]="allActivities"></app-activity-select>
+  </div>
+</ng-template>
+
+<ng-template #filterModal> <!-- let-modal -->
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Routes to display</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+
+    <div class="form-check">
+      <div>
+        <input class="form-check-input" type="checkbox" id="PUBLIC" value="PUBLIC" (change)="onCheckboxChange($event)" [checked]="visibilitiesToDisplay.includes('PUBLIC')">
+        <label class="form-check-label" for="PUBLIC"> Public </label>
+      </div>
+
+      <div>
+      <input class="form-check-input" type="checkbox" id="MURAL_SPECIFIC" value="MURAL_SPECIFIC" (change)="onCheckboxChange($event)" [checked]="visibilitiesToDisplay.includes('MURAL_SPECIFIC')">
+      <label class="form-check-label" for="MURAL_SPECIFIC"> Mural Specific </label>
+      </div>
+
+      <div>
+      <input class="form-check-input" type="checkbox" id="PRIVATE" value="PRIVATE" (change)="onCheckboxChange($event)" [checked]="visibilitiesToDisplay.includes('PRIVATE')">
+      <label class="form-check-label" for="PRIVATE"> Private </label>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss()">Close</button>
+  </div>
+</ng-template>
+
+
+
+
+<ng-template #changeVisModal> <!-- let-modal -->
+  <div class="modal-header d-flex justify-content-start">
+    <h5 class="modal-title">Change visibility of selected route</h5>
+  </div>
+  <div class="modal-body">
+    <div class="form-check">
+      <select class="form-select" [(ngModel)]="currentVis">
+        <option value="PUBLIC">Public</option>
+        <option value="MURAL_SPECIFIC">Mural Specific</option>
+        <option value="PRIVATE">Private</option>
+      </select>
+    </div>
+    <div class="mt-3 d-flex flex-column align-items-start" id="allowedRoutes" *ngIf="currentVis=='MURAL_SPECIFIC'">
+      <div>
+        <input type="text" class="form-control d-inline-block w-auto mx-1" #allowedMuralsInput placeholder="Enter item" />
+        <button class="btn btn-primary mx-1" (click)="addAllowedMural(allowedMuralsInput.value);allowedMuralsInput.value=''">Send</button>
+      </div>
+
+      <ul class="mt-2 ">
+        <li *ngFor="let item of allowedMuralsList; let i = index" (click)="allowedMuralsList.splice(i,1)" class="linethrough-on-hover">{{ item }}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="changeVis()">Save</button>
   </div>
 </ng-template>

@@ -8,6 +8,7 @@ import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
+import codeurjc_students.ATRA.service.auxiliary.UtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -137,18 +138,11 @@ public class ActivityController {
     }
 
     @PatchMapping("/{id}/visibility")
-    public ResponseEntity<ActivityDTO> changeVisibility(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String visibilityString = body.get("visibility");
-        try {
-            VisibilityType visibilityType = VisibilityType.valueOf(visibilityString);
-            String csvMuralIds = body.get("allowedMuralsList").substring(1,body.get("allowedMuralsList").length()-1);
-            List<Long> allowedMuralsIds = csvMuralIds.isEmpty() ? null:Arrays.stream(csvMuralIds.split(",")).map(Long::parseLong).toList(); //use a fucking string and just parse it, I'm done with this crap
-            boolean success = activityService.changeVisibility(id, visibilityType, allowedMuralsIds);
-            if (!success) return ResponseEntity.notFound().build();
-            return ResponseEntity.ok(new ActivityDTO(activityService.findById(id).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
-        } catch (IllegalArgumentException e) {
-            throw new HttpException(400, visibilityString + " is not a valid Visibility Type");
-        }
+    public ResponseEntity<ActivityDTO> changeVisibility(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
+        User user = principalVerification(principal);
+        UtilsService.changeVisibilityHelper(id, body, routeService); //throws error on not found or invalid visibility
+        return ResponseEntity.ok(new ActivityDTO(activityService.findById(id).orElseThrow(
+                ()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
     }
 
     private User principalVerification(Principal principal) throws HttpException {

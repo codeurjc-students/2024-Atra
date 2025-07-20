@@ -2,27 +2,46 @@ import { AlertService } from './../../services/alert.service';
 import { ActivityService } from './../../services/activity.service';
 import { MapService } from './../../services/map.service';
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef } from '@angular/core';
+import { Component, ComponentFactory, TemplateRef } from '@angular/core';
 import { RouteService } from '../../services/route.service';
 import { Route } from '../../models/route.model';
 import { Activity } from '../../models/activity.model';
 import L from 'leaflet';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { ActivitySelectComponent } from "../activity-select/activity-select.component";
 import { FormattingService } from '../../services/formatting.service';
 import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-routes',
   standalone: true,
-  imports: [CommonModule, ActivitySelectComponent],
+  imports: [CommonModule, ActivitySelectComponent, FormsModule],
   templateUrl: './routes.component.html',
   styleUrl: './routes.component.scss'
 })
 export class RoutesComponent {
 
-  routes !: Map<number, Route>;
+
+  visibilitiesToDisplay: string[] = ["PRIVATE", "MURAL_SPECIFIC", "PUBLIC"];
+
+  onCheckboxChange(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.visibilitiesToDisplay.push(checkbox.value);
+    } else {
+      this.visibilitiesToDisplay = this.visibilitiesToDisplay.filter(v => v !== checkbox.value);
+    }
+    //cambiar las que se estén mostrando
+    this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x => this.visibilitiesToDisplay.includes(x[1].visibility.type)))
+  }
+
+  allRoutes !: Map<number, Route>;
+  shownRoutes !: Map<number, Route>;
   selectedRoute !: Route|null;
+  currentVis : "PUBLIC" | "MURAL_SPECIFIC" | "PRIVATE" | null = null;
+  allowedMuralsList: number[] = [];
+
   columns: string[] = ['Name', 'Desc', 'Distance', 'Ele'];
   activityColumns: string[] = ['id', 'Dist', 'time'];
   map !: L.Map | null;
@@ -36,11 +55,19 @@ export class RoutesComponent {
 
   ngOnInit(): void {
     //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
-
-    this.routeService.getRoutes().subscribe({
+    var mural: undefined | number = undefined;
+    if (this.activatedRoute.snapshot.url[0].toString()=="murals") {
+      mural = this.activatedRoute.snapshot.params['id'];
+    }
+    this.routeService.getRoutes(mural).subscribe({
       next: (value:Route[]) => {
         if (value.length!=0) {
-          this.routes = new Map(value.map(x => [x.id, x]))
+          this.allRoutes = new Map(value.map(x => [x.id, x]))
+          this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
+          console.log("routes", this.allRoutes);
+          console.log("shownRoutes", this.shownRoutes);
+
+
           this.activatedRoute.queryParamMap.subscribe(params => {
             const selectedId = params.get('selected');
             this.select(selectedId==null ? null:Number(selectedId)); //bc apparently Number(null) is 0
@@ -48,7 +75,7 @@ export class RoutesComponent {
         }
         else {
           this.alertService.toastInfo("No routes were found. You can create one by clicking on create route.") //fix: instead of this, the component itself should show a message when there are no routes methinks
-          this.routes = new Map()
+          this.allRoutes = new Map()
         }
       },
       error: (err) => {this.alertService.toastError("Try reloading the page", "Error fetching routes"); console.log("There was an error fetching the Routes", err)}
@@ -96,14 +123,18 @@ export class RoutesComponent {
   select(selectedId: number|null) {
     if (selectedId==null) {
       this.selectedRoute = null
+      this.currentVis=null
       this.map = null;
+      this.allowedMuralsList = []
       return
     }
-    const r = this.routes.get(selectedId)
+    const r = this.allRoutes.get(selectedId)
     if (r==null) {
-      throw new Error(`The id requested matches no route; ${selectedId} is not a valid key for map ${this.routes}`)
+      throw new Error(`The id requested matches no route; ${selectedId} is not a valid key for map ${this.allRoutes}`)
     }
     this.selectedRoute = r
+    this.currentVis = r.visibility.type
+    this.allowedMuralsList = r.visibility.allowedMurals
 
     setTimeout(() => {
       if (this.map==null) {
@@ -126,8 +157,8 @@ export class RoutesComponent {
     this.routeService.removeActivity(this.selectedRoute.id, id).subscribe({
       next: (reply: Route) => {
         console.log("success at deleting connection");
-        this.routes.set(reply.id, reply)
-        this.routes = new Map(this.routes.entries()) //to trigger change detection. should be careful with that
+        this.allRoutes.set(reply.id, reply)
+        this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
         this.select(reply.id)
         this.fetchActivitiesWithNoRoute()
 
@@ -140,7 +171,6 @@ export class RoutesComponent {
   }
 
   deleteSelectedRoute() {
-
     this.alertService.confirm("This action is irreversible, are you sure you want to continue?", "Deleting route").subscribe(
       (accept)=> {
         if (this.selectedRoute==null) throw new Error("Trying to delete null route")
@@ -148,8 +178,8 @@ export class RoutesComponent {
           next: (reply: Route[]) => {
             console.log("success at deleting connection");
             if (this.selectedRoute==null) throw new Error("Trying to delete null route")
-            this.routes.delete(this.selectedRoute.id)
-            this.routes = new Map(reply.map(x=>[x.id, x])) //to trigger change detection. should be careful with that
+            //this.routes.delete(this.selectedRoute.id)
+            this.allRoutes = new Map(reply.map(x=>[x.id, x])) //to trigger change detection. should be careful with that
             this.select(null)
             this.fetchActivitiesWithNoRoute()
 
@@ -168,10 +198,59 @@ export class RoutesComponent {
   modalColumns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
   modalSelected: Set<number> = new Set();
 
-  open(content: TemplateRef<any>) {
+  open(content: TemplateRef<any>, openSmall: boolean = false, enableBackdrop:boolean = true) {
+    console.log(this.errorLoadingActivities);
+
     if (this.errorLoadingActivities) return this.alertService.toastInfo("There seem to be no activities with no route assigned.")
-    this.modal = this.modalService.open(content, {size:'lg', centered:true})
+    var options: NgbModalOptions = {centered:true}
+    options.size = openSmall ? undefined:'lg'
+    options.backdrop = enableBackdrop ? true : 'static'
+    this.modal = this.modalService.open(content, options)
   }
+
+  confirmChangeVis() {
+    this.alertService.confirm("You are making this route public. This will allow all users and murals to see it and add activities to it.\nThis action is irreversible, and it revokes your ownership of this route. You will not be able to edit or delete it.\nAre you sure you want to continue?",
+      "This action is irreversible").subscribe((shouldContinue:boolean)=>{if (shouldContinue) this.changeVis()})
+  }
+
+  changeVis() {
+    if (this.selectedRoute==null || this.currentVis==null) throw new Error("changeVis called with null selectedRoute or currentVis")
+    //if (this.currentVis!=this.selectedRoute?.visibility.type) {
+      //gotta change visibility, so ask backend
+      this.routeService.changeVisibility(this.selectedRoute.id, this.currentVis, this.allowedMuralsList).subscribe({
+        next: (reply: Route) => {
+          this.alertService.toastSuccess("Visibility changed successfully")
+          console.log("(RoutesComponent) Visibility changed successfully");
+          this.allRoutes.set(reply.id, reply)
+          this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
+          this.select(reply.id)
+        },
+        error: (e) => {
+          if (e.status==422) {
+            this.alertService.toastError(e.error.message)
+          } else {
+            this.alertService.toastError("There was an error changing visibility.")
+          }
+        }
+    })
+    //} else {
+    //  this.alertService.toastInfo("Visibility unchanged")
+    //}
+    this.modal.dismiss();
+  }
+
+    addAllowedMural(muralIdString: string) {
+    const muralId = parseInt(muralIdString);
+    if (isNaN(muralId)) {
+      this.alertService.toastError("Invalid mural ID. Please enter a valid number.");
+      return;
+    }
+    if (this.allowedMuralsList.includes(muralId)) {
+      return;
+    }
+    this.allowedMuralsList.push(muralId);
+  }
+
   submit(){}
   addActivitiesToRoute(activities: Set<number>){
     if (this.selectedRoute==null)  throw new Error("addActivitiesToRoute called with undefined route")
@@ -179,8 +258,8 @@ export class RoutesComponent {
       next: (reply: Route) => {
         console.log("success at creating new connections");
         this.modal.dismiss();
-        this.routes.set(reply.id, reply)
-        this.routes = new Map(this.routes.entries()) //to trigger change detection. should be careful with that
+        this.allRoutes.set(reply.id, reply)
+        this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
         this.select(reply.id)
 
         this.fetchActivitiesWithNoRoute()

@@ -1,6 +1,8 @@
 package codeurjc_students.ATRA.model;
 
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -31,12 +34,15 @@ public class Route implements NamedId {
 	@Nullable
 	private String description;
 
+	private Visibility visibility = new Visibility(VisibilityType.PRIVATE);
+
+
+	@ToString.Exclude
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User owner;
 	@ToString.Exclude
 	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
 	private List<Activity> activities = new ArrayList<>();
-	@ToString.Exclude
-	@ManyToMany(mappedBy = "routes", fetch = FetchType.LAZY)
-	private List<Mural> murals;
 
 
 	public void addActivity(Activity activityId) {
@@ -47,7 +53,10 @@ public class Route implements NamedId {
 		activities.remove(activity);
 	}
 
-	public void removeMural(Mural mural) {
-		murals.remove(mural);
+	public void changeVisibilityTo(VisibilityType visibilityType) {
+		visibility.changeTo(visibilityType);
+	}
+	public void changeVisibilityTo(VisibilityType visibilityType, Collection<Long> allowedMurals) {
+		visibility.changeTo(visibilityType, allowedMurals);
 	}
 }

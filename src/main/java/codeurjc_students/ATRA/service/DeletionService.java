@@ -4,6 +4,7 @@ import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,10 +71,16 @@ public class DeletionService {
             activity.removeRoute();
             activityService.save(activity);
         });
-        route.getMurals().forEach(mural -> {
-            mural.removeRoute(route);
-            muralService.save(mural);
-        });
+        Visibility visibility = route.getVisibility();
+        if (visibility.isMuralSpecific()) {
+            for (Long muralId : visibility.getAllowedMurals()) {
+                Mural mural = muralService.findById(muralId).orElse(null);
+                if (mural==null) continue;
+                mural.removeRoute(route);
+                muralService.save(mural);
+            }
+        }
+
         routeService.delete(id);
     }
 
@@ -92,7 +99,10 @@ public class DeletionService {
             activityService.save(activity);
         });
         mural.getRoutes().forEach(route -> {
-            route.removeMural(mural);
+            Visibility visibility = route.getVisibility();
+            if (visibility.isMuralSpecific()) {
+                visibility.removeMural(id);
+            }
             routeService.save(route);
         });
         muralService.delete(id);

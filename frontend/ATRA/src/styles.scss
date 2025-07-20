@@ -154,3 +154,9 @@ label {
     transform: rotate(360deg);
   }
 }
+
+
+.linethrough-on-hover:hover{
+  text-decoration: line-through;
+  cursor: pointer;
+}

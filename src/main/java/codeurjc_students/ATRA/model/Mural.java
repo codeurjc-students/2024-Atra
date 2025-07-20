@@ -131,4 +131,8 @@ public class Mural implements NamedId {
 		members.add(user);
 		activities.addAll(user.getActivities().stream().filter(activity -> activity.getVisibility().isVisibleByMural(this.id)).toList());
 	}
+
+	public void addRoute(Route route) {
+		routes.add(route);
+	}
 }

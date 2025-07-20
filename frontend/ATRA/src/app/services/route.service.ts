@@ -10,9 +10,16 @@ import { Route } from '../models/route.model';
   providedIn: 'root'
 })
 export class RouteService {
+  changeVisibility(id: number, currentVis: "PUBLIC" | "MURAL_SPECIFIC" | "PRIVATE", allowedMuralsList: number[] = []): Observable<Route> {
+    return this.http.patch<Route>("/api/routes/"+id+"/visibility", {"visibility": currentVis, "allowedMuralsList": "["+allowedMuralsList+"]"});
+  }
 
-  getRoutes(): Observable<Route[]> {
-    return this.http.get<Route[]>("/api/routes");
+  getRoutes(mural:number|undefined): Observable<Route[]> {
+    if (mural==undefined)
+      return this.http.get<Route[]>("/api/routes");
+    else
+      return this.http.get<Route[]>("/api/routes?mural="+mural);
+
   }
 
   constructor(private http: HttpClient, private router: Router) {}

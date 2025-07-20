@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ActivityService {
+public class ActivityService implements ChangeVisibilityInterface{
 
 	@Autowired
 	private ActivityRepository activityRepository;
@@ -223,8 +224,7 @@ public class ActivityService {
 		return changeVisibility(activityId,newVisibility,null);
 	}
 	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		Activity activity = activityRepository.findById(activityId).orElse(null);
-		if (activity == null) return false;
+		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404));
 
 		HashSet<Long> allowedMurals = allowedMuralsCol == null ? new HashSet<>() : new HashSet<>(allowedMuralsCol);
 

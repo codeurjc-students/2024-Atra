@@ -4,6 +4,8 @@ import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +58,32 @@ public class DatabaseInitializer {
             activityMap.put(createdAct.getName(),createdAct);
             muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
         }
-        activityMap.forEach((name,activity)->{
-            if (name.contains("Morning Run")) routeService.addRouteToActivity("Usual 10k", activity, activityService);
-            if (name.contains("vuelta"))      routeService.addRouteToActivity("Miercoles vuelta", activity, activityService);
-        });
+        boolean a = true;
+        boolean b = true;
+        Route routeA = null;
+        Route routeB = null;
+        for (var entry : activityMap.entrySet()) {
+            Activity activity = entry.getValue();
+            if (entry.getKey().contains("Morning Run")) {
+                if (a) {
+                    a=false;
+                    routeA=routeService.newRoute(activity,activityService);
+                    routeA.setOwner(user);
+                    routeService.save(routeA);
+                }
+                routeService.addRouteToActivity(routeA, activity, activityService);
+            }
+            if (entry.getKey().contains("vuelta")) {
+                if (b) {
+                    b = false;
+                    routeB = routeService.newRoute(activity, activityService);
+                    routeB.setOwner(user);
+                    routeService.save(routeB);
+                }
+                routeService.addRouteToActivity(routeB, activity, activityService);
+            }
+
+        }
         for (int i = 0; i < 3; i++) {
             createMural("mural"+i, muralGuy, List.of(user2));
         }

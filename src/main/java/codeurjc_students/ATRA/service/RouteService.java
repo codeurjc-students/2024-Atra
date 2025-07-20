@@ -1,18 +1,18 @@
 package codeurjc_students.ATRA.service;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Coordinates;
-import codeurjc_students.ATRA.model.Route;
+import codeurjc_students.ATRA.exception.HttpException;
+import codeurjc_students.ATRA.model.*;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.RouteRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
-public class RouteService {
+public class RouteService implements ChangeVisibilityInterface{
 
 	@Autowired
 	private RouteRepository repository;
@@ -59,6 +59,9 @@ public class RouteService {
 		if (route.getName()==null || route.getName().isEmpty()){
 			route.setName("Route from Activity " + activity.getId());
 		}
+		if (route.getOwner()==null){
+			route.setOwner(activity.getUser());
+		}
 		if (route.getDescription()==null || route.getDescription().isEmpty()){
 			route.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus auctor ligula sit amet fermentum ornare. Integer mauris justo, fermentum et arcu ac, vulputate ultrices metus.");
 		}
@@ -79,19 +82,76 @@ public class RouteService {
 	}
 
 	@Transactional
-	void addRouteToActivity(String routeName, Activity activity, ActivityService activityService) {
-		if (!repository.existsByName(routeName)) {
-			Route route = new Route();
-			route.setName(routeName);
-			this.newRoute(route, activity, activityService);
+	void addRouteToActivity(Route route, Activity activity, ActivityService activityService) {
+		if (route==null) {
+			throw new RuntimeException("Can't add nonexistent route to activity");
 		}
-		else {
-			List<Route> routes = repository.findByName(routeName);
-			Route route = routes.get(0); //safe because we're in the else
-			activity.setRoute(route);
-			route.addActivity(activity);
-			activityService.save(activity);
-			this.save(route);
+		if (route.getCoordinates()==null || route.getCoordinates().isEmpty()) {
+			route.setCoordinates(Coordinates.fromActivity(activity));
 		}
+		activity.setRoute(route);
+		route.addActivity(activity);
+		activityService.save(activity);
+		this.save(route);
+	}
+
+	/**
+	 *
+	 * @param routeId
+	 * @param newVisibility
+	 * @return false if routeId doesn't match any existing activities, true otherwise
+	 */
+	public boolean changeVisibility(Long routeId, VisibilityType newVisibility){ //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
+		return changeVisibility(routeId,newVisibility,null);
+	}
+	public boolean changeVisibility(Long routeId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
+		Route route = repository.findById(routeId).orElseThrow(()->new HttpException(404));
+		Visibility currentVis = route.getVisibility();
+		if (currentVis.isPublic()) throw new HttpException(422, "Cannot change visibility of a public route");
+
+		HashSet<Long> allowedMurals = allowedMuralsCol == null ? new HashSet<>() : new HashSet<>(allowedMuralsCol);
+
+		if (newVisibility==VisibilityType.PRIVATE) {
+			User owner = route.getOwner();
+			if (route.getActivities().stream().anyMatch(activity -> !owner.getId().equals(activity.getUser().getId()))) {
+				throw new HttpException(422, "Cannot change visibility of a route that other users are using.");
+			}
+		} else if (newVisibility==VisibilityType.MURAL_SPECIFIC) { //visibility increased
+			//add to all murals in allowedMurals ?? userMurals
+			if (!allowedMurals.isEmpty()) { //if allowedMurals has murals, only add to those
+				route.getOwner().getMemberMurals().forEach(mural -> {
+					if (allowedMurals.contains(mural.getId()))
+						mural.addRoute(route);
+						//no haría falta guardarlos con muralService.save(mural) ?
+					//potencialmente se podría usar
+					//@PersistenceContext
+					//  private EntityManager entityManager;
+					// entityManager.flush()
+				});
+			}
+		} else if (newVisibility == VisibilityType.PUBLIC) {
+			route.setOwner(null);
+		}
+		route.changeVisibilityTo(newVisibility, allowedMurals);
+		repository.save(route);
+		return true;
+	}
+
+	public List<Route> findVisibleTo(User user) {
+		Set<Route> routes = new HashSet<>(user.getCreatedRoutes());
+		routes.addAll(repository.findByVisibilityType(VisibilityType.PUBLIC));
+		return new ArrayList<>(routes);
+	}
+
+	public List<Route> findVisibleTo(Mural mural) {
+		List<Route> visibleToMural = repository.findVisibleToMural(mural.getId());
+		Set<Route> routes = new HashSet<>(mural.getRoutes());
+		routes.addAll(repository.findByVisibilityType(VisibilityType.PUBLIC));
+		List<Route> returnValue = new ArrayList<>(routes);
+		if (!returnValue.equals(visibleToMural)) throw new RuntimeException("Custom query and manual fetch disagree");
+		//findVisibleToMural is a custom query. It should do the same thing as the rest of the code does
+		// if its result disagrees with returnValue, it should be checked.
+		// If it consistently returns the correct data, then it should be used instead of calculating it manually. And potentially consider doing the same thing with findVisibleTo(User)
+		return returnValue;
 	}
 }

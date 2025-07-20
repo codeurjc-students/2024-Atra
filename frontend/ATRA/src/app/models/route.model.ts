@@ -5,6 +5,7 @@ export interface Route {
     id: number;
     name: string;
     description: string;
+    visibility: any;
 
     totalDistance: number;
     elevationGain: number;

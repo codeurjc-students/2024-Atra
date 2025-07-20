@@ -2,6 +2,7 @@ package codeurjc_students.ATRA.dto;
 
 import codeurjc_students.ATRA.model.Coordinates;
 import codeurjc_students.ATRA.model.Route;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 	private Long id;
 	private Double totalDistance;
 	private Double elevationGain;
+	private Visibility visibility;
 
 	private List<Coordinates> coordinates = new ArrayList<>();
 	private String name;
@@ -35,6 +37,7 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 		this.name = route.getName();
 		this.description = route.getDescription();
 		this.activities = activities;
+		this.visibility = route.getVisibility();
 	}
 
 	public RouteWithActivityDTO(Route route) {
@@ -45,6 +48,8 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 		this.name = route.getName();
 		this.description = route.getDescription();
 		this.activities = route.getActivities().stream().map(ActivityOfRouteDTO::new).toList();
+		this.visibility = route.getVisibility();
+
 	}
 
 	public static List<RouteWithActivityDTO> toDto(Collection<Route> routes) {

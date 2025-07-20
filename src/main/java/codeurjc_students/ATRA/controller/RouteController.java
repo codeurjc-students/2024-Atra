@@ -1,21 +1,17 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.*;
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Coordinates;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.service.ActivityService;
-import codeurjc_students.ATRA.service.RouteService;
-import codeurjc_students.ATRA.service.UserService;
-import codeurjc_students.ATRA.service.DeletionService;
+import codeurjc_students.ATRA.exception.HttpException;
+import codeurjc_students.ATRA.model.*;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.ATRA.service.*;
+import codeurjc_students.ATRA.service.auxiliary.UtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.security.Principal;
+import java.util.*;
 
 
 @RestController
@@ -25,7 +21,9 @@ public class RouteController {
 	@Autowired
 	private UserService userService;
     @Autowired
-	private RouteService routeService;
+    private RouteService routeService;
+    @Autowired
+    private MuralService muralService;
     @Autowired
     private ActivityService activityService;
     @Autowired
@@ -51,9 +49,16 @@ public class RouteController {
         return ResponseEntity.ok(ActivityOfRouteDTO.toDto(activities));
     }
     @GetMapping
-    public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(@RequestParam(name="type", required = false) String type){
+    public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(Principal principal, @RequestParam(name="type", required = false) String type, @RequestParam(name="mural", required = false) String muralId){
         //probably could/should add some authentication, but for now this works
-        List<Route> routes = routeService.findAll();
+        User user = principalVerification(principal);
+
+        List<Route> routes;
+        if (muralId==null) routes = routeService.findVisibleTo(user);
+        else {
+            Mural mural = muralService.findById(Long.parseLong(muralId)).orElseThrow(() -> new HttpException(404, "Requested mural doesn't exist"));
+            routes = routeService.findVisibleTo(mural);
+        }
         if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes)); //ideally we'd just return Routes, but we kinda can't
         return ResponseEntity.ok(RouteWithActivityDTO.toDto(routes));
     }
@@ -121,9 +126,20 @@ public class RouteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<List<? extends RouteDtoInterface>> deleteRoute(@PathVariable Long id) {
+    public ResponseEntity<List<? extends RouteDtoInterface>> deleteRoute(Principal principal, @PathVariable Long id) {
+        User user = principalVerification(principal);
+
+
         Route route = routeService.findById(id).orElse(null);
         if (route==null) return ResponseEntity.notFound().build();
+
+        if (route.getOwner()!=user && !user.hasRole("ADMIN")) throw new HttpException(403, "You cannot delete a route you are not the owner of. Public routes can only be deleted by administrators");
+
+        if (route.getVisibility().isPublic() && !user.hasRole("ADMIN")) throw new HttpException(403, "Public routes can only be deleted by administrators"); //This is indirectly checked above by route.getOwner()!=user, since owner will be null for public routes
+        if (route.getVisibility().isMuralSpecific() &&
+            route.getActivities().stream().anyMatch(a->a.getUser()!=user)) {
+            throw new HttpException(422, "Cannot delete a route that other people are using");
+        }
         for (var act : route.getActivities()) {
             act.setRoute(null);
             activityService.save(act);
@@ -131,7 +147,27 @@ public class RouteController {
         this.activityService.routeDeleted(id);
 
         this.deletionService.deleteRoute(id);
-        return getAllRoutes("");
+        return getAllRoutes(principal, null, null);
     }
+
+    @PatchMapping("/{id}/visibility")
+    public ResponseEntity<RouteWithActivityDTO> changeVisibility(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
+            User user = principalVerification(principal);
+        Route route = routeService.findById(id).orElseThrow(()->new HttpException(404));
+        if (route.getVisibility().isPublic()) throw new HttpException(422, "The visibility of a public route cannot be changed");
+        if (!user.getId().equals(route.getOwner().getId()) && !user.hasRole("ADMIN")) throw new HttpException(403);
+
+        UtilsService.changeVisibilityHelper(id, body, routeService); //throws error on not found or invalid visibility
+        return ResponseEntity.ok(new RouteWithActivityDTO(routeService.findById(id).orElseThrow(
+                ()->new HttpException(404, "Could not find the route with id " + id + " so the change visibility operation has been canceled"))));
+    }
+
+    private User principalVerification(Principal principal) throws HttpException {
+        if (principal==null) throw new HttpException(401);
+        return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));
+        //404 should never happen. Maybe should be 500
+    }
+
+
 }
 
