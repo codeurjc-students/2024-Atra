@@ -28,6 +28,7 @@ export class ActivityComponent implements OnInit {
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef;
 
   id !: number;
+  muralId: string | null = null; // this is used to fetch the activity from a mural, if it is not null
   activity !: Activity;
   stats !: {name:string, value:string}[];
   map!: L.Map;
@@ -36,27 +37,31 @@ export class ActivityComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router:Router, private activityService: ActivityService, private modalService: NgbModal, private routeService: RouteService, private alertService:AlertService, private authService:AuthService) {}
 
   ngOnInit(): void {
-    console.log("NgOnInit for activityComponent");
+    console.log("(ActivityComponent) ngOnInit");
     this.alertService.loading()
 
-    if (this.map==null)
-      this.map = MapService.mapSetup("map")
+    if (this.map==null) this.map = MapService.mapSetup("map")
 
-    const stringId = this.route.snapshot.paramMap.get("id");
+      console.log(this.route.snapshot.url[0].toString());
+
+    this.muralId = this.route.snapshot.paramMap.get("muralId");
+    const stringId = this.route.snapshot.paramMap.get("activityId");
+    console.log("(ActivityComponent) stringId: "+stringId);
+
     if (stringId===null) {
       this.router.navigate(["/error?code=400&reason=missingParameter"]);
       return;
     }
     this.id = parseInt(stringId);
 
-    this.activityService.get(this.id).subscribe({
+    this.activityService.get(this.id, this.muralId).subscribe({
       next: (act) => {
         this.receivedAnActivityHandler(act)
         if (act!=null) this.alertService.loaded();
       },
       error: (e) => {this.alertService.loaded();this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
     })
-    this.fetchRoutes()
+    //this.fetchRoutes()
   }
 
 
@@ -115,7 +120,7 @@ export class ActivityComponent implements OnInit {
             } else {
               // why not just this.location.reload() ? It pretty much does the same thing methinks (reloads the whole page)
               this.fetchRoutes()
-              this.activityService.get(this.id).subscribe({
+              this.activityService.get(this.id, this.muralId).subscribe({
                 next: (act) => this.receivedAnActivityHandler(act),
                 error: () => {this.alertService.toastError("There was an error fetching the updated activity. Try reloading the page.", "Activity may not reflect latest changes")}
               })

@@ -11,7 +11,7 @@ import { Route } from '../models/route.model';
 })
 export class RouteService {
   changeVisibility(id: number, currentVis: "PUBLIC" | "MURAL_SPECIFIC" | "PRIVATE", allowedMuralsList: number[] = []): Observable<Route> {
-    return this.http.patch<Route>("/api/routes/"+id+"/visibility", {"visibility": currentVis, "allowedMuralsList": "["+allowedMuralsList+"]"});
+    return this.http.patch<Route>("/api/routes/"+id+"/visibility", {"visibility": currentVis, "allowedMuralsList": JSON.stringify(allowedMuralsList)});
   }
 
   getRoutes(mural:number|undefined): Observable<Route[]> {

@@ -138,8 +138,9 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public List<Route> findVisibleTo(User user) {
-		Set<Route> routes = new HashSet<>(user.getCreatedRoutes());
-		routes.addAll(repository.findByVisibilityType(VisibilityType.PUBLIC));
+		Set<Route> routes = new HashSet<>(user.getCreatedRoutes()); //your own
+		routes.addAll(repository.findByVisibilityType(VisibilityType.PUBLIC)); //public ones
+		if (user.hasRole("ADMIN")) routes.addAll(repository.findByVisibilityType(VisibilityType.MURAL_SPECIFIC)); //and semi-public ones if admin
 		return new ArrayList<>(routes);
 	}
 
@@ -154,4 +155,10 @@ public class RouteService implements ChangeVisibilityInterface{
 		// If it consistently returns the correct data, then it should be used instead of calculating it manually. And potentially consider doing the same thing with findVisibleTo(User)
 		return returnValue;
 	}
+
+	public boolean isVisibleBy(Route route, User user) {
+        return (route.getOwner() == null || route.getVisibility().isPublic())
+				|| route.getOwner().equals(user)
+				|| (user.hasRole("ADMIN") && !route.getVisibility().isPrivate());
+    }
 }

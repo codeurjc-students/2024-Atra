@@ -31,22 +31,23 @@ public class RouteController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Route> getRoute(@PathVariable Long id){
-        Optional<Route> routeOpt = routeService.findById(id);
-        if (routeOpt.isEmpty()) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(routeOpt.get());
+    public ResponseEntity<Route> getRoute(Principal principal, @PathVariable Long id){
+        Route route = routeService.findById(id).orElseThrow(() -> new HttpException(404, "No route with id " + id));
+        User user = principal==null ? null:principalVerification(principal);
+        if (!routeService.isVisibleBy(route, user)) {
+            throw new HttpException(403, "Authenticated user has no visibility of specified route"); //technically 404 would be safer, gives less info
+        }
+        return ResponseEntity.ok(route);
     }
 
     @GetMapping("/{id}/activities")
-    public ResponseEntity<List<ActivityOfRouteDTO>> getActivitiesAssignedToRoute(@PathVariable Long id){
-        if (id==null) return ResponseEntity.badRequest().build();
-
-        Optional<Route> routeOpt = routeService.findById(id);
-        if (routeOpt.isEmpty()) return ResponseEntity.badRequest().build();
-        Route route = routeOpt.get();
-        List<Activity> activities = route.getActivities();
-
-        return ResponseEntity.ok(ActivityOfRouteDTO.toDto(activities));
+    public ResponseEntity<List<ActivityOfRouteDTO>> getActivitiesAssignedToRoute(Principal principal, @PathVariable Long id){
+        Route route = routeService.findById(id).orElseThrow(() -> new HttpException(404, "No route with id " + id));
+        User user = principal==null ? null:principalVerification(principal);
+        if (!routeService.isVisibleBy(route, user)) {
+            throw new HttpException(403, "Authenticated user has no visibility of specified route"); //technically 404 would be safer, gives less info
+        }
+        return ResponseEntity.ok(ActivityOfRouteDTO.toDto(route.getActivities()));
     }
     @GetMapping
     public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(Principal principal, @RequestParam(name="type", required = false) String type, @RequestParam(name="mural", required = false) String muralId){
@@ -74,20 +75,16 @@ public class RouteController {
 
     }
 
-    public ResponseEntity<User> modifyRoute(){return null;}
-
-    public ResponseEntity<Route> deleteRoute(){
-        return null;
-    }
-
     @DeleteMapping("/{routeId}/activities/{activityId}")
-    public ResponseEntity<RouteWithActivityDTO> removeActivityFromRoute(@PathVariable Long routeId, @PathVariable Long activityId) {
+    public ResponseEntity<RouteWithActivityDTO> removeActivityFromRoute(Principal principal, @PathVariable Long routeId, @PathVariable Long activityId) {
         Route route;
         Activity activity;
+        User user = principalVerification(principal);
         try {
             route = routeService.findById(routeId).orElseThrow();
             activity = activityService.findById(activityId).orElseThrow();
             if (!route.getActivities().contains(activity)) return ResponseEntity.notFound().build();
+            if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "A user can only remove their own activities from a route");
 
             //Confirmed that route and activity exists, and that they're related
             route.removeActivity(activity);
@@ -101,16 +98,19 @@ public class RouteController {
     }
 
     @PostMapping("/{routeId}/activities/")
-    public ResponseEntity<RouteWithActivityDTO> addActivitiesToRoute(@PathVariable Long routeId, @RequestBody List<Long> activityIds) {
+    public ResponseEntity<RouteWithActivityDTO> addActivitiesToRoute(Principal principal, @PathVariable Long routeId, @RequestBody List<Long> activityIds) {
         Route route;
         List<Activity> activities;
+        User user = principalVerification(principal);
         try {
             route = routeService.findById(routeId).orElseThrow();
+            if (!routeService.isVisibleBy(route,user)) throw new HttpException(403, "User has no visibility of this route"); //404 might be better, more secure, gives less info. (security)
             activities = activityService.findById(activityIds);
             if (activities.isEmpty()) return ResponseEntity.notFound().build();
 
             //Confirmed that route and activity exists, and that they're related
             for (var act : activities) {
+                if (!user.equals(act.getUser())) continue;
                 if (act.getRoute()!=null) { //delete the activity from its previous route
                     act.getRoute().removeActivity(act);
                 }
@@ -129,10 +129,7 @@ public class RouteController {
     public ResponseEntity<List<? extends RouteDtoInterface>> deleteRoute(Principal principal, @PathVariable Long id) {
         User user = principalVerification(principal);
 
-
-        Route route = routeService.findById(id).orElse(null);
-        if (route==null) return ResponseEntity.notFound().build();
-
+        Route route = routeService.findById(id).orElseThrow(()->new HttpException(404));
         if (route.getOwner()!=user && !user.hasRole("ADMIN")) throw new HttpException(403, "You cannot delete a route you are not the owner of. Public routes can only be deleted by administrators");
 
         if (route.getVisibility().isPublic() && !user.hasRole("ADMIN")) throw new HttpException(403, "Public routes can only be deleted by administrators"); //This is indirectly checked above by route.getOwner()!=user, since owner will be null for public routes

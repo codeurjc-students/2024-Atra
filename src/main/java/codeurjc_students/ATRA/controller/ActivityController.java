@@ -32,32 +32,23 @@ public class ActivityController {
     @Autowired
     private DeletionService deletionService;
 
-    public Activity getActivity(){
-        return null;
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<ActivityDTO> getActivity(@PathVariable("id") Long id, Principal principal){
-        //this can be extracted, returning User and throwing errors
-        if (principal==null) return ResponseEntity.status(401).build();
-        Optional<User> userOpt = userService.findByUserName(principal.getName());
-        if (userOpt.isEmpty()) return  ResponseEntity.status(404).build(); //this should never happen. Maybe should be 500
-        User user = userOpt.get();
-        //this can be extracted, returning User and throwing errors
+    public ResponseEntity<ActivityDTO> getActivity(Principal principal, @PathVariable("id") Long id, @RequestParam(value="mural", required=false) Long muralId){
+        if (id==null) return ResponseEntity.badRequest().build(); // this is useless unless the method is used somewhere. Spring won't allow it to be null
 
-        if (id!=null) { //user is requesting a specific activity
-            Optional<Activity> actOpt = activityService.findById(id);
-            if (actOpt.isEmpty()) return ResponseEntity.notFound().build();
+        User user = principalVerification(principal);
+        Activity activity = activityService.findById(id).orElseThrow(()->new HttpException(404));
 
-            //check that the user has permission to see this activity
-            Activity activity = actOpt.get();
-
-            if (!activity.getUser().equals(user) && !activity.getVisibility().isPublic()) return ResponseEntity.status(403).build();
-            //fetch and return the activity
-
-            return ResponseEntity.ok(new ActivityDTO(activity));
+        //first check visibility
+        if (muralId!=null) {
+            Mural mural = muralService.findById(muralId).orElseThrow(()->new HttpException(404, "Requesting mural not found"));
+            if (!activityService.isVisibleToMural(activity, mural)) throw new HttpException(403, "Activity is not visible to specified mural");
+        } else {
+            if (!activityService.isVisibleToUser(activity, user)) throw new HttpException(403, "Activity is not visible to user");
         }
-        return ResponseEntity.badRequest().build();
+
+        //then fetch and return the activity
+        return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @GetMapping
@@ -89,17 +80,13 @@ public class ActivityController {
         return ResponseEntity.ok(activity);
     }
 
-    public ResponseEntity<Activity> modifyActivity(){return null;}
-
-    public ResponseEntity<Activity> deleteActivity(){
-        return null;
-    }
-
 
     @DeleteMapping("/{id}/route")
-    public ResponseEntity<ActivityDTO> removeRoute(@PathVariable Long id) {
+    public ResponseEntity<ActivityDTO> removeRoute(Principal principal, @PathVariable Long id) {
+        User user = principalVerification(principal);
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
+        if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "You can only remove the route of activities you own");
         Route prevRoute = activity.getRoute();
         routeService.removeActivityFromRoute(activity,prevRoute);
         activity.setRoute(null);
@@ -108,10 +95,13 @@ public class ActivityController {
     }
 
     @PostMapping("/{activityId}/route")
-    public ResponseEntity<ActivityDTO> addRoute(@PathVariable Long activityId, @RequestBody Long routeId) {
+    public ResponseEntity<ActivityDTO> addRoute(Principal principal, @PathVariable Long activityId, @RequestBody Long routeId) {
+        User user = principalVerification(principal);
         Activity activity = activityService.findById(activityId).orElse(null);
         Route route = routeService.findById(routeId).orElse(null);
         if (activity==null || route==null) return ResponseEntity.notFound().build();
+        if (!user.equals(activity.getUser())) throw new HttpException(403, "You can only change the route of activities you own");
+        if (!routeService.isVisibleBy(route, user)) throw new HttpException(404, "Target route not found"); //in others used 403. (security)
 
         activity.setRoute(route);
         activityService.save(activity);
@@ -122,10 +112,12 @@ public class ActivityController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ActivityDTO> deleteActivity(@PathVariable Long id) {
+    public ResponseEntity<ActivityDTO> deleteActivity(Principal principal, @PathVariable Long id) {
         //gotta check permissions. If not allowed, should return 404 instead of 403, so as to not show ids in use
+        User user = principalVerification(principal);
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
+        if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "You can only delete activities you onw");
         if (activity.getRoute()!=null) {
             Route route = activity.getRoute();
             route.removeActivity(activity);
@@ -140,7 +132,9 @@ public class ActivityController {
     @PatchMapping("/{id}/visibility")
     public ResponseEntity<ActivityDTO> changeVisibility(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
         User user = principalVerification(principal);
-        UtilsService.changeVisibilityHelper(id, body, routeService); //throws error on not found or invalid visibility
+        Activity activity = activityService.findById(id).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"));
+        if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403);
+        UtilsService.changeVisibilityHelper(id, body, activityService); //throws error on not found or invalid visibility
         return ResponseEntity.ok(new ActivityDTO(activityService.findById(id).orElseThrow(
                 ()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
     }

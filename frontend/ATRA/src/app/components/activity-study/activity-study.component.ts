@@ -92,7 +92,7 @@ export class ActivityStudyComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const stringId = this.route.snapshot.paramMap.get("id");
+    const stringId = this.route.snapshot.paramMap.get("activityId");
     if (stringId===null) {
       this.router.navigate(["/error?reason=missingParameter"]);
       return;

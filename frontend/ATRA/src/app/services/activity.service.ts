@@ -107,11 +107,12 @@ export class ActivityService {
     return new Activity(value);
   }
 
-  get(id: number): Observable<Activity|null>{
+  get(id: number, muralId?:string|null): Observable<Activity|null>{
     if (this.currentActivity.getValue()==null || this.currentActivity.getValue()?.id!=id) {
       this.loadingActivity=true;
       window.clearTimeout(this.timeout);
-      return this.http.get<Activity>("/api/activities/" + id).pipe(
+      const muralAddOn = muralId==null ? "":"?mural="+muralId
+      return this.http.get<Activity>("/api/activities/" + id + muralAddOn).pipe(
         map((a)=>{this.currentActivity.next(this.process1(a));this.loadingActivity=false;this.timeout=window.setTimeout(()=>{this.currentActivity.next(null);this.timeout=undefined;},this.CACHE_DURATION);return this.process1(a)}),
         catchError((e) => {
           this.loadingActivity=false;

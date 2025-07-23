@@ -2,8 +2,10 @@ package codeurjc_students.ATRA.service;
 
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.ActivityRepository;
 import io.jenetics.jpx.GPX;
@@ -286,5 +288,13 @@ public class ActivityService implements ChangeVisibilityInterface{
 			prevDp = dp;
 		}
 		return runningTotal;
+	}
+
+	public boolean isVisibleToMural(Activity activity, Mural mural) {
+		return activity.getVisibility().isVisibleByMural(mural.getId());
+	}
+
+	public boolean isVisibleToUser(Activity activity, User user) {
+		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.hasRole("ADMIN") && !activity.getVisibility().isPrivate());
 	}
 }
