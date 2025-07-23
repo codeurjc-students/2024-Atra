@@ -253,6 +253,17 @@ public class ActivityService implements ChangeVisibilityInterface{
 						mural.addActivity(activity);
 				});
 			}
+		} else { //same visibility, changes to allowed_murals
+			if (newVisibility==VisibilityType.MURAL_SPECIFIC) {
+				Collection<Long> allowedMuralsActivity = activity.getVisibility().getAllowedMurals();
+				activity.getUser().getMemberMurals().forEach(mural -> {
+					if (!allowedMurals.contains(mural.getId()) && allowedMuralsActivity.contains(mural.getId()))
+						mural.removeActivity(activity);
+					else if (allowedMurals.contains(mural.getId()) && !allowedMuralsActivity.contains(mural.getId())) {
+						mural.addActivity(activity);
+					}
+				});
+			}
 		}
 		activityRepository.save(activity);
 		return true;

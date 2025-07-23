@@ -29,6 +29,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 	private Map<String, List<String>> streams;
 	private ActivitySummary summary;
 	private VisibilityType visibility;
+	private Collection<Long> allowedMurals;
 
 	public ActivityDTO(Activity activity){
 		id = activity.getId();
@@ -41,6 +42,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		summary = new ActivitySummary(this);
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 		visibility = activity.getVisibility().getType();
+		allowedMurals = activity.getVisibility().getAllowedMurals();
 	}
 
 	//these may not be needed (since activity holds its route now)
@@ -55,6 +57,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		streams = setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 		visibility = activity.getVisibility().getType();
+		allowedMurals = activity.getVisibility().getAllowedMurals();
 	}
 
 	//these may not be needed.
@@ -69,6 +72,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		streams = setUpStreams(activity.getDataPoints());
 		summary = new ActivitySummary(this);
 		visibility = activity.getVisibility().getType();
+		allowedMurals = activity.getVisibility().getAllowedMurals();
 	}
 
 

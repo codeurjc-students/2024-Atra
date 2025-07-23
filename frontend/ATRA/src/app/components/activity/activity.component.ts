@@ -219,6 +219,7 @@ export class ActivityComponent implements OnInit {
     this.stats = this.activity.getOverview()
     this.selectedRoute = this.activity.route!=null ? this.activity.route.id:-1;
     this.currentVisibility = this.activity.visibility
+    this.allowedMuralsList = this.activity.allowedMurals || [];
 
     this.addPathToMap()
   }

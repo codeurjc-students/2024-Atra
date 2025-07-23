@@ -24,6 +24,7 @@ export class Activity {
     other:any;
 
     visibility: "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC";
+    allowedMurals: number[] | null;
 
     constructor(activity: any) {
       this.id = activity.id;
@@ -41,6 +42,7 @@ export class Activity {
       this.other = activity.other;
 
       this.visibility = activity.visibility || "PRIVATE"; // Default to PRIVATE if not set
+      this.allowedMurals = activity.allowedMurals;
   }
 
   getOverview(): {name:string; value:string}[] {

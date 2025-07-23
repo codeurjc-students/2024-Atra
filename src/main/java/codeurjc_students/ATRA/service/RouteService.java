@@ -118,17 +118,18 @@ public class RouteService implements ChangeVisibilityInterface{
 			}
 		} else if (newVisibility==VisibilityType.MURAL_SPECIFIC) { //visibility increased
 			//add to all murals in allowedMurals ?? userMurals
-			if (!allowedMurals.isEmpty()) { //if allowedMurals has murals, only add to those
-				route.getOwner().getMemberMurals().forEach(mural -> {
-					if (allowedMurals.contains(mural.getId()))
-						mural.addRoute(route);
-						//no haría falta guardarlos con muralService.save(mural) ?
-					//potencialmente se podría usar
-					//@PersistenceContext
-					//  private EntityManager entityManager;
-					// entityManager.flush()
-				});
-			}
+			route.getOwner().getMemberMurals().forEach(mural -> {
+				if (allowedMurals.contains(mural.getId()) && !route.getVisibility().getAllowedMurals().contains(mural.getId()))
+					mural.addRoute(route);
+				if (!allowedMurals.contains(mural.getId()) && route.getVisibility().getAllowedMurals().contains(mural.getId()))
+					mural.removeRoute(route);
+				//haría falta guardarlos con muralService.save(mural), no?
+				//potencialmente se podría usar
+				//@PersistenceContext
+				//  private EntityManager entityManager;
+				// entityManager.flush()
+			});
+
 		} else if (newVisibility == VisibilityType.PUBLIC) {
 			route.setOwner(null);
 		}
