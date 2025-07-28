@@ -6,6 +6,7 @@ import { map, Observable, of } from 'rxjs';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 import { AbstractControl, AsyncValidatorFn, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Route } from '../models/route.model';
 
 
 @Injectable({
@@ -99,5 +100,13 @@ export class UserService {
     }
   }
   //#endregion
+
+  getActivitiesInMural(muralId: number) {
+    return this.http.get<any[]>("/api/activities/InMural?muralId="+muralId)
+  }
+
+  getRoutesInMural(muralId: number): Observable<Route[]>{
+    return this.http.get<Route[]>("/api/routes/InMural?muralId="+muralId)
+  }
 
 }

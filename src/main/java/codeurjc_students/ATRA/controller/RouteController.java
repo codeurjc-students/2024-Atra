@@ -159,6 +159,35 @@ public class RouteController {
                 ()->new HttpException(404, "Could not find the route with id " + id + " so the change visibility operation has been canceled"))));
     }
 
+    @PatchMapping("/visibility/mural")
+    public ResponseEntity<String> makeRoutesNotVisibleToMural(Principal principal, @RequestParam("id") Long muralId, @RequestBody List<Long> selectedRoutesIds) {
+        User user = principalVerification(principal);
+        Mural mural = muralService.findById(muralId).orElseThrow(()-> new HttpException(404, "Mural not found"));
+        List<Route> routes = routeService.findById(selectedRoutesIds);
+        routes.forEach(route -> {
+            if (!route.getVisibility().isMuralSpecific()) return;
+            if (!user.equals(route.getOwner()) && !user.hasRole("ADMIN")) return;
+            route.getVisibility().removeMural(muralId);
+
+            routeService.save(route);
+            mural.removeRoute(route);
+            muralService.save(mural);
+        });
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/InMural")
+    public ResponseEntity<Collection<RouteWithoutActivityDTO>> getRoutesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
+        User user = principalVerification(principal);
+        Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
+        Collection<RouteWithoutActivityDTO> result = new ArrayList<>();
+        user.getCreatedRoutes().forEach(route -> {
+            if (routeService.isVisibleBy(route, mural)) result.add(new RouteWithoutActivityDTO(route));
+        });
+
+        return ResponseEntity.ok(result);
+    }
+
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);
         return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));

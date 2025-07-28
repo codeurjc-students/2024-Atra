@@ -11,28 +11,28 @@
       <thead class="table-dark">
         <tr>
           <th class="first-col">
-            <input type="checkbox" class="form-check-input" [checked]="this.activities != null && this.selected.size===this.activities.length" (change)="selectAll()">
+            <input type="checkbox" class="form-check-input" [checked]="this.routes != null && this.selected.size===this.routes.length" (change)="selectAll()">
           </th>
           <th *ngFor="let col of columns">{{ col }}</th>
         </tr>
       </thead>
       <tbody>
 
-        <tr *ngFor="let activity of activities; let i = index"
+        <tr *ngFor="let route of routes; let i = index"
           #popover="ngbPopover"
           [ngbPopover]="popoverContent"
           triggers="hover"
-          [popoverContext]="{ activityId: activity.id }"
+          [popoverContext]="{ activityId: route.id }"
           [openDelay]="300"
           [positionTarget]="'.popover-target'+i"
           popoverClass="custom-popover"
         >
           <td>
-            <input type="checkbox" class="form-check-input" [value]="activity.id" [checked]="this.selected.has(activity.id)" (change)="toggle(activity.id)">
+            <input type="checkbox" class="form-check-input" [value]="route.id" [checked]="this.selected.has(route.id)" (change)="toggle(route.id)">
           </td>
           <td *ngFor="let col of columns; first as isFirst;">
-            <div *ngIf="col === 'Name'" class="popover-target{{i}}">{{ getXFromY(col, activity) }}</div>
-            <div *ngIf="col !== 'Name'">{{ getXFromY(col, activity) }}</div>
+            <div *ngIf="col === 'Name'" class="popover-target{{i}}">{{ getXFromY(col, route) }}</div>
+            <div *ngIf="col !== 'Name'">{{ getXFromY(col, route) }}</div>
           </td>
         </tr>
       </tbody>

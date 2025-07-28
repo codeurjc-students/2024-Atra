@@ -1,11 +1,15 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.MuralRepository;
+import codeurjc_students.ATRA.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,25 +20,25 @@ import java.util.*;
 public class MuralService {
 
 	@Autowired
-	private MuralRepository repository;
+	private MuralRepository muralRepository;
 
 	@Autowired
-	private UserService userService; //a bit sketchy, I fear circular dependencies
+	private UserRepository userRepository; //a bit sketchy, I fear circular dependencies
 
 	public Optional<Mural> findById(long id) {
-		return repository.findById(id);
+		return muralRepository.findById(id);
 	}
 
 	public boolean exists(long id) {
-		return repository.existsById(id);
+		return muralRepository.existsById(id);
 	}
 
 	public List<Mural> findAll() {
-		return repository.findAll();
+		return muralRepository.findAll();
 	}
 
 	public void save(Mural mural) {
-		repository.save(mural);
+		muralRepository.save(mural);
 	}
 
 	/**
@@ -42,7 +46,7 @@ public class MuralService {
 	 * @param id
 	 */
 	void delete(long id) {
-		repository.deleteById(id);
+		muralRepository.deleteById(id);
 	}
 
 	public void newMural(Mural mural) {
@@ -50,19 +54,19 @@ public class MuralService {
 		do {
 			String[] parts = UUID.randomUUID().toString().split("-");
 			code = parts[1] + "-" + parts[2] + "-" + parts[3];
-		} while (repository.findByCode(code).isPresent()); //repeat until empty, to make sure it's not repeated
+		} while (muralRepository.findByCode(code).isPresent()); //repeat until empty, to make sure it's not repeated
 		mural.setCode(code);
 		System.out.println(code);
-		repository.save(mural);
+		muralRepository.save(mural);
 		//generate code
 
-		repository.save(mural);
+		muralRepository.save(mural);
 		User owner = mural.getOwner();
 		owner.getOwnedMurals().add(mural);
-		userService.save(owner);
+		userRepository.save(owner);
 		mural.getMembers().forEach(user -> {
 			user.getMemberMurals().add(mural);
-			userService.save(user);
+			userRepository.save(user);
 		});
 	}
 
@@ -90,6 +94,27 @@ public class MuralService {
 	}
 
 	public Optional<Mural> findByCode(String muralCode) {
-		return repository.findByCode(muralCode);
+		return muralRepository.findByCode(muralCode);
+	}
+
+    public void patch(Mural mural, Map<String, String> newMural) {
+		String name = newMural.get("name");
+		String description = newMural.get("description");
+		String newOwnerString = newMural.get("owner");
+		if (name!=null) mural.setName(name);
+		if (description!=null) mural.setDescription(description);
+		if (newOwnerString!=null) {
+			User newOwner = userRepository.findById(Long.parseLong(newOwnerString)).orElseThrow(() -> new HttpException(404, "User not found, can't change owner"));
+			if (!mural.getMembers().contains(newOwner)) throw new HttpException(422, "New owner is not a member of the mural. Cannot transfer ownership");
+			User previousOwner = mural.getOwner();
+			previousOwner.removeOwnedMural(mural);
+			mural.setOwner(newOwner);
+			newOwner.addOwnedMural(mural);
+			userRepository.save(previousOwner);
+			userRepository.save(newOwner);
+		}
+		muralRepository.save(mural);
+
+
 	}
 }

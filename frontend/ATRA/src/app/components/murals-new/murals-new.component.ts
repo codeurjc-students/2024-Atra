@@ -42,7 +42,7 @@ export class MuralsNewComponent {
       const file = input.files[0];
       //validate it
       //disable form submission until done
-      this.checkAspectRatio(file, type=="banner"? 5/1 : 3/2).subscribe((isGood)=>{
+      this.muralService.checkAspectRatio(file, type=="banner"? 5/1 : 3/2).subscribe((isGood)=>{
         if (isGood) {
           if (type=="banner") {
             this.bannerImage = file;
@@ -60,31 +60,6 @@ export class MuralsNewComponent {
         //re-enable form submission
       })
     }
-  }
-
-  checkAspectRatio(file: File, desiredRatio:number, tolerance:number=0.01): Observable<boolean> {
-    return new Observable((observer) => {
-      //create an image to host the file, and a reader to cast the file into the image
-      const img = new Image();
-      const reader = new FileReader();
-
-      //customize the reader and img. Reassigning img.source loads it
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-      img.onload = () => {
-        const aspectRatio = img.width / img.height;
-        console.log("Calculated aspect ratio: " + aspectRatio);
-        console.log("Desired ratio: " + desiredRatio);
-        const isValid = Math.abs(aspectRatio - desiredRatio) < tolerance; // optional tolerance
-        console.log("isValid: "+isValid);
-
-        observer.next(isValid);
-        observer.complete();
-      };
-
-      reader.readAsDataURL(file);
-    });
   }
 
   submitForm() {

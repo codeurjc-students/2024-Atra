@@ -49,6 +49,9 @@
           <a [routerLink]="[urlStart, 'routes']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
             <img src="../assets/map.svg" class="h-60 w-60">
           </a>
+          <a [routerLink]="[urlStart, 'settings']" [routerLinkActive]="'active'" class="icon-link" *ngIf="this.isMuralRouteSelected()">
+            <i class="fa-solid fa-gear" [ngStyle]="{'font-size':'40px', 'color':'black'}"></i>
+          </a>
         </li>
       </ul>
       <ul class="nav flex-column mx-2">

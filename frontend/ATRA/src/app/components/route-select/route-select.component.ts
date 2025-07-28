@@ -1,6 +1,4 @@
 import { AlertService } from './../../services/alert.service';
-import { Activity } from './../../models/activity.model';
-import { ActivityService } from './../../services/activity.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
@@ -8,25 +6,27 @@ import { RouteService } from '../../services/route.service';
 import { NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import L from 'leaflet';
 import { MapService } from '../../services/map.service';
+import { Route } from '../../models/route.model';
 
 @Component({
-  selector: 'app-activity-select',
+  selector: 'app-route-select',
   standalone: true,
   imports: [CommonModule, NgbPopoverModule],
-  templateUrl: './activity-select.component.html',
-  styleUrl: './activity-select.component.scss'
+  templateUrl: './route-select.component.html',
+  styleUrl: './route-select.component.scss'
 })
-export class ActivitySelectComponent implements OnInit, AfterViewInit{
+export class RouteSelectComponent implements OnInit, AfterViewInit{
   selected: Set<number> = new Set();
   shouldSelectAll: boolean = true;
   urlStart: string = 'me';
 
-  //When used as a main component, loadFrom should be used to have ActivitySelect fetch its own activities
+  //When used as a main component, loadFrom should be used to have RouteSelect fetch its own activities
   @Input() loadFrom: 'authUser' | 'user' | 'mural' = 'authUser';
 
   //But when it's used as a selector within another component, it should simply receive the activities to display
-  @Input() activities !: Activity[];
-  @Input() submit: () => void = () => this.defaultSubmit();
+  @Input() routes !: Route[];
+  @Input() submit: () => void = () => {console.warn("(RouteSelectComponent) No submit function provided");
+  ;}
   @Output() emitter = new EventEmitter<Set<number>>();
 
   @Input() submitText: string = "Submit";
@@ -38,49 +38,36 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   }
 
 
-  columns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
+  columns: string[] = ['Name', 'Desc', 'Distance', 'Ele'];
 
-  constructor(private router: Router, private activityService: ActivityService, private alertService:AlertService, private urlRoute:ActivatedRoute){}
+  constructor(private router: Router, private alertService:AlertService, private urlRoute:ActivatedRoute, private routeService:RouteService){}
 
 
   ngOnInit(): void {
-    if (this.activities!=null) return
+    if (this.routes!=null) return
     //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
     this.loadFrom = this.urlRoute.snapshot.data['loadFrom'];
-    if (this.loadFrom=='authUser')
-      this.activityService.getAuthenticatedUserActivities().subscribe({
-        next: (value) => this.activities = this.activityService.process(value),
-        error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
-      })
-    else if (this.loadFrom=='mural') {
-      const id = this.urlRoute.snapshot.paramMap.get('id');
-      if (id==null) {
-        this.alertService.toastError("Something went wrong, try reloading the page");
-        console.error("(ActivitySelectComponent) Trying to load activities from mural but couldn't find its id in the paramMap");
-        return
-      }
-      this.urlStart = "murals/"+id
-      this.activityService.getMuralActivities(id).subscribe({
-        next: (value) => this.activities = this.activityService.process(value),
-        error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
-      })
+    if (this.loadFrom=='authUser'){
+      //load from authenticated user |remnant from RouteSelectComponent. Left in case it needs to be expanded
+    } else if (this.loadFrom=='mural') {
+      // load from mural |remnant from RouteSelectComponent. Left in case it needs to be expanded
     } else if (this.loadFrom=='user') {
-      throw new Error("Not implemented yet, as there's no real need for it")
+      //load from specified user |remnant from RouteSelectComponent. Left in case it needs to be expanded
      }
   }
 
   toggle(id: number) {
-    if (this.selected.size===this.activities.length) {this.shouldSelectAll = true}
+    if (this.selected.size===this.routes.length) {this.shouldSelectAll = true}
 
     this.selected.has(id) ? this.selected.delete(id):this.selected.add(id)
 
-    if (this.selected.size===this.activities.length) {this.shouldSelectAll = false}
+    if (this.selected.size===this.routes.length) {this.shouldSelectAll = false}
   }
 
   selectAll() {
-    console.log(this.activities)
+    console.log(this.routes)
     if (this.shouldSelectAll) {
-      this.activities.forEach(activity => this.selected.add(activity.id));
+      this.routes.forEach(route => this.selected.add(route.id));
     } else {
       this.selected.clear();
     }
@@ -88,33 +75,19 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   }
 
 
-  getXFromY(X: string, Y: Activity) { //Y should be an activity
-    if (Y.summary==null) throw new Error("Activity summary is null, cannot get X from Y");
+  getXFromY(X: string, Y: Route) { //Y should be an route
     switch(X.toLowerCase())  {
       case 'id': return Y.id
       case 'name': return Y.name
-      case 'date': return Y.startTime.toISOString().split("T")[0]
-      case 'time': return this.toHoursMinsSecs(Y.summary.totalTime)
-      case 'route': return Y.route!=null ? Y.route.name : Y.route
-      case 'distance': return Math.round(Y.summary.totalDistance*100)/100 + "km"
-      case 'other' : return Y.other
+      case 'desc': return Y.description.substring(0,50) + (Y.description.length > 50 ? '...' : '');
+      case 'ele': return Y.elevationGain.toFixed(2) + "m"
+      case 'distance': return Math.round(Y.totalDistance*100)/100 + "km"
       default : throw new Error(`Property '${X}' does not exist on object Y.`)
     }
   }
 
-  defaultSubmit(){
-    if (this.selected.size === 0 ) { this.alertService.alert("You must select at least one activity") }
-    else if (this.selected.size === 1) {
-      this.router.navigate([this.urlStart, "activities", Array.from(this.selected)[0]])
-    } else if (this.selected.size === 2) {
-      this.router.navigate([this.urlStart, "activities", "compare", `${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
-    } else {
-      this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
-    }
-  }
-
   toHoursMinsSecs(n: number){ //format should be H:MM:SS but this is fine for now
-    // Activity.formatTime(n) does a similar thing, in a different format
+    // Route.formatTime(n) does a similar thing, in a different format
     const hours = Math.floor(n/3600)
     n = n%3600
     const mins = Math.floor(n/60)
@@ -138,9 +111,9 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   ngAfterViewInit() {
     this.popovers.changes.subscribe((newList:QueryList<NgbPopover>)=>{
       newList.forEach(p => {
-        var a: Activity = this.activities.filter(a=>a.id==p.popoverContext?.activityId)[0]
+        var a: Route = this.routes.filter(a=>a.id==p.popoverContext?.routeId)[0]
         p.shown.subscribe(() => {
-          this.initMap(this.activityService.getCoordinates(a))
+          this.initMap(a.coordinates)
         });
         p.hidden.subscribe(() => {
           if (this.map) {

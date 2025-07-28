@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -139,6 +140,39 @@ public class ActivityController {
                 ()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
     }
 
+    @PatchMapping("/visibility/mural")
+    public ResponseEntity<String> makeActivitiesNotVisibleToMural(Principal principal, @RequestParam("id") Long muralId, @RequestBody List<Long> selectedActivitiesIds) {
+        User user = principalVerification(principal);
+        Mural mural = muralService.findById(muralId).orElseThrow(()-> new HttpException(404, "Mural not found"));
+        List<Activity> activities = activityService.findById(selectedActivitiesIds);
+        activities.forEach(activity -> {
+            if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) return;
+            if (activity.getVisibility().isPrivate() || activity.getVisibility().isPublic()) return;
+            if (activity.getVisibility().isMuralSpecific()) {
+                activity.getVisibility().removeMural(muralId);
+            } else if (activity.getVisibility().isMuralPublic()) {
+                List<Long> memberMuralIds = new ArrayList<>(user.getMemberMurals().stream().map(Mural::getId).toList());
+                memberMuralIds.remove(muralId);
+                activity.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, memberMuralIds);
+            }
+            activityService.save(activity);
+            mural.removeActivity(activity);
+            muralService.save(mural);
+        });
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/InMural")
+    public ResponseEntity<Collection<ActivityDTO>> getActivitiesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
+        User user = principalVerification(principal);
+        Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
+        Collection<ActivityDTO> result = new ArrayList<>();
+        user.getActivities().forEach(activity -> {
+            if (activityService.isVisibleToMural(activity, mural)) result.add(new ActivityDTO(activity));
+        });
+
+        return ResponseEntity.ok(result);
+    }
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);
         return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));

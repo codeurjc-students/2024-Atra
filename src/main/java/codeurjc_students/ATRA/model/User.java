@@ -24,6 +24,7 @@ public class User implements NamedId {
 	private Long id;
 	@Column(unique = true)
 	private String username;
+	@ToString.Exclude
 	private String password;
 
 	private String name;
@@ -102,5 +103,10 @@ public class User implements NamedId {
 
 	public void addRoute(Route route) {
 		createdRoutes.add(route);
+	}
+
+	public void addOwnedMural(Mural mural) {
+		if (!memberMurals.contains(mural)) throw new RuntimeException("User can't own a mural they're not part of");
+		ownedMurals.add(mural);
 	}
 }

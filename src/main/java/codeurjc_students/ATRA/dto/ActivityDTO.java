@@ -31,6 +31,20 @@ public class ActivityDTO implements ActivityDtoInterface {
 	private VisibilityType visibility;
 	private Collection<Long> allowedMurals;
 
+	public ActivityDTO(Activity activity, boolean getSummary){
+		id = activity.getId();
+		name = activity.getName();
+		type = activity.getType();
+		startTime = activity.getStartTime();
+		user = new BasicNamedId(activity.getUser());
+		dataPoints = activity.getDataPoints();
+		streams = setUpStreams(activity.getDataPoints());
+		summary = getSummary?new ActivitySummary(this):null;
+		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
+		visibility = activity.getVisibility().getType();
+		allowedMurals = activity.getVisibility().getAllowedMurals();
+	}
+
 	public ActivityDTO(Activity activity){
 		id = activity.getId();
 		name = activity.getName();

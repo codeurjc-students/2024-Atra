@@ -55,6 +55,7 @@ public class DatabaseInitializer {
         Map<String, Activity> activityMap = new HashMap<>();
         for (int i=0;i<20;i++) {
             Activity createdAct = activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), users.get(i%users.size()).getUsername());
+            if (i%3==0) createdAct.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
             activityMap.put(createdAct.getName(),createdAct);
             muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
         }

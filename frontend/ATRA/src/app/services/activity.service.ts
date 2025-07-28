@@ -10,6 +10,10 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ActivityService {
+  makeActivitiesNotVisibleToMural(id: number, selectedActivities: Set<number> | null) {
+    if (selectedActivities==null) throw new Error("(ActivityService) makeActivitiesNotVisibleToMural called with null selectedActivities");
+    return this.http.patch("/api/activities/visibility/mural?id="+id, Array.from(selectedActivities)/*,   { headers: { 'Content-Type': 'application/json' } }*/)
+  }
 
   getCoordinates(activity: Activity): [number, number][] {
     return activity.getStream("position").map((x:string)=>{

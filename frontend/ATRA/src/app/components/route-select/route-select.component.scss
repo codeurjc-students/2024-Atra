@@ -1,0 +1,28 @@
+.container {
+  padding: 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+td {
+ /*changes how many items can be seen*/
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.first-col {
+  width: 0%;
+}
+
+.table-responsive {
+  max-height: 70vh;
+}
+
+
+
+/* popover crap */
+
+.map-container {
+  width: 250px;
+  height: 250px;
+}

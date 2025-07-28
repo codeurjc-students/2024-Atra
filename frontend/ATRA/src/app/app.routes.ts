@@ -13,6 +13,7 @@ import { MuralsDashboardComponent } from './components/murals-dashboard/murals-d
 import { AuthGuard } from './services/auth-guard.service';
 import { MuralsListComponent } from './components/murals-list/murals-list.component';
 import { MuralsCategoryComponent } from './components/murals-category/murals-category.component';
+import { MuralsSettingsComponent } from './components/murals-settings/murals-settings.component';
 
 export const routes: Routes = [
   {path: '', component: WelcomeComponent}, //pretty sure login and register should be removed, they are actually handled by the root
@@ -36,6 +37,7 @@ export const routes: Routes = [
   {path: 'murals/:muralId/activities/:activityId', component: ActivityComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/dashboard', component: MuralsDashboardComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/routes', component: RoutesComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:id/settings', component: MuralsSettingsComponent, canActivate: [AuthGuard],},
 
   {path: '**', component: ErrorComponent},
 

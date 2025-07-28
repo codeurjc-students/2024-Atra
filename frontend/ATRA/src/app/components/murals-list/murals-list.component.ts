@@ -147,6 +147,7 @@ export class MuralsListComponent implements OnChanges, OnInit {
        this.activeModal?.close();
 
        if (result==1) this.alertService.toastWarning("Can't join a mural you're part of")
+       else if (result==2) this.alertService.toastWarning("You are banned from this mural and can't join it")
        else if (result==0) {
          this.alertService.toastSuccess("Joined Mural")
          this.loadMember();

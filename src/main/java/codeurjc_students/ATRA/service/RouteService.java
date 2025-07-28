@@ -21,6 +21,15 @@ public class RouteService implements ChangeVisibilityInterface{
 		return repository.findById(id);
 	}
 
+	public List<Route> findById(List<Long> ids) {
+		List<Route> result = new ArrayList<>();
+		for (var id : ids) {
+			Optional<Route> actOpt = findById(id);
+			actOpt.ifPresent(result::add);
+		}
+		return result;
+	}
+
 	public boolean exists(long id) {
 		return repository.existsById(id);
 	}
@@ -162,4 +171,9 @@ public class RouteService implements ChangeVisibilityInterface{
 				|| route.getOwner().equals(user)
 				|| (user.hasRole("ADMIN") && !route.getVisibility().isPrivate());
     }
+
+	public boolean isVisibleBy(Route route, Mural mural) {
+		return (route.getVisibility().isPublic())
+				|| mural.getRoutes().contains(route);
+	}
 }

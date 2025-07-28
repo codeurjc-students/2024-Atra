@@ -35,6 +35,10 @@ public class Mural implements NamedId {
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_mural", joinColumns = @JoinColumn(name="mural_id"), inverseJoinColumns = @JoinColumn(name="user_id"))
 	private List<User> members = new ArrayList<>();
+	@ToString.Exclude
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "banned_user_mural", joinColumns = @JoinColumn(name="mural_id"), inverseJoinColumns = @JoinColumn(name="user_id"))
+	private List<User> bannedUsers = new ArrayList<>();
 
 	@ToString.Exclude
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -99,9 +103,12 @@ public class Mural implements NamedId {
 		routes.remove(route);
 	}
 
-	public void removeOwner(User user)  {
+	public void removeOwner(User user, User inheritor)  {
+		if (!owner.equals(user)) return;
 		removeMember(user);
-		owner = members.get(0); //or whoever was set to inherit
+		if (inheritor==null) owner = members.get(0);
+		else if (members.contains(inheritor)) owner = inheritor;
+		else throw new IllegalArgumentException("Mural.removeOnwer() called with an inheritor who's not part of the mural.");
 	}
 
 	public void removeMember(User user)  {
@@ -134,5 +141,9 @@ public class Mural implements NamedId {
 
 	public void addRoute(Route route) {
 		routes.add(route);
+	}
+
+	public void banUser(User user) {
+		bannedUsers.add(user);
 	}
 }

@@ -1,0 +1,148 @@
+<div class="d-flex align-items-center h-100 w-100 ms-5">
+  <div class="d-flex flex-column align-items-center justify-content-around max-w-35 h-100">
+    <h1 class="h-25 d-flex align-items-end mb-3">Mural Settings</h1>
+    <div id="dataDiv" class="d-flex flex-column align-items-start ms-5 justify-content-around h-50">
+      <div class="mb-2">
+        <h5 class="d-inline">Join Code: </h5>
+        {{ code }}
+      </div>
+      <div class="mb-2">
+        <h5 class="d-inline">Owner: </h5>
+        {{ owner.name }}
+      </div>
+      <div class="mb-2">
+        <h5 class="d-inline">Mural Name: </h5>
+        {{ name }}
+      </div>
+      <div class="mb-2">
+        <h5 class="d-inline">Description: </h5>
+        {{ description }}
+      </div>
+    </div>
+    <div id="buttonsDiv" class="d-flex justify-content-center align-items-start mt-3 h-25">
+      <button class="btn btn-danger mx-1" (click)="leave()">Leave</button>
+      <button class="btn btn-warning mx-1" (click)="open(editModal, { centered:true, size:'sm'})" *ngIf="isOwner">Edit</button>
+      <button class="btn btn-warning mx-1" (click)="manageMembers(membersModal)" *ngIf="isOwner">Manage Members</button>
+      <button class="btn btn-danger mx-1" (click)="deleteMural()" *ngIf="isOwner">Delete</button>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="d-flex flex-column align-items-center justify-content-center max-w-65 w-65 h-100">
+    <h1 class="max-h-25">Users in this mural can see:</h1>
+    <div class="d-flex justify-content-around w-100 h-75">
+      <div class="w-45">
+        <h3>Activities</h3>
+        <app-activity-select [submitText]="'Remove Visibility of Selected'" [showTopRow]="false" [activities]="activityList" [submit]="submitAct" (emitter)="handleEmittedDataAct($event)"></app-activity-select>
+        <!--<h5 class="ms-2">Activities</h5>
+        <div class="h-80 w-100 border">        </div>-->
+      </div>
+      <div class="w-45">
+        <div>
+          <h3>Routes</h3>
+
+        </div>
+        <app-route-select [submitText]="'Remove Visibility of Selected'" [showTopRow]="false" [routes]="routeList" [submit]="submitRoute" (emitter)="handleEmittedDataRoute($event)"></app-route-select>
+
+        <!--<h5 class="ms-2">Routes</h5>
+        <div class="h-80 w-100 border"></div>-->
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #editModal let-modal>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Which field do you want to edit?</h5>
+    <!--<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>-->
+  </div>
+  <div class="modal-body d-flex flex-column align-items-center">
+    <button class="btn btn-primary w-75 mb-2" (click)="editName()">Name</button>
+    <button class="btn btn-primary w-75 mb-2" (click)="editDesc(editDescModal)">Description</button>
+    <button class="btn btn-primary w-75 mb-2" (click)="editOwner(selectInheritorModal)">Owner</button>
+    <button class="btn btn-primary w-75 mb-2" (click)="editImage(thumbnailInput)">Thumbnail image</button>
+    <button class="btn btn-primary w-75 mb-2" (click)="editImage(bannerInput)">Banner image</button>
+
+    <input type="file" accept="image/*" #thumbnailInput hidden (change)="sendThumbnailImage($event)"/>
+    <input type="file" accept="image/*" #bannerInput hidden (change)="sendBannerImage($event)"/>
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #editDescModal let-modal>
+    <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Type the new desciption</h5>
+  </div>
+  <div class="modal-body d-flex flex-column align-items-center">
+    <textarea class="form-control mb-2" [(ngModel)]="newDescription" rows="5" placeholder="Enter new description"></textarea>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+    <button type="button" class="btn btn-primary" (click)="submitChangeDesc()">Save changes</button>
+  </div>
+</ng-template>
+
+
+
+
+
+<ng-template #membersModal let-modal>
+      <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Type the new desciption</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body d-flex flex-column align-items-center">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th><i class="fa-solid fa-ban"></i></th>
+          <th><i class="fa-solid fa-trash"></i></th>
+          <!--<th>Total Time</th>
+          <th>Total Distance</th>
+          <th>Activity Count</th>-->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of userList">
+          <td>{{ user.name }}</td>
+          <td><button class="btn btn-danger"  (click)="banUser(user.id)"><i class="fa-solid fa-ban"></i></button></td>
+          <td><button class="btn btn-danger"  (click)="kickUser(user.id)"><i class="fa-solid fa-trash"></i></button></td>
+          <!--<td>{{ user.totalTime }}</td>
+          <td>{{ user.totalDistance }}</td>
+          <td>{{ user.activityCount }}</td>-->
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #selectInheritorModal let-modal>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Select <span *ngIf="!changingOwner">an inheritor</span><span *ngIf="changingOwner">a new owner</span></h5>
+  </div>
+
+  <div class="modal-body">
+    <div *ngFor="let user of userList">
+      <label>
+        <input type="radio" name="options" [(ngModel)]="selectedInheritor" [value]="user" />
+        {{ user.name }}
+      </label>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-warning" (click)="setInheritor()">Set as <span *ngIf="!changingOwner">inheritor</span><span *ngIf="changingOwner">new owner</span></button>
+  </div>
+</ng-template>

@@ -30,7 +30,7 @@ public class DeletionService {
             activityService.delete(activity.getId());
         });
         user.getOwnedMurals().forEach(mural -> {
-            mural.removeOwner(user);
+            mural.removeOwner(user, null);
             muralService.save(mural);
         });
         user.getMemberMurals().forEach(mural -> {

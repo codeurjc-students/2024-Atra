@@ -10,12 +10,7 @@ import { Mural } from '../models/mural.model';
   providedIn: 'root'
 })
 export class MuralService {
-  joinMuralCode(muralCode: string): Observable<number> {
-    return this.http.post<number>(`/api/murals/join`,muralCode)
-  }
-  joinMuralId(muralId: number): Observable<number> {
-    return this.http.post<number>(`/api/murals/join`,muralId)
-  }
+
   public static defaultThumbnail: string = 'assets/thumbnailImage.png'; // Default thumbnail path
 
   constructor(private http: HttpClient, private router: Router) {
@@ -123,6 +118,71 @@ export class MuralService {
       default:
         throw new Error('Invalid category');
     }
+  }
+
+    changeName(id: number, newName: string) {
+    return this.http.patch<Mural>("/api/murals/"+id, {name: newName})
+  }
+  changeDesc(id: number, newDesc: string) {
+    return this.http.patch<Mural>("/api/murals/"+id, {description: newDesc})
+  }
+  changeOwner(id: number, newOwner: number) {
+    return this.http.patch<Mural>("/api/murals/"+id, {owner: newOwner})
+  }
+  changeThumbnail(id: number, thumbnail: File) {
+    const formData = new FormData();
+    formData.append("file", thumbnail);
+    return this.http.put("/api/murals/"+id+"/thumbnail", formData)
+  }
+  changeBanner(id: number, banner: File) {
+    const formData = new FormData();
+    formData.append("file", banner);
+    return this.http.put("/api/murals/"+id+"/banner", formData)
+  }
+  leave(muralId: number, inheritor?:number) {
+    return this.http.delete("/api/murals/"+muralId+"/users/me"+(inheritor?("?inheritor="+inheritor):""))
+  }
+  kick(muralId: number, userId:number) {
+    return this.http.delete<{name:string,id:number}[]>("/api/murals/"+muralId+"/users/"+userId)
+  }
+  ban(muralId: number, userId: number) {
+    return this.http.post<{name:string,id:number}[]>("/api/murals/"+muralId+"/users/"+userId+"/ban", {})
+  }
+  joinMuralCode(muralCode: string): Observable<number> {
+    return this.http.post<number>(`/api/murals/join`,muralCode)
+  }
+  joinMuralId(muralId: number): Observable<number> {
+    return this.http.post<number>(`/api/murals/join`,muralId)
+  }
+
+  deleteMural(id:number) {
+    return this.http.delete("/api/murals/"+id)
+  }
+
+  //Helper methods
+  checkAspectRatio(file: File, desiredRatio:number, tolerance:number=0.01): Observable<boolean> {
+    return new Observable((observer) => {
+      //create an image to host the file, and a reader to cast the file into the image
+      const img = new Image();
+      const reader = new FileReader();
+
+      //customize the reader and img. Reassigning img.source loads it
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      img.onload = () => {
+        const aspectRatio = img.width / img.height;
+        console.log("Calculated aspect ratio: " + aspectRatio);
+        console.log("Desired ratio: " + desiredRatio);
+        const isValid = Math.abs(aspectRatio - desiredRatio) < tolerance; // optional tolerance
+        console.log("isValid: "+isValid);
+
+        observer.next(isValid);
+        observer.complete();
+      };
+
+      reader.readAsDataURL(file);
+    });
   }
 
 }
