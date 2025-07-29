@@ -49,16 +49,19 @@ export class AuthService {
   logout() {
     this.http.post("/api/auth/logout",{}).subscribe({
       next: ()=> {
-        this.user.next(null);
-        this.fetchingUser = false; //just in case
-        localStorage.removeItem("user");
+        this.logoutFront();
       },
       error: (err) => {
         console.error("Logout failed: ", err);
         this.alertService.toastError("Logout failed");
       }
-
     });
+  }
+  logoutFront() {
+    this.user.next(null);
+    this.fetchingUser = false; //just in case
+    localStorage.removeItem("user");
+    this.alertService.toastSuccess("You have been logged out successfully");
   }
 
   login(username: string, password: string): Observable<any> {
