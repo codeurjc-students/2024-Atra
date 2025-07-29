@@ -14,7 +14,7 @@ import { AlertService } from '../../services/alert.service';
   styleUrl: './murals-dashboard.component.scss'
 })
 export class MuralsDashboardComponent implements OnInit, OnDestroy{
-  mural!: Mural;
+  mural: Mural | null = null;
 
   constructor(private muralService:MuralService, private route: ActivatedRoute, private alertService:AlertService, private gridItemService:GridItemService){}
 

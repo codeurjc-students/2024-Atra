@@ -1,5 +1,4 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { GridTableComponent } from "../stat-components/records/grid-table.component";
 import { ActivitySelectComponent } from "../activity-select/activity-select.component";
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +11,6 @@ import { MuralService } from '../../services/mural.service';
 import { RouteSelectComponent } from "../route-select/route-select.component";
 import { Route } from '../../models/route.model';
 import { RouteService } from '../../services/route.service';
-import { NgbSlide } from "@ng-bootstrap/ng-bootstrap/carousel/carousel";
 import { FormsModule, NgModel } from '@angular/forms';
 import { Mural } from '../../models/mural.model';
 
@@ -44,10 +42,12 @@ export class MuralsSettingsComponent implements OnInit {
     })
   }
   banUser(id: number) {
+    if (this.owner==null) return this.alertService.toastError("Try again later or after reloadning", "Something went wrong");
     this.alertService.confirm("Are you sure you want to ban this user? The mural will lose access to any routes and activities owned by this user.\nThey will not be able to join the mural anymore, even if they have the code.").subscribe(accepted=> {if (accepted) this.muralService.ban(this.id, id).subscribe({
       next: (newUserList) => {
+        if (this.owner==null) throw new Error("Lost access to the owner between clicking ban and confirming the intent to do so. How the hell does this happen?")
         this.alertService.toastSuccess("User banned successfully");
-        this.userList = newUserList.filter(user => user.id !== this.owner.id); // Remove the banned user from the list
+        this.userList = newUserList.filter(user => user.id !== this.owner!.id); // Remove the banned user from the list
       },
       error: (err) => {
         console.error("Error banning user:", err);
@@ -103,12 +103,11 @@ export class MuralsSettingsComponent implements OnInit {
     })
   }
 
-  code!: string;
-  owner!: {name:string, id:number};
-  description!: string;
-  name!: string;
-  inheritor!: string;
-  id!: number;
+  code: string = "Not Visible/Not loaded yet";
+  owner: {name:string, id:number} = {name:"Not loaded yet", id:-1};
+  description: string = "Description not loaded yet";
+  name: string = "Name not loaded yet";
+  id: number = -1;
 
 
   activityList: Activity[] = [];
