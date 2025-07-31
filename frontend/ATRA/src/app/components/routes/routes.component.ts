@@ -2,7 +2,7 @@ import { AlertService } from './../../services/alert.service';
 import { ActivityService } from './../../services/activity.service';
 import { MapService } from './../../services/map.service';
 import { CommonModule } from '@angular/common';
-import { Component, ComponentFactory, TemplateRef } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { RouteService } from '../../services/route.service';
 import { Route } from '../../models/route.model';
 import { Activity } from '../../models/activity.model';
@@ -22,7 +22,6 @@ import { FormsModule } from '@angular/forms';
 })
 export class RoutesComponent {
 
-
   visibilitiesToDisplay: string[] = ["PRIVATE", "MURAL_SPECIFIC", "PUBLIC"];
 
   onCheckboxChange(event: Event) {
@@ -41,6 +40,7 @@ export class RoutesComponent {
   selectedRoute !: Route|null;
   currentVis : "PUBLIC" | "MURAL_SPECIFIC" | "PRIVATE" | null = null;
   allowedMuralsList: number[] = [];
+  formatDistance = FormattingService.formatDistance
 
   columns: string[] = ['Name', 'Desc', 'Distance', 'Ele'];
   activityColumns: string[] = ['id', 'Dist', 'time'];
@@ -99,7 +99,7 @@ export class RoutesComponent {
       case 'name': return Y.name
       case 'desc': return Y.description.substring(0,26) + "..."
       case 'ele': return Number(Y.elevationGain.toFixed(2)) + "m"
-      case 'distance': return Y.totalDistance.toFixed(2) + "km"
+      case 'distance': return FormattingService.formatDistance(Y.totalDistance)
       default : throw new Error(`Property '${X}' does not exist on object ${typeof Y}}.`)
     }
   }
@@ -115,7 +115,7 @@ export class RoutesComponent {
       case 'name': return v.name
       case 'time': return FormattingService.formatTime(v.summary.totalTime)
       case 'ele': return v.summary.elevationGain
-      case 'dist': return v.summary.totalDistance.toFixed(2) + "km"
+      case 'dist': return FormattingService.formatDistance(v.summary.totalDistance)
       default : throw new Error(`Property '${attr}' does not exist on object ${typeof v}.`)
     }
   }

@@ -152,7 +152,7 @@ export class GridItemService {
           if ((category.includes("km") || category.includes("mile"))) {
             records[category] = [FormattingService.formatTime(Number(best)), by];
           } else if ((category.includes("min") || category.includes("hour"))) {
-            records[category] = [Number(best).toFixed(2) + "km", by];
+            records[category] = [FormattingService.formatDistance(Number(best)), by];
           }
         }
         const sortedEntries = Object.entries(records).sort(([keyA], [keyB]) => {
@@ -220,7 +220,7 @@ export class GridItemService {
           }).summary?.totalDistance)
 
           rows.push(["# of activities", activities.length.toString()])
-          rows.push(["Total Distance",activities.reduce((sum, activity) => sum + (activity.summary?.totalDistance || 0), 0).toFixed(2) + " km" || "0 km"])
+          rows.push(["Total Distance", FormattingService.formatDistance(activities.reduce((sum, activity) => sum + (activity.summary?.totalDistance || 0), 0)) || "0 km"])
           rows.push(["Total Time",FormattingService.formatTime(activities?.reduce((sum, activity) => sum + (activity.summary?.totalTime || 0), 0) || 0)])
           rows.push(["Avg Pace",activities.length ? FormattingService.formatPace(activities.reduce((sum, activity) => sum + (activity.summary?.averages?.['pace'] || 0), 0) / activities.length) : "No avg pace"])
           rows.push(["Max Distance",activities.reduce((sum,activity) => activity.summary!.totalDistance>sum.summary!.totalDistance ? activity:sum).summary!.totalDistance.toFixed(2)])
@@ -247,7 +247,7 @@ export class GridItemService {
           currentRow[columnNames.indexOf("Name")] = activity.name;
           currentRow[columnNames.indexOf("Date")] = new Date(activity.startTime).toISOString().split("T")[0]; // Format date as YYYY-MM-DD
           currentRow[columnNames.indexOf("Avg Pace")] = activity.summary.averages?.['pace'] ? FormattingService.formatPace(activity.summary.averages?.['pace']) : "No avg pace";
-          currentRow[columnNames.indexOf("Distance")] = activity.summary.totalDistance.toFixed(2) + " km";
+          currentRow[columnNames.indexOf("Distance")] = FormattingService.formatDistance(activity.summary.totalDistance);
           currentRow[columnNames.indexOf("Time")] = FormattingService.formatTime(activity.summary.totalTime);
           activityValues.push(currentRow);
         }

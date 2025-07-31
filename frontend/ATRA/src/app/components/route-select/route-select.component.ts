@@ -86,22 +86,6 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
     }
   }
 
-  toHoursMinsSecs(n: number){ //format should be H:MM:SS but this is fine for now
-    // Route.formatTime(n) does a similar thing, in a different format
-    const hours = Math.floor(n/3600)
-    n = n%3600
-    const mins = Math.floor(n/60)
-    const secs = n%60
-
-    const hoursString = hours != 0 ? hours+"h ":""
-    const minsString = mins != 0 ? mins + "m ":""
-    const secsString = secs + "s "
-
-
-    return `${hoursString}${minsString}${secsString}`
-  }
-
-
   //#region popovers shit
   @ViewChildren('popover') popovers!: QueryList<NgbPopover>;
   @ViewChild('mapContainer') mapContainer!: ElementRef;

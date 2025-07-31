@@ -4,6 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class FormattingService {
+  static formatDistance(value: number) {
+    return value.toFixed(2) + "km"
+  }
 
   static formatPace(value: number): string {
       const minutes = Math.floor(value / 60);
@@ -32,8 +35,6 @@ export class FormattingService {
     const minsString = (remMinutes < 10 && totalHours!=0) ? "0"+remMinutes.toString():remMinutes.toString()
     const secsString = remSeconds < 10 ? "0"+remSeconds.toString():remSeconds.toString()
 
-
-
     return `${hoursString}${minsString}:${secsString}`
   }
 
@@ -43,4 +44,17 @@ export class FormattingService {
     return `${hours}:${minutes}`
   }
 
+  static toHoursMinsSecs(n: number){ //format should be H:MM:SS but this is fine for now
+    const hours = Math.floor(n/3600)
+    n = n%3600
+    const mins = Math.floor(n/60)
+    const secs = n%60
+
+    const hoursString = hours != 0 ? hours+"h ":""
+    const minsString = mins != 0 ? mins + "m ":""
+    const secsString = secs + "s "
+
+
+    return `${hoursString}${minsString}${secsString}`
+  }
 }

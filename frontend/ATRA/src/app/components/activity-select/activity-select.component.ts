@@ -8,6 +8,7 @@ import { RouteService } from '../../services/route.service';
 import { NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import L from 'leaflet';
 import { MapService } from '../../services/map.service';
+import { FormattingService } from '../../services/formatting.service';
 
 @Component({
   selector: 'app-activity-select',
@@ -94,7 +95,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
       case 'id': return Y.id
       case 'name': return Y.name
       case 'date': return Y.startTime.toISOString().split("T")[0]
-      case 'time': return this.toHoursMinsSecs(Y.summary.totalTime)
+      case 'time': return FormattingService.toHoursMinsSecs(Y.summary.totalTime)
       case 'route': return Y.route!=null ? Y.route.name : Y.route
       case 'distance': return Math.round(Y.summary.totalDistance*100)/100 + "km"
       case 'other' : return Y.other
@@ -112,22 +113,6 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
       this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
     }
   }
-
-  toHoursMinsSecs(n: number){ //format should be H:MM:SS but this is fine for now
-    // Activity.formatTime(n) does a similar thing, in a different format
-    const hours = Math.floor(n/3600)
-    n = n%3600
-    const mins = Math.floor(n/60)
-    const secs = n%60
-
-    const hoursString = hours != 0 ? hours+"h ":""
-    const minsString = mins != 0 ? mins + "m ":""
-    const secsString = secs + "s "
-
-
-    return `${hoursString}${minsString}${secsString}`
-  }
-
 
   //#region popovers shit
   @ViewChildren('popover') popovers!: QueryList<NgbPopover>;
