@@ -69,7 +69,14 @@ export class RegisterComponent implements OnInit{
       return
     }
 
-    this.userService.createUser(this.collectUser());
+    this.userService.createUser(this.collectUser()).subscribe({
+      next: () => {
+        //close modal
+        this.activeModal.close()
+        this.alertService.toastInfo("You can proceed with the login","Account created successfully")
+      },
+      error: (e) => this.alertService.toastError("Try again later", "Error creating your account")
+    });
   }
 
   collectUser(): User {

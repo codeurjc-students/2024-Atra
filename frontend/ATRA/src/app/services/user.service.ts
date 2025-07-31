@@ -25,22 +25,13 @@ export class UserService {
   }
 
   createUser(user: User) {
-    this.http.post("/api/users",
+    return this.http.post("/api/users",
       {
         username:user.username,
         password: user.password,
         name: user.name,
         email: user.email
-      }).subscribe({
-        next: () => {
-          this.alertService.toastSuccess("You have successfully created your account")
-          window.location.reload()
-        },
-        error: () => {
-          this.router.navigate(["/error"])
-        }
-      }
-    );
+      })
   }
 
   getCurrentUser(){
