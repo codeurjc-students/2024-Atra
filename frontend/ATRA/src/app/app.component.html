@@ -6,21 +6,14 @@
         <a routerLink="/me/home" class="icon-link mx-1" [class.active]="this.isPrivateRoute()">
           <img src="../assets/running.svg" class="v-75 w-75">
         </a>
-        <a routerLink="/social" class="icon-link mx-1">
-          <i class="fa-solid fa-user-group" style="color: #000000; font-size: 30px"></i>
-          <!-- <i class="fa-solid fa-people-group"></i> -->
-        </a>
         <a routerLink="/murals/" class="icon-link mx-1" [class.active]="this.isMuralRoute()">
-          <i class="fa-regular fa-image fa-xl" style="color: #000000; font-size: 30px;"></i>
+          <i class="fa-regular fa-image fa-xl" [ngStyle]="{'font-size':fontSizeBig, 'color':'black'}"></i>
           <!-- <i class="fa-solid fa-people-group"></i> -->
         </a>
       </div>
       <div class="d-flex justify-content-end me-3">
-        <a routerLink="/me" class="icon-link mx-1" [class.active]="this.isProfileRoute()">
-          <i class="fa-solid fa-user" style="color: #000000;font-size:30px"></i>
-        </a>
         <a class="icon-link ms-1" (click)="logout()" *ngIf="showLogout">
-          <i class="fa-solid fa-right-from-bracket" style="color: #000000; font-size: 30px;"></i>
+          <i class="fa-solid fa-right-from-bracket" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
         </a>
       </div>
     </div>
@@ -30,19 +23,19 @@
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
           <a [routerLink]="[urlStart, 'home']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute()">
-            <i class="fa-solid fa-house" style="color: #000000; font-size: 30px;"></i>
+            <i class="fa-solid fa-house" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
           </a>
           <!--house icon / back arrow from category. Leads to /murals-->
           <a [routerLink]="[urlStart]" [routerLinkActiveOptions]="{ exact: true }" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute()">
-            <i class="fa-solid fa-house" style="color: #000000;font-size: 30px;" *ngIf="!isMuralRouteCategory() && !isMuralRouteSelected()"></i>
-            <i class="fa-solid fa-arrow-left fa-2xl" style="color: #000000;font-size: 30px;" *ngIf="isMuralRouteCategory() || isMuralRouteSelected()"></i>
+            <i class="fa-solid fa-house" [ngStyle]="{'font-size':fontSize, 'color':'black'}" *ngIf="!isMuralRouteCategory() && !isMuralRouteSelected()"></i>
+            <i class="fa-solid fa-arrow-left fa-2xl" [ngStyle]="{'font-size':fontSize, 'color':'black'}" *ngIf="isMuralRouteCategory() || isMuralRouteSelected()"></i>
           </a>
           <!--house icon inside selected mural, leads to /murals/id/dashboard-->
           <a [routerLink]="[urlStart, 'dashboard']" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute() && this.isMuralRouteSelected()">
-            <i class="fa-solid fa-house" style="color: #000000;font-size: 30px;"></i>
+            <i class="fa-solid fa-house" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
           </a>
           <a [routerLink]="[urlStart, 'activities']"  [routerLinkActive]="'active'" style="color: black;" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
-            <i class="fa-solid fa-list" [ngStyle]="{'font-size':'40px'}" *ngIf="!isRouteStudy() && !isRouteCompare()"></i>
+            <i class="fa-solid fa-list" [ngStyle]="{'font-size':fontSizeBig, 'color':'black'}" *ngIf="!isRouteStudy() && !isRouteCompare()"></i>
             <img src="../assets/study.svg" class="v-75 w-75" *ngIf="isRouteStudy()">
             <img src="../assets/compare.svg" class="v-100 w-100" *ngIf="isRouteCompare()">
           </a>
@@ -50,14 +43,17 @@
             <img src="../assets/map.svg" class="h-60 w-60">
           </a>
           <a [routerLink]="[urlStart, 'settings']" [routerLinkActive]="'active'" class="icon-link" *ngIf="this.isMuralRouteSelected()">
-            <i class="fa-solid fa-gear" [ngStyle]="{'font-size':'40px', 'color':'black'}"></i>
+            <i class="fa-solid fa-gear" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
+          </a>
+          <a routerLink="/me" class="icon-link" [class.active]="this.isProfileRoute()" *ngIf="this.isPrivateRoute()">
+            <i class="fa-solid fa-user" [ngStyle]="{'font-size':fontSizeBig, 'color':'black'}"></i>
           </a>
         </li>
       </ul>
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
           <a (click)="fileInput.click()" class="icon-link">
-            <i class="fa-solid fa-upload" style="color: #000000;font-size: 30px;"></i>
+            <i class="fa-solid fa-upload" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
           </a>
           <input type="file" #fileInput style="display: none" (change)="uploadFile($event)">
           <a (click)="linkWithStrava()" class="icon-link">

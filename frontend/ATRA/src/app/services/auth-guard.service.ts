@@ -21,6 +21,7 @@ export class AuthGuard implements CanActivate {
         this.alertService.loaded()
         if (isLoggedIn) return true
         this.auth.setRedirectUrl(state.url); // Store the attempted URL for redirecting after login
+        this.alertService.toastInfo("You need to log in to access this resource")
         return this.router.createUrlTree(['']); //new RedirectCommand(this.router.createUrlTree(['']));
       })
     )

@@ -19,6 +19,8 @@ export class AppComponent implements OnInit{
   showSideBar: boolean = true;
   urlStart: string = '/me';
   showLogout: boolean = false;
+  fontSize: string = '30px'
+  fontSizeBig: string = '40px'
 
   constructor(private location:Location, private router: Router, private activityService: ActivityService, private alertService: AlertService, private authService:AuthService){}
 
@@ -56,7 +58,7 @@ export class AppComponent implements OnInit{
   }
 
   isProfileRoute(){return this.router.url==("/me")}
-  isPrivateRoute(){return this.router.url.startsWith("/me/")}
+  isPrivateRoute(){return this.router.url.startsWith("/me")}
   isMuralRoute(){return this.location.path().startsWith("/murals")}
   isMuralRouteSelected() {return this.location.path().startsWith("/murals/") && this.location.path().split("/").length>3}
   isMuralRouteCategory() {return this.location.path().startsWith("/murals/") && this.location.path().split("/").length==3}
