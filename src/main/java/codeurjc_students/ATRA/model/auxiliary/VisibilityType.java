@@ -16,6 +16,15 @@ public enum VisibilityType {
         return intValue;
     }
 
+    public String getShortName() {
+        return switch (intValue) {
+            case 0 -> "PR";
+            case 1 -> "MS";
+            case 2 -> "MP";
+            default -> "PU";
+        };
+    }
+
     public boolean isSameScopeAs(VisibilityType other) {
         return this.intValue == other.intValue;
     }

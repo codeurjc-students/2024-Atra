@@ -64,30 +64,29 @@ public class ActivityService implements ChangeVisibilityInterface{
 			gpx = GPX.Reader.DEFAULT.read(file.getInputStream());
         } catch (IOException e) {throw new RuntimeException(e);}
 
-		return newActivity(gpx, username);
+		return newActivity(gpx, username, true);
     }
 
 	@Transactional
-	public Activity newActivity(Path path, String username){
+	public Activity newActivity(Path path, String username, boolean saveToUser){
 		GPX gpx;
         try {
 			gpx = GPX.read(path);
 		} catch (IOException e) {
             throw new RuntimeException(e);
         }
-		return newActivity(gpx, username);
+		return newActivity(gpx, username, saveToUser);
     }
 
-	private Activity newActivity(GPX gpx, String username){
+	private Activity newActivity(GPX gpx, String username, boolean saveToUser){
 		Track track = gpx.getTracks().get(0);
 		List<WayPoint> pts = track.getSegments().get(0).getPoints();
 
 
 		Activity activity = new Activity();
 		//set user
-		Optional<User> userOpt = userService.findByUserName(username);
-		if (userOpt.isEmpty()) return null; //or throw exception caught above
-		activity.setUser(userOpt.get());
+		User user = userService.findByUserName(username).orElseThrow(()->new HttpException(404, "User not found"));
+		activity.setUser(user);
 
 
 		//process the metadata
@@ -101,8 +100,10 @@ public class ActivityService implements ChangeVisibilityInterface{
 		}
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
 		activityRepository.save(activity);
-		userOpt.get().addActivity(activity);
-		userService.save(userOpt.get());
+		if (saveToUser) {
+			user.addActivity(activity);
+			userService.save(user);
+		}
 		return activity;
 	}
 
