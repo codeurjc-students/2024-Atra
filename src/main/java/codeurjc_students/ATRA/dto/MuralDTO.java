@@ -42,12 +42,6 @@ public class MuralDTO {
 		mural.getMembers().forEach(user -> {
 			this.members.add(new BasicNamedId(user.getId(), user.getName()));
 		});
-		mural.getActivities().forEach(activity -> {
-			this.activities.add(new BasicNamedId(activity.getId(), activity.getName()));
-		});
-		mural.getRoutes().forEach(route -> {
-			this.routes.add(new BasicNamedId(route.getId(), route.getName()));
-		});
 	}
 
     public static List<MuralDTO> toDto(Collection<Mural> murals) {

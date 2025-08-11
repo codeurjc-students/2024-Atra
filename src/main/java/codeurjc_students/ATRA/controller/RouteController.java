@@ -50,14 +50,14 @@ public class RouteController {
         return ResponseEntity.ok(ActivityOfRouteDTO.toDto(route.getActivities()));
     }
     @GetMapping
-    public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(Principal principal, @RequestParam(name="type", required = false) String type, @RequestParam(name="mural", required = false) String muralId){
+    public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(Principal principal, @RequestParam(name="type", required = false) String type, @RequestParam(name="mural", required = false) Long muralId){
         //probably could/should add some authentication, but for now this works
         User user = principalVerification(principal);
 
         List<Route> routes;
         if (muralId==null) routes = routeService.findVisibleTo(user);
         else {
-            Mural mural = muralService.findById(Long.parseLong(muralId)).orElseThrow(() -> new HttpException(404, "Requested mural doesn't exist"));
+            Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Requested mural doesn't exist"));
             routes = routeService.findVisibleTo(mural);
         }
         if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes)); //ideally we'd just return Routes, but we kinda can't
@@ -162,7 +162,8 @@ public class RouteController {
     @PatchMapping("/visibility/mural")
     public ResponseEntity<String> makeRoutesNotVisibleToMural(Principal principal, @RequestParam("id") Long muralId, @RequestBody List<Long> selectedRoutesIds) {
         User user = principalVerification(principal);
-        Mural mural = muralService.findById(muralId).orElseThrow(()-> new HttpException(404, "Mural not found"));
+        if (!muralService.exists(muralId)) throw new HttpException(404, "Mural not found");
+
         List<Route> routes = routeService.findById(selectedRoutesIds);
         routes.forEach(route -> {
             if (!route.getVisibility().isMuralSpecific()) return;
@@ -170,8 +171,6 @@ public class RouteController {
             route.getVisibility().removeMural(muralId);
 
             routeService.save(route);
-            mural.removeRoute(route);
-            muralService.save(mural);
         });
         return ResponseEntity.ok().build();
     }

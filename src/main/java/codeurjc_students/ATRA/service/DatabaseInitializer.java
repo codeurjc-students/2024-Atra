@@ -6,9 +6,12 @@ import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.context.event.EventListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +36,8 @@ public class DatabaseInitializer {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional
     public void init() throws IOException {
         //smolInit();
         beegInit();
@@ -96,7 +100,8 @@ public class DatabaseInitializer {
         userService.save(user);
         userService.save(user2);
     }
-    private void beegInit() {
+    @Transactional
+    public void beegInit() {
 
         //<editor-fold desc="Users">
         User admin = new User("admin", passwordEncoder.encode("admin"));
@@ -167,9 +172,7 @@ public class DatabaseInitializer {
             activity.setName("act" + i +" "+ asd.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
             activity.setUser(asd);
             activityService.save(activity);
-            asd.addActivity(activity);
         }
-        userService.save(asd);
         //</editor-fold>
         System.out.println("asd Activities set");
         //<editor-fold desc="set qwe activities">
@@ -183,9 +186,7 @@ public class DatabaseInitializer {
             activity.setName("act " + i + qwe.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
             activity.setUser(qwe);
             activityService.save(activity);
-            qwe.addActivity(activity);
         }
-        userService.save(qwe);
         //</editor-fold>
         System.out.println("qwe Activities set");
         //<editor-fold desc="set zxc activities">
@@ -199,9 +200,7 @@ public class DatabaseInitializer {
             activity.setName("act " + i + zxc.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
             activity.setUser(zxc);
             activityService.save(activity);
-            zxc.addActivity(activity);
         }
-        userService.save(zxc);
         //</editor-fold>
         System.out.println("zxc Activities set");
         //<editor-fold desc="set userx activities">
@@ -224,77 +223,69 @@ public class DatabaseInitializer {
 
         //<editor-fold desc="Routes">
         //<editor-fold desc="asd routes>
-        Route route = routeService.newRoute(asd.getActivities().get(0), activityService);
+        Route route = routeService.newRoute(activityService.findByUser(asd).get(0), activityService);
         route.changeVisibilityTo(VisibilityType.PUBLIC);
         route.setOwner(null);
         route.setName("r1 asd (PU)");
-        Activity extraActivity = qwe.getActivities().get(0);
-        route.addActivity(extraActivity);
+        Activity extraActivity = activityService.findByUser(qwe).get(0);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
-        route = routeService.newRoute(asd.getActivities().get(1), activityService);
+        route = routeService.newRoute(activityService.findByUser(asd).get(1), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId(), qweMural.getId(), zxcMural.getId()));
         route.setName("r2 asd (MS)");
-        extraActivity = qwe.getActivities().get(1);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(qwe).get(1);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
 
-        route = routeService.newRoute(asd.getActivities().get(2), activityService);
+        route = routeService.newRoute(activityService.findByUser(asd).get(2), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 asd (MS)");
         routeService.save(route);
 
-        route = routeService.newRoute(asd.getActivities().get(3), activityService);
+        route = routeService.newRoute(activityService.findByUser(asd).get(3), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 asd (MS)");
-        extraActivity = asd.getActivities().get(4);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(asd).get(4);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
 
-        extraActivity = asd.getActivities().get(6);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(asd).get(6);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
         //</editor-fold>
         //<editor-fold desc = qwe routes>
-        route = routeService.newRoute(qwe.getActivities().get(0), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(0), activityService);
         route.changeVisibilityTo(VisibilityType.PUBLIC);
         route.setOwner(null);
         route.setName("r1 qwe (PU)");
-        extraActivity = zxc.getActivities().get(0);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(zxc).get(0);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
-        route = routeService.newRoute(qwe.getActivities().get(1), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(1), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId(), qweMural.getId(), zxcMural.getId()));
         route.setName("r2 qwe (MS)");
-        extraActivity = zxc.getActivities().get(1);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(zxc).get(1);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
 
-        route = routeService.newRoute(qwe.getActivities().get(2), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(2), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 qwe (MS)");
         routeService.save(route);
 
-        route = routeService.newRoute(qwe.getActivities().get(3), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(3), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 qwe (MS)");
-        extraActivity = qwe.getActivities().get(4);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(qwe).get(4);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
 
-        extraActivity = qwe.getActivities().get(5);
-        route.addActivity(extraActivity);
+        extraActivity = activityService.findByUser(qwe).get(5);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);

@@ -57,17 +57,20 @@ public class ActivityController {
         User user = principalVerification(principal);
 
         if (from==null || "authUser".equals(from))
-            return ResponseEntity.ok(ActivityDTO.toDto(user.getActivities()));
+            return ResponseEntity.ok(ActivityDTO.toDto(activityService.findByUser(user)));
         if (id==null) throw new HttpException(400, "Requested activities from a specific user/mural without providing their id");
         if ("mural".equals(from)) {
             Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
             if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
-            return ResponseEntity.ok(ActivityDTO.toDto(mural.getActivities()));
+            return ResponseEntity.ok(ActivityDTO.toDto(activityService.findVisibleTo(mural)));
         }
         if ("user".equals(from)) //this is currently not in use.
             return ResponseEntity.ok(
-                    ActivityDTO.toDto(userService.findById(id).orElseThrow(()->new HttpException(404, "User not found"))
-                            .getActivities().stream().filter(activity -> activity.getVisibility().isPublic()).toList()));
+                    ActivityDTO.toDto(
+                            activityService.findByUser(
+                                userService.findById(id).orElseThrow(()->new HttpException(404, "User not found"))
+                            ).stream().filter(activity -> activity.getVisibility().isPublic()).toList())
+                    );
         throw new HttpException(400, "Activities requested from an unknown/unhandled entity: " + from);
     }
 
@@ -156,7 +159,6 @@ public class ActivityController {
                 activity.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, memberMuralIds);
             }
             activityService.save(activity);
-            mural.removeActivity(activity);
             muralService.save(mural);
         });
         return ResponseEntity.ok().build();
@@ -167,7 +169,7 @@ public class ActivityController {
         User user = principalVerification(principal);
         Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
         Collection<ActivityDTO> result = new ArrayList<>();
-        user.getActivities().forEach(activity -> {
+        activityService.findByUser(user).forEach(activity -> {
             if (activityService.isVisibleToMural(activity, mural)) result.add(new ActivityDTO(activity));
         });
 

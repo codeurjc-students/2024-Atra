@@ -40,16 +40,6 @@ public class Mural implements NamedId {
 	@JoinTable(name = "banned_user_mural", joinColumns = @JoinColumn(name="mural_id"), inverseJoinColumns = @JoinColumn(name="user_id"))
 	private List<User> bannedUsers = new ArrayList<>();
 
-	@ToString.Exclude
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "activity_mural", joinColumns =  @JoinColumn(name="mural_id"), inverseJoinColumns =  @JoinColumn(name="activity_id"))
-	private List<Activity> activities = new ArrayList<>();;
-
-	@ToString.Exclude
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "route_mural", joinColumns =  @JoinColumn(name="mural_id"), inverseJoinColumns =  @JoinColumn(name="route_id"))
-	private List<Route> routes = new ArrayList<>();
-
 	@Lob
 	private byte[] thumbnail;
 	@Lob
@@ -60,7 +50,6 @@ public class Mural implements NamedId {
 		this.members.add(owner);
 		this.name = owner.getName() + "'s Mural";
 		this.description = "A mural created by " + owner.getName();
-		populateActivities();
 	}
 
 	public Mural(User owner, Collection<User> members) {
@@ -71,7 +60,6 @@ public class Mural implements NamedId {
 		this.members.add(owner);
 		this.name = owner.getName() + "'s Mural";
 		this.description = "A mural created by " + owner.getName();
-		populateActivities();
 	}
 
 	public Mural(String name, User owner, Collection<User> members) {
@@ -82,7 +70,6 @@ public class Mural implements NamedId {
 		});
 		this.members.add(owner);
 		this.description = "A mural created by " + owner.getName();
-		populateActivities();
 	}
 
 	public Mural(String name, String description, User owner, VisibilityType visibility, byte[] thumbnail, byte[] banner) {
@@ -93,14 +80,6 @@ public class Mural implements NamedId {
 		this.visibility = visibility;
 		this.thumbnail = thumbnail;
 		this.banner = banner;
-		populateActivities();
-	}
-	public void removeActivity(Activity activity) {
-		this.activities.remove(activity);
-	}
-
-	public void removeRoute(Route route) {
-		routes.remove(route);
 	}
 
 	public void removeOwner(User user, User inheritor)  {
@@ -114,33 +93,10 @@ public class Mural implements NamedId {
 	public void removeMember(User user)  {
 		if (members.size()==1) throw new RuntimeException("removeMember called with only one member remaining. delete should be called instead.");
 		members.remove(user);
-		activities.removeIf(activity -> activity.getUser().getId().equals(user.getId()));
-	}
-
-	private void populateActivities(){
-		if (this.members==null) return;
-		this.members.forEach(user -> { //this just gives the activities public or muralPublic activities (since the mural doesn't exist so its id isn't in any lists)
-			activities.addAll(user.getActivities().stream().filter(activity -> activity.getVisibility().isVisibleByMural(this.id)).toList());
-		});
-	}
-
-	public void updateActivities() {
-		//recalculates all activities. Should be called every once in a while to make sure we're up to date
-		activities.clear();
-		populateActivities();
-	}
-
-	public void addActivity(Activity activity) {
-		this.activities.add(activity);
 	}
 
 	public void addMember(User user) {
 		members.add(user);
-		activities.addAll(user.getActivities().stream().filter(activity -> activity.getVisibility().isVisibleByMural(this.id)).toList());
-	}
-
-	public void addRoute(Route route) {
-		routes.add(route);
 	}
 
 	public void banUser(User user) {

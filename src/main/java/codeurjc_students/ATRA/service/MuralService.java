@@ -6,10 +6,8 @@ import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.MuralRepository;
 import codeurjc_students.ATRA.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PatchMapping;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,9 +59,6 @@ public class MuralService {
 		//generate code
 
 		muralRepository.save(mural);
-		User owner = mural.getOwner();
-		owner.getOwnedMurals().add(mural);
-		userRepository.save(owner);
 		mural.getMembers().forEach(user -> {
 			user.getMemberMurals().add(mural);
 			userRepository.save(user);
@@ -107,9 +102,7 @@ public class MuralService {
 			User newOwner = userRepository.findById(Long.parseLong(newOwnerString)).orElseThrow(() -> new HttpException(404, "User not found, can't change owner"));
 			if (!mural.getMembers().contains(newOwner)) throw new HttpException(422, "New owner is not a member of the mural. Cannot transfer ownership");
 			User previousOwner = mural.getOwner();
-			previousOwner.removeOwnedMural(mural);
 			mural.setOwner(newOwner);
-			newOwner.addOwnedMural(mural);
 			userRepository.save(previousOwner);
 			userRepository.save(newOwner);
 		}
@@ -117,4 +110,8 @@ public class MuralService {
 
 
 	}
+
+    public Collection<Mural> findOwnedBy(User user) {
+		return muralRepository.findByOwner(user);
+    }
 }

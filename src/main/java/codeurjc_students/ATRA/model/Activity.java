@@ -29,31 +29,23 @@ public class Activity implements NamedId {
 	private Instant startTime;
 	private Visibility visibility = new Visibility();
 
-	@ElementCollection
+	@ElementCollection // maybe should be (fetch = FetchType.EAGER) to avoid issues with lazy loading
 	@OrderColumn(name = "position")
 	private List<DataPoint> dataPoints = new ArrayList<>();
 
 	@ToString.Exclude
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private User user;
 
 	@ToString.Exclude
-	@ManyToOne(optional = true, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Route route;
-
-	@ToString.Exclude
-	@ManyToMany(mappedBy = "activities", fetch = FetchType.LAZY)
-	private List<Mural> murals;
 
 	public void addDataPoint(DataPoint dataPoint) {
 		dataPoints.add(dataPoint);
 	}
 
 	public boolean hasRoute(){ return route!=null;}
-
-	public void removeMural(Mural mural) {
-		murals.remove(mural);
-	}
 
 	public void removeRoute() {
 		route = null;

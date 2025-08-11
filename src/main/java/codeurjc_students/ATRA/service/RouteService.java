@@ -4,6 +4,7 @@ import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.*;
 import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.ATRA.repository.ActivityRepository;
 import codeurjc_students.ATRA.repository.RouteRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,12 @@ import java.util.*;
 public class RouteService implements ChangeVisibilityInterface{
 
 	@Autowired
-	private RouteRepository repository;
+	private RouteRepository routeRepository;
+	@Autowired
+	private ActivityRepository activityRepository;
 
 	public Optional<Route> findById(long id) {
-		return repository.findById(id);
+		return routeRepository.findById(id);
 	}
 
 	public List<Route> findById(List<Long> ids) {
@@ -31,15 +34,15 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public boolean exists(long id) {
-		return repository.existsById(id);
+		return routeRepository.existsById(id);
 	}
 
 	public List<Route> findAll() {
-		return repository.findAll();
+		return routeRepository.findAll();
 	}
 
 	public void save(Route user) {
-		repository.save(user);
+		routeRepository.save(user);
 	}
 
 	/**
@@ -47,10 +50,10 @@ public class RouteService implements ChangeVisibilityInterface{
 	 * @param id
 	 */
 	void delete(long id) {
-		repository.deleteById(id);
+		routeRepository.deleteById(id);
 	}
 
-    public void removeActivityFromRoute(Activity activity, Route route) {
+	public void removeActivityFromRoute(Activity activity, Route route) {
 		if (route==null) return;
 		route.removeActivity(activity);
 		save(route);
@@ -81,7 +84,6 @@ public class RouteService implements ChangeVisibilityInterface{
 			route.setElevationGain(activityService.elevationGain(activity));
 		}
 
-		route.addActivity(activity);
 		route.setId(null);
 		this.save(route);
 
@@ -92,16 +94,13 @@ public class RouteService implements ChangeVisibilityInterface{
 
 	@Transactional
 	void addRouteToActivity(Route route, Activity activity, ActivityService activityService) {
-		if (route==null) {
-			throw new RuntimeException("Can't add nonexistent route to activity");
-		}
+		if (route==null) throw new RuntimeException("Can't add nonexistent route to activity");
 		if (route.getCoordinates()==null || route.getCoordinates().isEmpty()) {
 			route.setCoordinates(Coordinates.fromActivity(activity));
+			this.save(route);
 		}
 		activity.setRoute(route);
-		route.addActivity(activity);
 		activityService.save(activity);
-		this.save(route);
 	}
 
 	/**
@@ -114,7 +113,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		return changeVisibility(routeId,newVisibility,null);
 	}
 	public boolean changeVisibility(Long routeId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		Route route = repository.findById(routeId).orElseThrow(()->new HttpException(404));
+		Route route = routeRepository.findById(routeId).orElseThrow(()->new HttpException(404));
 		Visibility currentVis = route.getVisibility();
 		if (currentVis.isPublic()) throw new HttpException(422, "Cannot change visibility of a public route");
 
@@ -122,48 +121,26 @@ public class RouteService implements ChangeVisibilityInterface{
 
 		if (newVisibility==VisibilityType.PRIVATE) {
 			User owner = route.getOwner();
-			if (route.getActivities().stream().anyMatch(activity -> !owner.getId().equals(activity.getUser().getId()))) {
+			if (activityRepository.findByRoute(route).stream().anyMatch(activity -> !owner.getId().equals(activity.getUser().getId()))) {
 				throw new HttpException(422, "Cannot change visibility of a route that other users are using.");
 			}
-		} else if (newVisibility==VisibilityType.MURAL_SPECIFIC) { //visibility increased
-			//add to all murals in allowedMurals ?? userMurals
-			route.getOwner().getMemberMurals().forEach(mural -> {
-				if (allowedMurals.contains(mural.getId()) && !route.getVisibility().getAllowedMurals().contains(mural.getId()))
-					mural.addRoute(route);
-				if (!allowedMurals.contains(mural.getId()) && route.getVisibility().getAllowedMurals().contains(mural.getId()))
-					mural.removeRoute(route);
-				//haría falta guardarlos con muralService.save(mural), no?
-				//potencialmente se podría usar
-				//@PersistenceContext
-				//  private EntityManager entityManager;
-				// entityManager.flush()
-			});
-
 		} else if (newVisibility == VisibilityType.PUBLIC) {
 			route.setOwner(null);
 		}
 		route.changeVisibilityTo(newVisibility, allowedMurals);
-		repository.save(route);
+		routeRepository.save(route);
 		return true;
 	}
 
 	public List<Route> findVisibleTo(User user) {
 		Set<Route> routes = new HashSet<>(user.getCreatedRoutes()); //your own
-		routes.addAll(repository.findByVisibilityType(VisibilityType.PUBLIC)); //public ones
-		if (user.hasRole("ADMIN")) routes.addAll(repository.findByVisibilityType(VisibilityType.MURAL_SPECIFIC)); //and semi-public ones if admin
+		routes.addAll(routeRepository.findByVisibilityType(VisibilityType.PUBLIC)); //public ones
+		if (user.hasRole("ADMIN")) routes.addAll(routeRepository.findByVisibilityType(VisibilityType.MURAL_SPECIFIC)); //and semi-public ones if admin
 		return new ArrayList<>(routes);
 	}
 
 	public List<Route> findVisibleTo(Mural mural) {
-		List<Route> visibleToMural = repository.findVisibleToMural(mural.getId());
-		Set<Route> routes = new HashSet<>(mural.getRoutes());
-		routes.addAll(repository.findByVisibilityType(VisibilityType.PUBLIC));
-		List<Route> returnValue = new ArrayList<>(routes);
-		if (!returnValue.equals(visibleToMural)) throw new RuntimeException("Custom query and manual fetch disagree");
-		//findVisibleToMural is a custom query. It should do the same thing as the rest of the code does
-		// if its result disagrees with returnValue, it should be checked.
-		// If it consistently returns the correct data, then it should be used instead of calculating it manually. And potentially consider doing the same thing with findVisibleTo(User)
-		return returnValue;
+        return routeRepository.findVisibleToMural(mural.getId());
 	}
 
 	public boolean isVisibleBy(Route route, User user) {
@@ -173,7 +150,6 @@ public class RouteService implements ChangeVisibilityInterface{
     }
 
 	public boolean isVisibleBy(Route route, Mural mural) {
-		return (route.getVisibility().isPublic())
-				|| mural.getRoutes().contains(route);
+		return route.getVisibility().isVisibleByMural(mural.getId());
 	}
 }

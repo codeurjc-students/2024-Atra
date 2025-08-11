@@ -5,6 +5,7 @@ import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +27,10 @@ public class DeletionService {
         if (user==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
 
         //this should happen automatically with cascade.
-        user.getActivities().forEach(activity -> {
+        activityService.findByUser(user).forEach(activity -> {
             activityService.delete(activity.getId());
         });
-        user.getOwnedMurals().forEach(mural -> {
+        muralService.findOwnedBy(user).forEach(mural -> {
             mural.removeOwner(user, null);
             muralService.save(mural);
         });
@@ -46,20 +47,7 @@ public class DeletionService {
     }
 
     public void deleteActivity(long id) {
-        Optional<Activity> activityOpt = activityService.findById(id);//.orElse(null);
-        if (activityOpt.isEmpty()) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
-        Activity activity = activityOpt.get();
-        activity.getUser().removeActivity(activity);  //we're assuming activity.user is not null, which it must not be
-        userService.save(activity.getUser());
-
-        activity.getMurals().forEach(mural -> {
-            mural.removeActivity(activity);
-            muralService.save(mural);
-        });
-        if (activity.hasRoute()) {
-            activity.getRoute().removeActivity(activity);
-            routeService.save(activity.getRoute());
-        }
+        if (!activityService.exists(id)) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
         activityService.delete(id);
     }
 
@@ -67,19 +55,10 @@ public class DeletionService {
         Route route = routeService.findById(id).orElse(null);
         if (route==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
 
-        route.getActivities().forEach(activity -> {
+        activityService.findByRoute(route).forEach(activity -> {
             activity.removeRoute();
             activityService.save(activity);
         });
-        Visibility visibility = route.getVisibility();
-        if (visibility.isMuralSpecific()) {
-            for (Long muralId : visibility.getAllowedMurals()) {
-                Mural mural = muralService.findById(muralId).orElse(null);
-                if (mural==null) continue;
-                mural.removeRoute(route);
-                muralService.save(mural);
-            }
-        }
 
         routeService.delete(id);
     }
@@ -87,23 +66,24 @@ public class DeletionService {
     public void deleteMural(long id) {
         Mural mural = muralService.findById(id).orElse(null);
         if (mural==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
-        mural.getOwner().removeOwnedMural(mural);
-        userService.save(mural.getOwner());
 
         mural.getMembers().forEach(user -> {
             user.removeMemberMural(mural);
             userService.save(user);
         });
-        mural.getActivities().forEach(activity -> {
-            activity.removeMural(mural);
-            activityService.save(activity);
+        activityService.findVisibleTo(mural).forEach(activity -> {
+            Visibility visibility = activity.getVisibility();
+            if (visibility.isMuralSpecific()) {
+                visibility.removeMural(mural.getId());
+                activityService.save(activity);
+            }
         });
-        mural.getRoutes().forEach(route -> {
+        routeService.findVisibleTo(mural).forEach(route -> {
             Visibility visibility = route.getVisibility();
             if (visibility.isMuralSpecific()) {
                 visibility.removeMural(id);
+                routeService.save(route);
             }
-            routeService.save(route);
         });
         muralService.delete(id);
     }

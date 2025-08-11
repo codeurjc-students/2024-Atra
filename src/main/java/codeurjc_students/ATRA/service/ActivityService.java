@@ -3,9 +3,9 @@ package codeurjc_students.ATRA.service;
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.Mural;
+import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.ActivityRepository;
 import io.jenetics.jpx.GPX;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ActivityService implements ChangeVisibilityInterface{
@@ -100,10 +99,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		}
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
 		activityRepository.save(activity);
-		if (saveToUser) {
-			user.addActivity(activity);
-			userService.save(user);
-		}
+
 		return activity;
 	}
 
@@ -228,44 +224,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
 		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404));
-
-		HashSet<Long> allowedMurals = allowedMuralsCol == null ? new HashSet<>() : new HashSet<>(allowedMuralsCol);
-
-		VisibilityType prevType = activity.getVisibility().getType();
 		activity.changeVisibilityTo(newVisibility, allowedMuralsCol);
-		//now we have to check ALL places where that activity could have been/could be now, to update them
-		if (newVisibility.isLessPublicThan(prevType)) { //visibility decreased
-			//delete all not in allowedMurals
-			activity.getUser().getMemberMurals().forEach(mural -> {
-				if (!allowedMurals.contains(mural.getId())) {
-					mural.removeActivity(activity);
-				}
-			});
-		} else if (newVisibility.isMorePublicThan(prevType)) { //visibility increased
-			//add to all murals in allowedMurals ?? userMurals
-			if (allowedMurals.isEmpty()) { //if allowedMurals is empty, add all murals
-				activity.getUser().getMemberMurals().forEach(mural -> {
-					if (!mural.getActivities().contains(activity))
-						mural.addActivity(activity);
-				});
-			} else { //if allowedMurals has murals, only add to those
-				activity.getUser().getMemberMurals().forEach(mural -> {
-					if (allowedMurals.contains(mural.getId()))
-						mural.addActivity(activity);
-				});
-			}
-		} else { //same visibility, changes to allowed_murals
-			if (newVisibility==VisibilityType.MURAL_SPECIFIC) {
-				Collection<Long> allowedMuralsActivity = activity.getVisibility().getAllowedMurals();
-				activity.getUser().getMemberMurals().forEach(mural -> {
-					if (!allowedMurals.contains(mural.getId()) && allowedMuralsActivity.contains(mural.getId()))
-						mural.removeActivity(activity);
-					else if (allowedMurals.contains(mural.getId()) && !allowedMuralsActivity.contains(mural.getId())) {
-						mural.addActivity(activity);
-					}
-				});
-			}
-		}
 		activityRepository.save(activity);
 		return true;
 	}
@@ -274,7 +233,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return getActivitiesFromUser(visibility, user, null);
 	}
 	public List<Activity> getActivitiesFromUser(VisibilityType visibility, User user, Long muralId) {
-		List<Activity> activities = user.getActivities();
+		List<Activity> activities = activityRepository.findByUser(user);
         return switch (visibility) {
             case PUBLIC -> activities.stream().filter(a -> a.getVisibility().isPublic()).toList();
             case MURAL_PUBLIC -> activities.stream().filter(a -> a.getVisibility().isMuralPublic()).toList();
@@ -308,5 +267,21 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 	public boolean isVisibleToUser(Activity activity, User user) {
 		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.hasRole("ADMIN") && !activity.getVisibility().isPrivate());
+	}
+
+    public Collection<Activity> findByVisibilityType(VisibilityType visibilityType) {
+		return activityRepository.findByVisibilityType(visibilityType);
+    }
+
+	public Collection<Activity> findVisibleTo(Mural mural) {
+		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
+	}
+
+	public Collection<Activity> findByRoute(Route route) {
+		return activityRepository.findByRoute(route);
+	}
+
+	public List<Activity> findByUser(User user) {
+		return activityRepository.findByUser(user);
 	}
 }

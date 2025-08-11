@@ -72,7 +72,7 @@ public class MuralController {
     public ResponseEntity<List<MuralDTO>> getMurals(Principal principal, @RequestParam(name = "type") String type){
         try {
             User user = principalVerification(principal);
-            if ("owned".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(user.getOwnedMurals()));
+            if ("owned".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(muralService.findOwnedBy(user)));
             else if ("member".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(user.getMemberMurals()));
             else if ("other".equals(type)) return ResponseEntity.ok(MuralDTO.toDto(muralService.findOther(user.getMemberMurals())));
             else throw new HttpException(500, "500 Internal Server Error: Unknown type for GET /api/murals");
@@ -121,7 +121,7 @@ public class MuralController {
         if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "User is not in Mural, thus, they can't access its activities");
         //user and mural both exists, and user is in the mural
         //now return the mural's activities
-        return ResponseEntity.ok(ActivityDTO.toDto(mural.getActivities()));
+        return ResponseEntity.ok(ActivityDTO.toDto(activityService.findVisibleTo(mural)));
     }
 
     @PostMapping("/join")
@@ -208,7 +208,7 @@ public class MuralController {
                 inheritor = a;
 
             }
-            user.removeOwnedMural(mural); //also removes from memberMurals
+            user.removeMemberMural(mural);
             mural.removeOwner(user, inheritor); //also removes from members
         } else {
             user.removeMemberMural(mural);

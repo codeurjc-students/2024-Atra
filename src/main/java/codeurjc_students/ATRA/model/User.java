@@ -30,21 +30,12 @@ public class User implements NamedId {
 	private String name;
 	private String email;
 
-	//private List<Route> ownedRoutes;
-
-	@ToString.Exclude
-	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-	private List<Mural> ownedMurals = new ArrayList<>();
 	@ToString.Exclude
 	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 	private List<Mural> memberMurals = new ArrayList<>();
 
 	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
 	private List<Route> createdRoutes = new ArrayList<>();
-
-	@ToString.Exclude
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY) //delete Activity if its User is deleted, twice over.
-	private List<Activity> activities = new ArrayList<>();
 
 	//<editor-fold desc="private List<String> roles">
 	@Column(name = "role")
@@ -66,27 +57,6 @@ public class User implements NamedId {
 		this.roles = List.of("USER");
 	}
 
-	public void addActivity(Activity activity) {
-		activities.add(activity);
-	}
-
-	//public void addActivity(Long id) {
-	//	activities.add(id);
-	//}
-
-	public boolean hasActivity(Activity activity) {
-		return activities.contains(activity);
-	}
-
-	public void removeActivity(Activity activity) {
-		activities.remove(activity);
-	}
-
-	public void removeOwnedMural(Mural mural) {
-		ownedMurals.remove(mural);
-		memberMurals.remove(mural);
-	}
-
 	public void removeMemberMural(Mural mural) {
 		memberMurals.remove(mural);
 		//maybe remove it from ownerMurals as well? This will need to be fleshed out when we get to murals
@@ -105,8 +75,4 @@ public class User implements NamedId {
 		createdRoutes.add(route);
 	}
 
-	public void addOwnedMural(Mural mural) {
-		if (!memberMurals.contains(mural)) throw new RuntimeException("User can't own a mural they're not part of");
-		ownedMurals.add(mural);
-	}
 }
