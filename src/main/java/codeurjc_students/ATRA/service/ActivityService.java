@@ -97,6 +97,10 @@ public class ActivityService implements ChangeVisibilityInterface{
 			//add each waypoint to activity
 			addWayPoint(activity, pt);
 		}
+		if (activity.getDataPoints().size()==0) {
+			System.out.println("Activity has no datapoints, it will not be saved");
+			return null;
+		}
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
 		activityRepository.save(activity);
 

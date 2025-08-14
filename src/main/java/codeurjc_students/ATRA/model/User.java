@@ -75,4 +75,7 @@ public class User implements NamedId {
 		createdRoutes.add(route);
 	}
 
+	public void removeRoute(Route r) {
+		createdRoutes.remove(r);
+	}
 }

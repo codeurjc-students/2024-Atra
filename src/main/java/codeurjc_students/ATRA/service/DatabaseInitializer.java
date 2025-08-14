@@ -6,6 +6,8 @@ import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -36,13 +38,43 @@ public class DatabaseInitializer {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() throws IOException {
+        emptyDB();
         //smolInit();
         beegInit();
     }
 
+    @Transactional
+    public void emptyDB() {
+        entityManager.flush();
+
+        // Disable FK checks
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
+
+        // Truncate all tables JPA manages
+        entityManager.createNativeQuery("TRUNCATE TABLE activities").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE activity_allowed_murals").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE activity_data_points").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE activity_mural").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE banned_user_mural").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE murals").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE route_allowed_murals").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE route_coordinates").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE route_mural").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE routes").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE user_mural").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE user_roles").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
+        // Add more tables as needed
+
+        // Re-enable FK checks
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
+    }
     private void smolInit() throws IOException {
         User user = new User("asd", passwordEncoder.encode("asd"));
         user.setName("pepito");

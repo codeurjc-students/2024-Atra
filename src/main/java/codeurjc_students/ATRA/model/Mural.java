@@ -82,6 +82,10 @@ public class Mural implements NamedId {
 		this.banner = banner;
 	}
 
+	public void removeOwner() {
+		removeMember(owner);
+		owner = members.get(0);
+	}
 	public void removeOwner(User user, User inheritor)  {
 		if (!owner.equals(user)) return;
 		removeMember(user);
@@ -101,5 +105,10 @@ public class Mural implements NamedId {
 
 	public void banUser(User user) {
 		bannedUsers.add(user);
+	}
+
+	public void setVisibility(VisibilityType visibilityType) {
+		if (visibilityType==VisibilityType.MURAL_PUBLIC || visibilityType==VisibilityType.MURAL_SPECIFIC) throw new IllegalArgumentException("VisibilityType for a mural must be PUBLIC or PRIVATE, not "+visibilityType);
+		this.visibility = visibilityType;
 	}
 }

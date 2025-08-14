@@ -164,10 +164,15 @@ export class ProfileComponent implements OnInit {
     this.alertService.alert('Sorry, this functionality is not available yet', 'Functionality not implemented')
   }
   deleteAccount(){
-    this.alertService.confirm('You are deleting this account. This action is irreversible. All your data and activities will be deleted. Routes and Murals you created will NOT be deleted. Are you sure you want to continue?', 'Warning! This action is irreversible', {accept:"Yes, I'm sure", cancel:"On second thought, maybe I shouldn't"}).subscribe({
-      next:(accepted:boolean)=>{ if (accepted)
-        this.alertService.inputConfirm("Type 'delete' and click 'delete account' to delete your account.", "Deleting Account", {accept:"delete account", cancel:"cancel"}, "delete").subscribe({
-          next:(answer)=>{
+    this.alertService.confirm(
+      'You are deleting this account. This action is irreversible.\n'+
+      'All your data and activities will be deleted.\nMurals you created will NOT be deleted. A random user will be selected to be the new owner. If you\'d rather select the owner manually, you can do so from the mural page.\n'+
+      'Private routes will be deleted, while Mural_Specific ones will be made public. If you don\'t want this to happen, you need to change their visibility to private before deleting your account.\n'+
+      'Are you sure you want to continue?', 'Warning! This action is irreversible', {accept:"Yes, I'm sure", cancel:"On second thought, maybe I shouldn't"}
+    ).subscribe(
+      (accepted:boolean)=>{ if (accepted)
+        this.alertService.inputConfirm("Type 'delete' and click 'delete account' to delete your account.", "Deleting Account", {accept:"delete account", cancel:"cancel"}, "delete").subscribe(
+          answer=>{
             if (!answer.accept) return this.alertService.alert("The operation was cancelled. Your account is still up.", "Operation cancelled")
             if (answer.text!=='delete') return this.alertService.toastWarning("The text typed does not match 'delete'. The operation was cancelled.", "Operation cancelled")
 
@@ -188,9 +193,9 @@ export class ProfileComponent implements OnInit {
               }
             })
           }
-        })
+        )
       }
-    })
+    )
   }
 
 }

@@ -66,9 +66,13 @@ public class MuralService {
 	}
 
 	public Collection<Mural> findOther(List<Mural> memberMurals) {
-		Set<Mural> hashSet = new HashSet<>(findAll());
+		Set<Mural> hashSet = new HashSet<>(findByVisibility(VisibilityType.PUBLIC));
 		memberMurals.forEach(hashSet::remove);
 		return hashSet.stream().filter(mural -> mural.getVisibility() == VisibilityType.PUBLIC).toList();
+	}
+
+	private Collection<Mural> findByVisibility(VisibilityType visibilityType) {
+		return muralRepository.findByVisibility(visibilityType);
 	}
 
 	public static byte[] getDefaultThumbnailBytes() {

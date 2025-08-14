@@ -45,8 +45,9 @@ public class MuralController {
         User user = principalVerification(principal);
 
         Mural mural = muralService.findById(id).orElseThrow(()->new HttpException(404, "Mural not found"));
-        MuralDTO result = new MuralDTO(mural);
+        if (!mural.getMembers().contains(user) || user.hasRole("ADMIN")) throw new HttpException(403, "Only members or admin can fetch a mural. User is not a member of specified mural");
 
+        MuralDTO result = new MuralDTO(mural);
         if (mural.getOwner().equals(user) || mural.getMembers().contains(user))  //delete second clause to only allow user to see the code
             result.setCode(mural.getCode());
         return ResponseEntity.ok(result);
@@ -191,6 +192,12 @@ public class MuralController {
         return ResponseEntity.ok(new MuralDTO(mural));
     }
 
+    @GetMapping("/{id}/isVisible")
+    public ResponseEntity<Boolean> isVisibleByAuthUser(Principal principal, @PathVariable Long id) {
+        User user = principalVerification(principal);
+        Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
+        return ResponseEntity.ok(user.getMemberMurals().contains(mural));
+    }
 
     private ResponseEntity<List<NamedId>> removeSpecifiedUserFromMural(Mural mural, User user, Long inheritorId) {
         if (!mural.getMembers().contains(user)) throw new HttpException(404, "User is not a member of specified mural");
@@ -213,6 +220,12 @@ public class MuralController {
         } else {
             user.removeMemberMural(mural);
             mural.removeMember(user);
+        }
+        for (Activity a : activityService.findByUser(user)) {
+            if (a.getVisibility().isMuralSpecific() && a.getVisibility().getAllowedMurals().contains(mural.getId())) {
+                a.getVisibility().removeMural(mural.getId());
+                if (a.getVisibility().getAllowedMurals().isEmpty()) a.changeVisibilityTo(VisibilityType.PRIVATE);
+            }
         }
 
         userService.save(user);

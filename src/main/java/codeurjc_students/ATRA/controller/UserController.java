@@ -5,10 +5,14 @@ import codeurjc_students.ATRA.dto.NewUserDTO;
 import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Mural;
+import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.ActivityService;
 import codeurjc_students.ATRA.service.DeletionService;
+import codeurjc_students.ATRA.service.MuralService;
 import codeurjc_students.ATRA.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +37,8 @@ public class UserController {
 	private UserService userService;
     @Autowired
 	private ActivityService activityService;
+    @Autowired
+    private MuralService muralService;
     @Autowired
     private DeletionService deletionService;
 
@@ -136,14 +143,21 @@ public class UserController {
 
     @DeleteMapping
     public ResponseEntity<User> deleteCurrentlyAuthenticatedUser(Principal principal){
-        try {
-            User user = this.principalVerification(principal);
+        User user = this.principalVerification(principal);
 
-            deletionService.deleteUser(user);
-            return ResponseEntity.ok().build();
-        } catch (HttpException e) {
-            return ResponseEntity.status(e.getStatus()).build();
+        for (Route r : new ArrayList<>(user.getCreatedRoutes())) {
+            if (r.getVisibility().isMuralSpecific() || r.getVisibility().isMuralPublic()) { //in theory, routes can't be mural public, but just in case
+                r.setVisibility(new Visibility(VisibilityType.PUBLIC));
+                r.setOwner(null);
+                user.removeRoute(r);
+            }
         }
+        for (Mural m: muralService.findOwnedBy(user)) {
+            m.removeOwner();
+        }
+        deletionService.deleteUser(user);
+        return ResponseEntity.ok().build();
+
     }
 
     // <editor-fold desc="Auxiliary Methods">

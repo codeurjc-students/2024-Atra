@@ -28,6 +28,7 @@ public class ActivitySummary {
         this.id = id;
         startTime = activity.getStartTime();
 
+        if (activity.getDataPoints().isEmpty()) throw new IllegalArgumentException("Activity datapoints can't be empty");
         Map<String, List<String>> streams = ActivityDTO.setUpStreams(activity.getDataPoints());
 
         totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
