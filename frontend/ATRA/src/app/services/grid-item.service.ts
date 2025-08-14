@@ -290,9 +290,9 @@ export class GridItemService {
 
           //add values to currentRow
           currentRow[columnNames.indexOf("Name")] = route.name;
-          currentRow[columnNames.indexOf("Distance")] = route.totalDistance + " km";
+          currentRow[columnNames.indexOf("Distance")] = FormattingService.formatDistance(route.totalDistance);
           currentRow[columnNames.indexOf("Efforts")] = activities.filter(a=> a.route?.id === route.id).length.toString(); //copilot suggested using ids. I'd've used the route itself, but considering there are different dtos, this is better
-          currentRow[columnNames.indexOf("Best Time | By")] = `${FormattingService.formatTime(bestActivity.summary!.totalTime)} | ${bestActivity.user.name}`;
+          currentRow[columnNames.indexOf("Best Time | By")] = `${FormattingService.formatTime(bestActivity.summary!.totalTime, 1)} | ${bestActivity.user.name}`;
 
 
           routeValues.push(currentRow);

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 public class DatabaseInitializer {
@@ -45,7 +46,7 @@ public class DatabaseInitializer {
     @Transactional
     public void init() throws IOException {
         emptyDB();
-        //smolInit();
+        //smolInit(); //currently broken
         beegInit();
     }
 
@@ -76,6 +77,7 @@ public class DatabaseInitializer {
         entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
     }
     private void smolInit() throws IOException {
+        //<editor-fold desc="users">
         User user = new User("asd", passwordEncoder.encode("asd"));
         user.setName("pepito");
         userService.save(user);
@@ -89,6 +91,8 @@ public class DatabaseInitializer {
         userService.save(muralGuy);
 
         List<User> users = Arrays.asList(user,user2,muralGuy);
+        //</editor-fold>
+        //<editor-fold desc="activities">
         Map<String, Activity> activityMap = new HashMap<>();
         for (int i=0;i<20;i++) {
             Activity createdAct = activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), users.get(i%users.size()).getUsername(), true);
@@ -96,6 +100,8 @@ public class DatabaseInitializer {
             activityMap.put(createdAct.getName(),createdAct);
             muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
         }
+        //</editor-fold>
+        //<editor-fold desc="routes">
         boolean a = true;
         boolean b = true;
         Route routeA = null;
@@ -122,6 +128,8 @@ public class DatabaseInitializer {
             }
 
         }
+        //</editor-fold>
+        //<editor-fold desc="murals">
         for (int i = 0; i < 3; i++) {
             createMural("mural"+i, muralGuy, List.of(user2));
         }
@@ -131,6 +139,7 @@ public class DatabaseInitializer {
 
         userService.save(user);
         userService.save(user2);
+        //</editor-fold>
     }
     @Transactional
     public void beegInit() {
@@ -177,8 +186,14 @@ public class DatabaseInitializer {
         zxcMural.addMember(asd);
         zxcMural.addMember(qwe);
 
-        for (Mural mural : List.of(asdMural1, asdMural2, qweMural, zxcMural)) muralService.save(mural);
-        for (Mural mural : murals) muralService.save(mural);
+        for (Mural mural : Stream.concat(murals.stream(), Stream.of(asdMural1, asdMural2, qweMural, zxcMural)).toList()) {
+            try {
+                setThumbnailAndBanner(mural);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            muralService.newMural(mural);
+        }
         //</editor-fold>
 
         System.out.println("Murals initialized");
@@ -329,15 +344,17 @@ public class DatabaseInitializer {
     }
 
     private void createMural(String name, User owner, Collection<User> members) throws IOException {
+        Mural mural = name!=null ? new Mural(name, owner, members): new Mural(owner, members);
+        setThumbnailAndBanner(mural);
+        muralService.newMural(mural);
+    }
+
+    private void setThumbnailAndBanner(Mural mural) throws IOException {
         File file = new File("target/classes/static/defaultThumbnailImage.png");
         byte[] thumbnailBytes = Files.readAllBytes(file.toPath());
-        file = new File("target/classes/static/defaultBannerImage.png");
+        file = new File("target/classes/static/altBannerImage.png");
         byte[] bannerBytes = Files.readAllBytes(file.toPath());
-
-        Mural mural = name!=null ? new Mural(name, owner, members): new Mural(owner, members);
         mural.setBanner(bannerBytes);
         mural.setThumbnail(thumbnailBytes);
-
-        muralService.newMural(mural);
     }
 }

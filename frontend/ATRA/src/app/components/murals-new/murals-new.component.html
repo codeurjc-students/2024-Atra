@@ -11,7 +11,7 @@
         <small class="text-danger d-block" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">You must include a name for the Mural</small>
       </div>
       <div class="form-floating my-3">
-        <input type="text" name="description" id="description" placeholder="description" #description class="form-control" formControlName="description">
+        <textarea type="text" name="description" id="description" placeholder="description" #description class="form-control" formControlName="description"></textarea>
         <label for="description">Description</label>
       </div>
       <div class="my-3">
@@ -19,7 +19,6 @@
         <input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" formControlName="thumbnail" (change)="onFileSelected($event, 'thumbnail')">
         <small class="text-danger d-block" *ngIf="form.get('thumbnail')?.touched && form.get('thumbnail')?.errors?.['required']">You must include a thumbnail for the Mural</small>
         <small class="text-danger d-block" *ngIf="form.get('thumbnail')?.touched && form.get('thumbnail')?.errors?.['invalidFile']">The file must be an image with a 3:2 aspect ratio</small>
-
         <!--onSelect="checkImageHasProperAspectRatio()"-->
       </div>
       <div class="my-3">

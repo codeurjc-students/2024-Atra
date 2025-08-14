@@ -3,9 +3,9 @@ import { MuralService } from './../../services/mural.service';
 import { AlertService } from './../../services/alert.service';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Component({
@@ -28,36 +28,56 @@ export class MuralsNewComponent {
     this.form = this.fb.group({
       name: ['', Validators.required],
       description: [''],
-      thumbnail: [null, Validators.required],
-      banner: [null, Validators.required],
+      thumbnail: [null, Validators.required, [this.aspectRatioValidator(this.muralService, "thumbnail")]],
+      banner: [null, Validators.required, [this.aspectRatioValidator(this.muralService, "banner")]],
       visibility: ['PUBLIC', Validators.required]
     }, {
       updateOn: 'blur'
     });
+    this.form.get('banner')?.statusChanges.subscribe(s => {
+      console.log('banner', 'status:', s, 'errors:', this.form.get('banner')?.errors);
+    });
+    this.form.get('thumbnail')?.statusChanges.subscribe(s => {
+     console.log('thumbnail', 'status:', s, 'errors:', this.form.get('thumbnail')?.errors);
+    });
+
+  }
+
+  aspectRatioValidator(muralService: MuralService, type: "thumbnail" | "banner") {
+    return (): Observable<ValidationErrors| null> => {
+      const file = type=="banner"?this.bannerImage:this.thumbnailImage; // Create a temporary file object from the control value
+      if (!file) {
+        return of(null); // No file selected
+      }
+
+      return muralService.checkAspectRatio(file, type === "banner" ? 5/1 : 3/2).pipe(
+        map((isGood:boolean) => isGood ? null : { invalidFile: true }))
+    };
   }
 
   onFileSelected($event: Event, type: "thumbnail" | "banner") {
     const input = $event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      if (type=="banner") {
+        this.bannerImage = file;
+      } else if (type=="thumbnail") {
+        this.thumbnailImage = file;
+      }
+
       //validate it
-      //disable form submission until done
       this.muralService.checkAspectRatio(file, type=="banner"? 5/1 : 3/2).subscribe((isGood)=>{
         if (isGood) {
-          if (type=="banner") {
-            this.bannerImage = file;
-          } else if (type=="thumbnail") {
-            this.thumbnailImage = file;
-          }
-          this.form.get(type)?.setErrors(null)
+          //remove the invalidFile error, and only that one, by copying the errors, removing it, and setting it back if it has anything, or null if it's now empty
+          //would just be this.form.get(type)?.setErrors(null), but this overwrites any other errors there may be
+          const errors = { ...this.form.get(type)?.errors };
+          delete errors['invalidFile'];
+          this.form.get(type)?.setErrors(Object.keys(errors).length? errors : null);
         }
         else { //maybe should return them to null
-          setTimeout(()=>
-            this.form.get(type)?.setErrors({invalidFile:true})
-        );
+          this.form.get(type)?.setErrors({invalidFile:true})
           this.alertService.toastError("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
         }
-        //re-enable form submission
       })
     }
   }
@@ -98,3 +118,34 @@ export class MuralsNewComponent {
     });
   }
 }
+
+
+
+
+/*
+  onFileSelected($event: Event, type: "thumbnail" | "banner") {
+    const input = $event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      //validate it
+      //disable form submission until done
+      this.muralService.checkAspectRatio(file, type=="banner"? 5/1 : 3/2).subscribe((isGood)=>{
+        if (isGood) {
+          if (type=="banner") {
+            this.bannerImage = file;
+          } else if (type=="thumbnail") {
+            this.thumbnailImage = file;
+          }
+          this.form.get(type)?.setErrors(null)
+        }
+        else { //maybe should return them to null
+          setTimeout(()=>
+            this.form.get(type)?.setErrors({invalidFile:true})
+          );
+          this.alertService.toastError("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
+        }
+        //re-enable form submission
+      })
+    }
+  }
+*/

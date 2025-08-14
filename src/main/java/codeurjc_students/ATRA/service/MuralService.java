@@ -6,6 +6,7 @@ import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.repository.MuralRepository;
 import codeurjc_students.ATRA.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,10 @@ public class MuralService {
 		muralRepository.deleteById(id);
 	}
 
+	/**
+	 * Generates the mural code, and adds the mural to the memberList of all its member users
+	 * @param mural
+	 */
 	public void newMural(Mural mural) {
 		String code;
 		do {
@@ -54,15 +59,14 @@ public class MuralService {
 			code = parts[1] + "-" + parts[2] + "-" + parts[3];
 		} while (muralRepository.findByCode(code).isPresent()); //repeat until empty, to make sure it's not repeated
 		mural.setCode(code);
-		System.out.println(code);
 		muralRepository.save(mural);
 		//generate code
 
-		muralRepository.save(mural);
-		mural.getMembers().forEach(user -> {
+		for (var user: mural.getMembers()) {
 			user.getMemberMurals().add(mural);
-			userRepository.save(user);
-		});
+		}
+
+
 	}
 
 	public Collection<Mural> findOther(List<Mural> memberMurals) {

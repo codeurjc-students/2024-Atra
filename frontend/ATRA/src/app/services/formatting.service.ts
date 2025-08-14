@@ -16,7 +16,7 @@ export class FormattingService {
       return FormattingService.formatTime(value)//`${minutes}:${seconds.toFixed(0).padStart(2, '0')}`; // Format as mm:ss 1500 100 500
     }
 
-  static formatTime(seconds: number): string { //secsToHHMMSS
+  static formatTime(seconds: number, separator:number=0): string { //secsToHHMMSS
     //apparently new Date(seconds * 1000).toISOString().substring(11, 19) does the same thing, so long as total time is less than 24 hours
 
     // Total number of seconds in the difference
@@ -30,12 +30,30 @@ export class FormattingService {
 
     // Getting the number of minutes left in one hour
     const remMinutes = totalMinutes % 60;
+    if (separator === 0) {
+      const hoursString = totalHours != 0 ? totalHours.toString()+":":""
+      const minsString = (remMinutes < 10 && totalHours!=0) ? "0"+remMinutes.toString():remMinutes.toString()
+      const secsString = remSeconds < 10 ? "0"+remSeconds.toString():remSeconds.toString()
 
-    const hoursString = totalHours != 0 ? totalHours.toString()+":":""
-    const minsString = (remMinutes < 10 && totalHours!=0) ? "0"+remMinutes.toString():remMinutes.toString()
-    const secsString = remSeconds < 10 ? "0"+remSeconds.toString():remSeconds.toString()
+      return `${hoursString}${minsString}:${secsString}`
+    }
+    else if (separator === 1) {
+      const hoursString = totalHours != 0 ? totalHours.toString()+"h ":""
+      const minsString = remMinutes != 0 ? remMinutes.toString()+"m ":""
+      const secsString = remSeconds.toString()+"s"
 
-    return `${hoursString}${minsString}:${secsString}`
+      return `${hoursString}${minsString}${secsString}`
+    }
+    else if (separator === 2) {
+      const hoursString = totalHours != 0 ? totalHours.toString()+"h ":""
+      const minsString = remMinutes != 0 ? remMinutes.toString()+"' ":""
+      const secsString = remSeconds.toString()+"\""
+
+      return `${hoursString}${minsString}${secsString}`
+    }
+    else {
+      throw new Error(`Invalid separator value: ${separator}. Use 0 for HH:MM:SS or 1 for H:MM:SS.`)
+    }
   }
 
   static formatDateTime(dateTime: Date): string {
