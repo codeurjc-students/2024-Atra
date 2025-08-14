@@ -61,7 +61,7 @@ export class ActivityComponent implements OnInit {
       },
       error: (e) => {this.alertService.loaded();this.alertService.alert("There was an error fetching the activity. Try reloading the page.")}
     })
-    //this.fetchRoutes()
+    this.fetchRoutes()
   }
 
 
