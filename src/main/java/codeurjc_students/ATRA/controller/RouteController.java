@@ -179,6 +179,8 @@ public class RouteController {
     public ResponseEntity<Collection<RouteWithoutActivityDTO>> getRoutesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
         User user = principalVerification(principal);
         Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
+        if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Only mural members or an admin can access this data.");
+
         Collection<RouteWithoutActivityDTO> result = new ArrayList<>();
         user.getCreatedRoutes().forEach(route -> {
             if (routeService.isVisibleBy(route, mural)) result.add(new RouteWithoutActivityDTO(route));

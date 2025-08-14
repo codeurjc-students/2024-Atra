@@ -123,6 +123,9 @@ export class MuralsSettingsComponent implements OnInit {
   newDescription: string = '';
   changingOwner: boolean = true;
 
+  loadingActivities: boolean = false;
+  loadingRoutes: boolean = false;
+
   constructor(
     private userService: UserService,
     private activityService: ActivityService,
@@ -215,26 +218,32 @@ export class MuralsSettingsComponent implements OnInit {
   };
 
   reloadActivities() {
+    this.loadingActivities = true
     this.userService.getActivitiesInMural(this.id).subscribe({
       next: (data:any[]) => {
         // Process the data received from the service
+        this.loadingActivities = false
         console.log("Activities and routes in mural:", data);
         this.activityList = this.activityService.process(data)
       },
       error: (err) => {
+        this.loadingActivities = false
         console.error("Error fetching activities and routes in mural:", err);
       }
     })
   }
 
   reloadRoutes() {
+    this.loadingRoutes = true
     this.userService.getRoutesInMural(this.id).subscribe({
       next: (data:Route[]) => {
         // Process the data received from the service
+        this.loadingRoutes = false
         console.log("Activities and routes in mural:", data);
         this.routeList = data
       },
       error: (err) => {
+        this.loadingRoutes = false
         console.error("Error fetching activities and routes in mural:", err);
       }
     })

@@ -24,7 +24,17 @@
               <th *ngFor="let col of columns; last as isLast" [class.last-col]="isLast" class="position-sticky top-0">{{ col }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody *ngIf="!loading; else loadingTemplate">
+            <tr *ngIf="allRoutes==null || allRoutes.size == 0">
+              <td [attr.colspan]="columns.length+1" class="text-center">
+                No routes yet. You can create one by selecting a specific activity and creating a route from it.
+              </td>
+            </tr>
+            <tr *ngIf="shownRoutes.size == 0 && allRoutes!=null && allRoutes.size!=0">
+              <td [attr.colspan]="columns.length+1" class="text-center">
+                There are no routes in this category. You can check other categories by enabling them in the filter icon (<i class="fa-solid fa-filter"></i>) above.
+              </td>
+            </tr>
             <tr *ngFor="let x of shownRoutes | keyvalue" >
               <td class="first-col">
                 <input type="radio" name="routeGroup" class="form-check-input" [checked]="selectedRoute?.id===x.key" (change)="select(x.key)">
@@ -170,4 +180,16 @@
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss()">Cancel</button>
     <button type="button" class="btn btn-primary" (click)="changeVis()">Save</button>
   </div>
+</ng-template>
+
+
+<ng-template #loadingTemplate>
+  <tbody>
+    <tr>
+      <td [attr.colspan]="columns.length + 1" class="text-center">
+        <div class="spinner-border mt-4" role="status"></div>
+        <div class="mb-4">Loading routes...</div>
+      </td>
+    </tr>
+  </tbody>
 </ng-template>

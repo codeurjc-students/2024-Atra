@@ -19,6 +19,7 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
   selected: Set<number> = new Set();
   shouldSelectAll: boolean = true;
   urlStart: string = 'me';
+  @Input() loading: boolean = false;
 
   //When used as a main component, loadFrom should be used to have RouteSelect fetch its own activities
   @Input() loadFrom: 'authUser' | 'user' | 'mural' = 'authUser';
@@ -44,16 +45,8 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
 
 
   ngOnInit(): void {
-    if (this.routes!=null) return
-    //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
-    this.loadFrom = this.urlRoute.snapshot.data['loadFrom'];
-    if (this.loadFrom=='authUser'){
-      //load from authenticated user |remnant from RouteSelectComponent. Left in case it needs to be expanded
-    } else if (this.loadFrom=='mural') {
-      // load from mural |remnant from RouteSelectComponent. Left in case it needs to be expanded
-    } else if (this.loadFrom=='user') {
-      //load from specified user |remnant from RouteSelectComponent. Left in case it needs to be expanded
-     }
+    //IMPORTANT: This empty because this component is only used inside MuralsSettingsComponent, as a child component.
+    // If it needs to be used as a main component, this should be implemented. Check ActivitySelectComponent for an example.
   }
 
   toggle(id: number) {

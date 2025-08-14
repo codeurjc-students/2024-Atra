@@ -16,8 +16,13 @@
           <th *ngFor="let col of columns">{{ col }}</th>
         </tr>
       </thead>
-      <tbody>
 
+      <tbody *ngIf="!loading; else loadingTemplate">
+        <tr *ngIf="activities==null || activities.length == 0">
+          <td [attr.colspan]="columns.length+1" class="text-center">
+            No activities yet. You can create one by clicking the upload icon (<i class="fa-solid fa-upload"></i>) bottom left.
+          </td>
+        </tr>
         <tr *ngFor="let activity of activities; let i = index"
           #popover="ngbPopover"
           [ngbPopover]="popoverContent"
@@ -49,4 +54,15 @@
 
 <ng-template #popoverContent class="asdasd">
   <div #mapContainer class="map-container" id="popoverMap"></div>
+</ng-template>
+
+<ng-template #loadingTemplate>
+  <tbody>
+    <tr>
+      <td [attr.colspan]="columns.length + 1" class="text-center">
+        <div class="spinner-border mt-4" role="status"></div>
+        <div class="mb-4">Loading activities...</div>
+      </td>
+    </tr>
+  </tbody>
 </ng-template>

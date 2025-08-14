@@ -42,6 +42,7 @@ export class RoutesComponent {
   allowedMuralsList: number[] = [];
   formatDistance = FormattingService.formatDistance
 
+  loading:boolean = false;
   columns: string[] = ['Name', 'Desc', 'Distance', 'Ele'];
   activityColumns: string[] = ['id', 'Dist', 'time'];
   map !: L.Map | null;
@@ -54,13 +55,14 @@ export class RoutesComponent {
 
 
   ngOnInit(): void {
-    //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
+    this.loading=true;
     var mural: undefined | number = undefined;
     if (this.activatedRoute.snapshot.url[0].toString()=="murals") {
       mural = this.activatedRoute.snapshot.params['id'];
     }
     this.routeService.getRoutes(mural).subscribe({
       next: (value:Route[]) => {
+        this.loading=false;
         if (value.length!=0) {
           this.allRoutes = new Map(value.map(x => [x.id, x]))
           this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
@@ -78,7 +80,7 @@ export class RoutesComponent {
           this.allRoutes = new Map()
         }
       },
-      error: (err) => {this.alertService.toastError("Try reloading the page", "Error fetching routes"); console.log("There was an error fetching the Routes", err)}
+      error: (err) => {this.loading=false;this.alertService.toastError("Try reloading the page", "Error fetching routes"); console.log("There was an error fetching the Routes", err)}
     })
 
     this.fetchActivitiesWithNoRoute()

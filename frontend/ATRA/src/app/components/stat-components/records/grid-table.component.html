@@ -13,13 +13,28 @@
           <th scope="col" *ngFor="let name of colNames"> {{ name }}</th>
         </tr>
       </thead>
-      <tbody>
+        <tbody *ngIf="!loading; else loadingTemplate">
+          <tr *ngIf="rowValues==null || rowValues.length == 0">
+            <td [attr.colspan]="colNames.length+1" class="text-center">
+              Nothing to show here! This table is empty.
+            </td>
+          </tr>
         <tr class="" *ngFor="let row of rowValues;let i = index" (click)="rowClicked(i)" [class.clickable-row]="rowLinks">
           <td *ngFor="let value of row"> {{ value }} </td>
         </tr>
       </tbody>
     </table>
   </div>
-
 </div>
 
+
+<ng-template #loadingTemplate>
+  <tbody>
+    <tr>
+      <td [attr.colspan]="colNames.length + 1" class="text-center">
+        <div class="spinner-border mt-4" role="status"></div>
+        <div class="mb-4">Loading routes...</div>
+      </td>
+    </tr>
+  </tbody>
+</ng-template>

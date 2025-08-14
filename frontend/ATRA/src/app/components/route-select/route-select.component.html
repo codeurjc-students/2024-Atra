@@ -16,7 +16,12 @@
           <th *ngFor="let col of columns">{{ col }}</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody *ngIf="!loading; else loadingTemplate">
+            <tr *ngIf="routes==null || routes.length == 0">
+              <td [attr.colspan]="columns.length+1" class="text-center">
+                No routes yet.
+              </td>
+            </tr>
 
         <tr *ngFor="let route of routes; let i = index"
           #popover="ngbPopover"
@@ -49,4 +54,15 @@
 
 <ng-template #popoverContent class="asdasd">
   <div #mapContainer class="map-container" id="popoverMap"></div>
+</ng-template>
+
+<ng-template #loadingTemplate>
+  <tbody>
+    <tr>
+      <td [attr.colspan]="columns.length + 1" class="text-center">
+        <div class="spinner-border mt-4" role="status"></div>
+        <div class="mb-4">Loading routes...</div>
+      </td>
+    </tr>
+  </tbody>
 </ng-template>

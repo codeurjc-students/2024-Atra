@@ -13,6 +13,7 @@ import { ComponentType, GridItemService } from '../../../services/grid-item.serv
 export class GridTableComponent implements OnInit{
   @Input() title!:string;
   @Input() type!:ComponentType;
+  loading: boolean = false;
 
   colNames!:string[];
   rowValues!:string[][];
@@ -22,10 +23,13 @@ export class GridTableComponent implements OnInit{
 
   ngOnInit(): void {
     this.colNames = this.gridItemService.getColNames(this.type);
+
+    this.loading = true
     this.gridItemService.getRowValues(this.type).subscribe((values)=>{
       if (values == null) return;
       if (values.length === 0) console.warn('RecordsComponent received empty record list');
       this.rowValues = values;
+      this.loading = false
     })
     this.gridItemService.getRowLinks(this.type).subscribe((links)=>{
       console.log(`GridTableComponent ${this.type} received row links:`, links);

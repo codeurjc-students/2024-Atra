@@ -4,7 +4,6 @@ import { ActivityService } from './../../services/activity.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { RouteService } from '../../services/route.service';
 import { NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import L from 'leaflet';
 import { MapService } from '../../services/map.service';
@@ -40,32 +39,35 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
 
   columns: string[] = ['Name', 'Date', 'Route', 'Time', 'Distance'];
+  @Input() loading: boolean = false;
 
   constructor(private router: Router, private activityService: ActivityService, private alertService:AlertService, private urlRoute:ActivatedRoute){}
 
 
   ngOnInit(): void {
     if (this.activities!=null) return
-    //the component itself should show a spinner. Add that in next commit. alertService.loading() is for when the whole page is loading, to stop the user from doing things. Here, just a part is loading, so just that part should show that
+    this.loading=true;
     this.loadFrom = this.urlRoute.snapshot.data['loadFrom'];
     if (this.loadFrom=='authUser')
       this.activityService.getAuthenticatedUserActivities().subscribe({
-        next: (value) => this.activities = this.activityService.process(value),
-        error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+        next: (value) => {this.loading=false;this.activities = this.activityService.process(value)},
+        error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
       })
     else if (this.loadFrom=='mural') {
       const id = this.urlRoute.snapshot.paramMap.get('id');
       if (id==null) {
         this.alertService.toastError("Something went wrong, try reloading the page");
         console.error("(ActivitySelectComponent) Trying to load activities from mural but couldn't find its id in the paramMap");
+        this.loading = false;
         return
       }
       this.urlStart = "murals/"+id
       this.activityService.getMuralActivities(id).subscribe({
-        next: (value) => this.activities = this.activityService.process(value),
-        error: (err) => {this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+        next: (value) => {this.loading=false;this.activities = this.activityService.process(value)},
+        error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
       })
     } else if (this.loadFrom=='user') {
+      this.loading=false;
       throw new Error("Not implemented yet, as there's no real need for it")
      }
   }
