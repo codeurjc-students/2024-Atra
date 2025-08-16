@@ -213,7 +213,7 @@ public class DatabaseInitializer {
         activities.get(3).changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
         activities.get(4).changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, new ArrayList<>());
         activities.get(5).changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId(), qweMural.getId(), zxcMural.getId()));
-        //puede ser por algo no guardado en bd
+        //activity.get(6) //también va para este pero como queda privada nos la ahorramos
         for (int i=0;i<7;i++) {
             Activity activity = activities.get(i);
             activity.setName("act" + i +" "+ asd.getName() + " ("+activity.getVisibility().getType().getShortName()+")");

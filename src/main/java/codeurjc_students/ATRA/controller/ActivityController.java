@@ -9,7 +9,10 @@ import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
 import codeurjc_students.ATRA.service.auxiliary.UtilsService;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,25 +56,95 @@ public class ActivityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @RequestParam(required=false) String from, @RequestParam(required=false) Long id){
-        User user = principalVerification(principal);
+    public ResponseEntity<List<ActivityDTO>> getActivitiesPaged(
+            Principal principal,
+            @RequestParam boolean fetchAll,
+            @RequestParam(required=false) String from,
+            @RequestParam(required=false) Long id,
+            @RequestParam(defaultValue = "0", name = "startPage") Integer startPage,
+            @RequestParam(defaultValue = "1", name = "pagesToFetch") Integer pagesToFetch,
+            @RequestParam(required = false, name = "pageSize") Integer pageSize,
+            @RequestParam(required = false, name = "cond") String cond
 
-        if (from==null || "authUser".equals(from))
-            return ResponseEntity.ok(ActivityDTO.toDto(activityService.findByUser(user)));
-        if (id==null) throw new HttpException(400, "Requested activities from a specific user/mural without providing their id");
-        if ("mural".equals(from)) {
+    ) {
+        if (fetchAll) return getActivities(principal, from, id, cond);
+        if (pageSize==null) pageSize=Constants.PAGE_SIZE;
+
+        boolean shouldFetchRoutes = "nullRoute".equals(cond);
+
+        User user = principalVerification(principal);
+        Collection<Activity> activities = new ArrayList<>();
+        HttpHeaders headers = new HttpHeaders();
+        Page<Activity> firstPage;
+        int pagesSent;
+
+        if (from == null || "authUser".equals(from)) {
+            firstPage = activityService.findByUser(user, startPage, pageSize, shouldFetchRoutes);
+            activities.addAll(firstPage.getContent());
+            for (pagesSent = 1; pagesSent < pagesToFetch; pagesSent++) {
+                Page<Activity> currentPage = activityService.findByUser(user, startPage + pagesSent, pageSize, shouldFetchRoutes);
+                if (!currentPage.hasContent()) break;
+                activities.addAll(currentPage.getContent());
+            }
+        }
+        else if ("mural".equals(from)) {
+            if (id==null) throw new HttpException(400, "Requested activities from a specific mural without providing their id");
             Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
             if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
-            return ResponseEntity.ok(ActivityDTO.toDto(activityService.findVisibleTo(mural)));
+
+            firstPage = activityService.findVisibleTo(mural, startPage, pageSize, shouldFetchRoutes);
+            activities.addAll(firstPage.getContent());
+            for (pagesSent=1; pagesSent < pagesToFetch; pagesSent++) {
+                Page<Activity> currentPage = activityService.findVisibleTo(mural, startPage + pagesSent, pageSize, shouldFetchRoutes);
+                if (!currentPage.hasContent()) break;
+                activities.addAll(currentPage.getContent());
+            }
         }
-        if ("user".equals(from)) //this is currently not in use.
-            return ResponseEntity.ok(
-                    ActivityDTO.toDto(
-                            activityService.findByUser(
-                                userService.findById(id).orElseThrow(()->new HttpException(404, "User not found"))
-                            ).stream().filter(activity -> activity.getVisibility().isPublic()).toList())
-                    );
-        throw new HttpException(400, "Activities requested from an unknown/unhandled entity: " + from);
+        else throw new HttpException(400, "Specified value for 'from' ("+from+") is invalid. Valid values are: 'authUser', 'mural'");
+        headers.add("ATRA-Total-Pages",   Integer.toString(firstPage.getTotalPages()));
+        headers.add("ATRA-Total-Entries", Long.toString(firstPage.getTotalElements()));
+        headers.add("ATRA-Start-Page",  Integer.toString(startPage));
+        headers.add("ATRA-Pages-Sent",    Long.toString(pagesSent));
+        headers.add("ATRA-Entries-Sent",  Integer.toString(activities.size()));
+        headers.add("ATRA-Page-Size",  Integer.toString(pageSize));
+
+
+        return ResponseEntity.ok().headers(headers).body(ActivityDTO.toDto(activities));
+
+    }
+
+    private ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, String from, Long id, String cond){
+        User user = principalVerification(principal);
+
+        Collection<Activity> activities = new ArrayList<>();
+        
+        if (from==null || "authUser".equals(from))
+            activities = (activityService.findByUser(user, "nullRoute".equals(cond)));
+        else if (id==null) throw new HttpException(400, "Requested activities from a specific user/mural without providing their id");
+        else if ("mural".equals(from)) {
+            Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
+            if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
+            activities = activityService.findVisibleTo(mural, "nullRoute".equals(cond));
+        }
+        else if ("user".equals(from)) //this is currently not in use.
+            activities = activityService.findByUser( //this filters visibility here. It can be optimized with db, but won't since it's not in use
+                             userService.findById(id).orElseThrow(()->new HttpException(404, "User not found")),
+                             "nullRoute".equals(cond)
+                         ).stream().filter(activity -> activity.getVisibility().isPublic()).toList();
+        else throw new HttpException(400, "Activities requested from an unknown/unhandled entity: " + from);
+
+        //neccessary if they want to fetch all but show paginated
+        //<editor-fold desc="headers">
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("ATRA-Total-Pages",   Integer.toString(-1));
+        headers.add("ATRA-Total-Entries", Long.toString(activities.size()));
+        headers.add("ATRA-Start-Page",  Integer.toString(0));
+        headers.add("ATRA-Pages-Sent",    Long.toString(-1));
+        headers.add("ATRA-Entries-Sent",  Integer.toString(activities.size()));
+        headers.add("ATRA-Page-Size",  Integer.toString(-1));
+        //</editor-fold>
+        return ResponseEntity.ok().headers(headers).body(ActivityDTO.toDto(activities));
+
     }
 
     @PostMapping
@@ -168,12 +241,7 @@ public class ActivityController {
     public ResponseEntity<Collection<ActivityDTO>> getActivitiesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
         User user = principalVerification(principal);
         Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
-        Collection<ActivityDTO> result = new ArrayList<>();
-        activityService.findByUser(user).forEach(activity -> {
-            if (activityService.isVisibleToMural(activity, mural)) result.add(new ActivityDTO(activity));
-        });
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(ActivityDTO.toDto(activityService.findByUserAndVisibleToMural(user, mural)));
     }
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);

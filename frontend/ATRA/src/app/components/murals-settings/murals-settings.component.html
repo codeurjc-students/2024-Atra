@@ -32,7 +32,7 @@
     <div class="d-flex justify-content-around w-100 h-75">
       <div class="w-45">
         <h3>Activities</h3>
-        <app-activity-select [submitText]="'Remove Visibility of Selected'" [showTopRow]="false" [activities]="activityList" [submit]="submitAct" (emitter)="handleEmittedDataAct($event)" [loading]="loadingActivities"></app-activity-select>
+        <app-activity-select [submitText]="'Remove Visibility of Selected'" [showTopRow]="false" [activities]="activityList" [submit]="submitAct" (emitter)="handleEmittedDataAct($event)" [loading]="loadingActivities" [isChild]="true"></app-activity-select>
         <!--<h5 class="ms-2">Activities</h5>
         <div class="h-80 w-100 border">        </div>-->
       </div>
@@ -41,7 +41,7 @@
           <h3>Routes</h3>
 
         </div>
-        <app-route-select [submitText]="'Remove Visibility of Selected'" [showTopRow]="false" [routes]="routeList" [submit]="submitRoute" (emitter)="handleEmittedDataRoute($event)" [loading]="loadingRoutes"></app-route-select>
+        <app-route-select [submitText]="'Remove Visibility of Selected'" [showTopRow]="false" [routes]="routeList" [submit]="submitRoute" (emitter)="handleEmittedDataRoute($event)" [loading]="loadingRoutes" [isChild]="true"></app-route-select>
 
         <!--<h5 class="ms-2">Routes</h5>
         <div class="h-80 w-100 border"></div>-->

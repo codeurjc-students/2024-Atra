@@ -87,7 +87,7 @@ export class RoutesComponent {
   }
   fetchActivitiesWithNoRoute(){
     this.errorLoadingActivities = false
-    this.activityService.getAll("routeIsNull").subscribe({
+    this.activityService.getWithNoRoute().subscribe({
       next:(activities:Activity[]) => {
         if (activities.length==0) this.errorLoadingActivities=true
         this.allActivities = activities

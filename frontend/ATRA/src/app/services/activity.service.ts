@@ -83,12 +83,12 @@ export class ActivityService {
     });
   }
 
-  getAuthenticatedUserActivities(){
-    return this.http.get<any[]>("/api/activities");
+  getAuthenticatedUserActivities(fetchAll:boolean, startPage:number=0, pagesToFetch:number=1,pageSize:number=10){
+    return this.http.get<any[]>(`/api/activities?from=authUser&fetchAll=${fetchAll}&startPage=${startPage}&pagesToFetch=${pagesToFetch}&pageSize=${pageSize}`, {observe:'response'});
   }
 
-  getMuralActivities(id: string) {
-    return this.http.get<any[]>("/api/activities?from=mural&id="+id);
+  getMuralActivities(id: string, fetchAll:boolean, startPage:number=0, pagesToFetch:number=1,pageSize:number=20) {
+    return this.http.get<any[]>(`/api/activities?from=mural&id=${id}&fetchAll=${fetchAll}&startPage=${startPage}&pagesToFetch=${pagesToFetch}&pageSize=${pageSize}`, {observe:'response'});
   }
 
 
@@ -192,18 +192,10 @@ export class ActivityService {
   }
 
 
-  getAll(cond:string) {
-    return this.http.get<any[]>("/api/activities").pipe(
+  getWithNoRoute() {
+    return this.http.get<any[]>("/api/activities?fetchAll=true&cond=nullRoute").pipe(
       map((reply: any[]) => {
-        console.log("processing");
-        const activities = this.process(reply)
-        console.log("cond: "+cond);
-        if (cond=="routeIsNull") {
-          console.log("Filtering");
-          return activities.filter(act => act.route==null)
-        }
-        console.log("Did not filter");
-        return activities
+        return this.process(reply)
       }),
       catchError(error => {
         console.log("Couldn't fetch activities. Error: "+error);

@@ -3,11 +3,13 @@ import { Activity } from './../../models/activity.model';
 import { ActivityService } from './../../services/activity.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { NgbPopover, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import L from 'leaflet';
 import { MapService } from '../../services/map.service';
 import { FormattingService } from '../../services/formatting.service';
+import { HttpResponse } from '@angular/common/http';
+import { Expansion } from '@angular/compiler';
 
 @Component({
   selector: 'app-activity-select',
@@ -21,11 +23,14 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   shouldSelectAll: boolean = true;
   urlStart: string = 'me';
 
+  @Input() isChild:boolean = false
+
   //When used as a main component, loadFrom should be used to have ActivitySelect fetch its own activities
   @Input() loadFrom: 'authUser' | 'user' | 'mural' = 'authUser';
 
   //But when it's used as a selector within another component, it should simply receive the activities to display
   @Input() activities !: Activity[];
+  shownActivities !: Activity[];
   @Input() submit: () => void = () => this.defaultSubmit();
   @Output() emitter = new EventEmitter<Set<number>>();
 
@@ -45,12 +50,20 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
 
   ngOnInit(): void {
-    if (this.activities!=null) return
-    this.loading=true;
+    console.log({"isChild":this.isChild, activitiesIsNull:this.activities!=null});
+
+    if (this.isChild || this.activities!=null) return
+    this.activities = [];
     this.loadFrom = this.urlRoute.snapshot.data['loadFrom'];
+    this.loadActivities(false, 0, 2)
+  }
+
+  loadActivities(fetchAll:boolean, startPage:number, pagesToFetch:number=1){
+    this.loading=true;
+
     if (this.loadFrom=='authUser')
-      this.activityService.getAuthenticatedUserActivities().subscribe({
-        next: (value) => {this.loading=false;this.activities = this.activityService.process(value)},
+      this.activityService.getAuthenticatedUserActivities(fetchAll, startPage, pagesToFetch, this.pageSize).subscribe({
+        next: (response:HttpResponse<any[]>) => {this.activitiesReceived(response)},
         error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
       })
     else if (this.loadFrom=='mural') {
@@ -62,14 +75,62 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
         return
       }
       this.urlStart = "murals/"+id
-      this.activityService.getMuralActivities(id).subscribe({
-        next: (value) => {this.loading=false;this.activities = this.activityService.process(value)},
+      this.activityService.getMuralActivities(id, fetchAll, startPage, pagesToFetch, this.pageSize).subscribe({
+        next: (response:HttpResponse<any[]>) => {this.activitiesReceived(response)},
         error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
       })
     } else if (this.loadFrom=='user') {
       this.loading=false;
       throw new Error("Not implemented yet, as there's no real need for it")
      }
+  }
+
+  activitiesReceived(response:HttpResponse<any[]>) {
+    this.loading = false;
+    this.activities.push(...this.activityService.process(response.body ?? []));
+
+    this.total=Number(response.headers.get("ATRA-Total-Entries"))
+    const lastPageTemp = Number(response.headers.get("ATRA-Total-Pages"))-1
+    this.lastPage= lastPageTemp>0 ? lastPageTemp:this.total/this.pageSize
+
+    //this.currentPage=Number(response.headers.get("ATRA-Start-Page"))
+    const startOfCurrentQuery = Number(response.headers.get("ATRA-Start-Page"))
+
+    if (startOfCurrentQuery==this.lastLoadedPage+1) //to only count new entries
+      this.entriesLoaded = this.entriesLoaded+Number(response.headers.get("ATRA-Entries-Sent")) //if info already fetched is refetched this will be incorrect
+    this.lastLoadedPage = Math.max(startOfCurrentQuery + Number(response.headers.get("ATRA-Pages-Sent")??Number.MAX_SAFE_INTEGER)-1,this.lastLoadedPage) //in case already loaded pages are reloaded. Though we shouldn't do that
+
+    console.log("(ActivitySelectComponent) Activities loaded. Metadata received is: ", {totalEntries:this.total, currentPage:this.currentPage, lastPage:this.lastPage, entriesLoaded:this.entriesLoaded, lastLoadedPage:this.lastLoadedPage});
+
+    this.reloadActivityWindow()
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['activities'] && this.activities) {
+      this.activitiesInherited();
+    }
+  }
+  activitiesInherited() {
+    console.log({"this.activities.length":this.activities});
+
+    this.loading = false;
+    this.total = this.activities.length
+    this.lastPage = Math.ceil(this.total/this.pageSize)-1
+    this.entriesLoaded = this.activities.length
+    this.lastLoadedPage = Number.MAX_SAFE_INTEGER
+    this.currentPage=0;
+
+    this.minShown=0
+    this.maxShown=this.pageSize
+    this.minShownHTML=1
+    console.log({shownActivities:this.shownActivities, a:1});
+    console.log({activities:this.activities, c:333333333333333333333333333333333333333333333333333333333333333333});
+    this.shownActivities = this.activities.slice(0, this.pageSize);
+    console.log({shownActivities:this.shownActivities, b:2});
+
+    this.maxShownHTML=Math.min(this.pageSize, this.shownActivities.length)
+    console.log({"lastPage":this.lastPage});
+
   }
 
   toggle(id: number) {
@@ -81,7 +142,6 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   }
 
   selectAll() {
-    console.log(this.activities)
     if (this.shouldSelectAll) {
       this.activities.forEach(activity => this.selected.add(activity.id));
     } else {
@@ -164,4 +224,57 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
     this.map.fitBounds(this.path.getBounds());
   }
+
+
+  //#region Pagination
+  minShown: number = 0;
+  maxShown: number = 0;
+  minShownHTML: number = 0;
+  maxShownHTML: number = 0;
+  total: number = 0;
+  currentPage: number = 0;
+  lastPage: number = 0;
+  @Input() pageSize: number = 5;
+  entriesLoaded: number = 0;
+  lastLoadedPage:number = 0;
+  goPrevious(){
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.reloadActivityWindow()
+    }
+  }
+  goNext(){
+    if (this.currentPage < this.lastPage) {
+      this.currentPage++;
+      this.reloadActivityWindow()
+      this.loadNextPage()
+    }
+  }
+
+  reloadActivityWindow() {
+  this.minShown = this.currentPage * this.pageSize;
+  this.maxShown = Math.min((this.currentPage+1) * this.pageSize, this.total);
+  this.shownActivities = this.activities.slice(this.minShown, this.maxShown);
+
+  console.log({_cond1:this.shownActivities!=null, _cond2:this.shownActivities.length==0});
+
+
+  this.minShownHTML = this.minShown+1
+  this.maxShownHTML = this.maxShown
+  }
+
+  loadNextPage() {
+    console.log({lastLoadedPage:this.lastLoadedPage, lastPage:this.lastPage,currentPage:this.currentPage});
+    console.log({cond1:this.lastLoadedPage<this.lastPage,cond2:this.currentPage+2<this.lastLoadedPage});
+
+
+    if (this.lastLoadedPage<this.lastPage && this.currentPage+1>this.lastLoadedPage) {
+      console.log("A")
+      this.loadActivities(false, this.lastLoadedPage+1, 1)
+    }
+  }
+
+  //#endregion
+
+
 }

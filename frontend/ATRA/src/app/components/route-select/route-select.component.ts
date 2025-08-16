@@ -21,6 +21,8 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
   urlStart: string = 'me';
   @Input() loading: boolean = false;
 
+  @Input() isChild:boolean = false;
+
   //When used as a main component, loadFrom should be used to have RouteSelect fetch its own activities
   @Input() loadFrom: 'authUser' | 'user' | 'mural' = 'authUser';
 

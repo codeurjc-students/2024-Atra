@@ -116,7 +116,7 @@
     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body">
-    <app-activity-select [submit]="submit" (emitter)="addActivitiesToRoute($event)" [activities]="allActivities"></app-activity-select>
+    <app-activity-select [submit]="submit" (emitter)="addActivitiesToRoute($event)" [activities]="allActivities" [isChild]="true"></app-activity-select>
   </div>
 </ng-template>
 

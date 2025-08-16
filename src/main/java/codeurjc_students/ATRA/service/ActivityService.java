@@ -13,6 +13,10 @@ import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -281,11 +285,50 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
 	}
 
+	public Collection<Activity> findVisibleTo(Mural mural, boolean shouldRouteBeNull) {
+		if (shouldRouteBeNull) return activityRepository.findVisibleToMuralAndRouteIsNull(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
+		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
+	}
+
+	public Page<Activity> findVisibleTo(Mural mural, int startPage, int pageSize) {
+		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
+		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
+	}
+
+	public Page<Activity> findVisibleTo(Mural mural, int startPage, int pageSize, boolean shouldRouteBeNull) {
+		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
+		if (shouldRouteBeNull) return activityRepository.findVisibleToMuralAndRouteIsNull(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
+		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
+	}
+
 	public Collection<Activity> findByRoute(Route route) {
 		return activityRepository.findByRoute(route);
 	}
 
 	public List<Activity> findByUser(User user) {
 		return activityRepository.findByUser(user);
+	}
+
+	public List<Activity> findByUser(User user, boolean shouldRouteBeNull) {
+		if (shouldRouteBeNull) return activityRepository.findByUserAndRouteIsNull(user);
+		return activityRepository.findByUser(user);
+	}
+
+
+	public Page<Activity> findByUser(User user, int startPage, int pageSize) {
+		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
+		return activityRepository.findByUser(user, pageRequest);
+	}
+
+	public Page<Activity> findByUser(User user, int startPage, int pageSize, boolean shouldFetchRoutes) {
+		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
+
+		if (shouldFetchRoutes) return activityRepository.findByUserAndRouteIsNull(user, pageRequest);
+		return activityRepository.findByUser(user, pageRequest);
+	}
+
+
+	public Collection<Activity> findByUserAndVisibleToMural(User user, Mural mural) {
+		return activityRepository.findByUserAndVisibleToMural(user, mural.getId());
 	}
 }
