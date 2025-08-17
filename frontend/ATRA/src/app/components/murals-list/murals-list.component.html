@@ -25,7 +25,7 @@
         <div class="mural-title">{{ item.name }}</div>
       </div>
       <!--Dummy to keep container open with no items-->
-      <div class="thumbnail-container mx-3 min-w-20 max-w-20 position-relative" *ngIf="ownedMuralsWindow.length<=0"></div>
+      <div class="thumbnail-container mx-3 min-w-20 max-w-20 position-relative" *ngIf="ownedMuralsWindow==null || ownedMuralsWindow.length<=0"></div>
       <div class="arrow-container arrow-container-right" *ngIf="ownedMurals && ownedMurals.length-ownedMuralsOffset>4">
         <img id="rightArrowOwned" src="../assets/right-arrow.png" alt="Right Arrow" class="h-50 arrow" (click)="clicked('owned', false)">
       </div>
@@ -52,7 +52,7 @@
         <div class="mural-title">{{ item.name }}</div>
       </div>
       <!--Dummy to keep container open with no items-->
-      <div class="thumbnail-container mx-3 min-w-20 max-w-20 position-relative" *ngIf="ownedMuralsWindow.length<=0"></div>
+      <div class="thumbnail-container mx-3 min-w-20 max-w-20 position-relative" *ngIf="memberMuralsWindow==null || memberMuralsWindow.length<=0"></div>
       <div class="arrow-container arrow-container-right" *ngIf="memberMurals && memberMurals.length-memberMuralsOffset>4">
         <img id="rightArrowMember" src="../assets/right-arrow.png" alt="Right Arrow" class="h-50 arrow" (click)="clicked('member', false)">
       </div>
@@ -82,7 +82,7 @@
         <div class="mural-title">{{ item.name }}</div>
       </div>
       <!--Dummy to keep container open with no items-->
-      <div class="thumbnail-container mx-3 min-w-20 max-w-20 position-relative" *ngIf="ownedMuralsWindow.length<=0"></div>
+      <div class="thumbnail-container mx-3 min-w-20 max-w-20 position-relative" *ngIf="ownedMuralsWindow==null || ownedMuralsWindow.length<=0"></div>
       <div class="arrow-container arrow-container-right"  *ngIf="otherMurals && otherMurals.length-otherMuralsOffset>4">
         <img id="rightArrowDiscover" src="../assets/right-arrow.png" alt="Right Arrow" class="h-50 arrow"  (click)="clicked('other', false)">
       </div>

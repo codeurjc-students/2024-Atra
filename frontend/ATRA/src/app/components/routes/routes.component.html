@@ -30,7 +30,7 @@
                 No routes yet. You can create one by selecting a specific activity and creating a route from it.
               </td>
             </tr>
-            <tr *ngIf="shownRoutes.size == 0 && allRoutes!=null && allRoutes.size!=0">
+            <tr *ngIf="allRoutes!=null && shownRoutes.size == 0  && allRoutes.size!=0">
               <td [attr.colspan]="columns.length+1" class="text-center">
                 There are no routes in this category. You can check other categories by enabling them in the filter icon (<i class="fa-solid fa-filter"></i>) above.
               </td>
