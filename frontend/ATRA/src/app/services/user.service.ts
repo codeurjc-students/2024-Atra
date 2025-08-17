@@ -93,11 +93,11 @@ export class UserService {
   //#endregion
 
   getActivitiesInMural(muralId: number) {
-    return this.http.get<any[]>("/api/activities/InMural?muralId="+muralId)
+    return this.http.get<any[]>("/api/activities/OwnedInMural?muralId="+muralId)
   }
 
   getRoutesInMural(muralId: number): Observable<Route[]>{
-    return this.http.get<Route[]>("/api/routes/InMural?muralId="+muralId)
+    return this.http.get<Route[]>("/api/routes/OwnedInMural?muralId="+muralId)
   }
 
 }

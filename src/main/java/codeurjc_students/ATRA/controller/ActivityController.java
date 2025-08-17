@@ -243,8 +243,8 @@ public class ActivityController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/InMural")
-    public ResponseEntity<Collection<ActivityDTO>> getActivitiesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
+    @GetMapping("/OwnedInMural")
+    public ResponseEntity<Collection<ActivityDTO>> getOwnedActivitiesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
         User user = principalVerification(principal);
         Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
         return ResponseEntity.ok(ActivityDTO.toDto(activityService.findByUserAndVisibleToMural(user, mural)));

@@ -52,7 +52,7 @@ export class GridItemService {
           this.alertService.toastError("Some functionality won't be available. Try reloading the page.", "Error fetching activities");
         }
       })
-    this.fetchRoutes(entity.routes).subscribe({
+    this.fetchRoutes(mural, user).subscribe({
       next: (routes: Route[]) => {
         this.routes.next(routes)
       },
@@ -325,11 +325,12 @@ export class GridItemService {
     throw new Error("GridItemService.fetchActivities called with null mural and user."); //shouldn't come to this, it should be caught above
   }
 
-  fetchRoutes(routes: {name:string;id:number}[] | undefined): Observable<Route[]> {
-    //console.log("routes");
-    //console.log(routes);
-    if (routes == null) throw new Error("GridItemService.fetchRoutes called with null routes.");
-    return this.http.get<Route[]>('/api/routes', { params: { ids: routes.map(r => r.id).join(',') } })
+  fetchRoutes(mural: Mural | null, user: User | null) : Observable<Route[]> {
+    if (mural!=null) return this.http.get<Route[]>('/api/routes?from=mural&id='+mural.id)
+    if (user!=null) return this.http.get<Route[]>('/api/routes?from=user&id='+user.id)
+    //if both are null
+    throw new Error("GridItemService.fetchRoutes called with null mural and user."); //shouldn't come to this, it should be caught above
+
   }
 
   getColNames(type:ComponentType): string[] {

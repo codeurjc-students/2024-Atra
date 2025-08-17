@@ -22,7 +22,7 @@ export class RouteService {
     if (mural==undefined)
       return this.http.get<Route[]>("/api/routes");
     else
-      return this.http.get<Route[]>("/api/routes?mural="+mural);
+      return this.http.get<Route[]>("/api/routes?from=mural&id="+mural);
 
   }
 
