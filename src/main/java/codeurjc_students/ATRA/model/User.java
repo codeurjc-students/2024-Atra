@@ -1,14 +1,10 @@
 package codeurjc_students.ATRA.model;
 
-import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Data
@@ -34,7 +30,7 @@ public class User implements NamedId {
 	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 	private List<Mural> memberMurals = new ArrayList<>();
 
-	@OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
 	private List<Route> createdRoutes = new ArrayList<>();
 
 	//<editor-fold desc="private List<String> roles">

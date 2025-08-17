@@ -5,7 +5,6 @@ import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -112,7 +111,7 @@ public class DatabaseInitializer {
                 if (a) {
                     a=false;
                     routeA=routeService.newRoute(activity,activityService);
-                    routeA.setOwner(user);
+                    routeA.setCreatedBy(user);
                     routeService.save(routeA);
                 }
                 routeService.addRouteToActivity(routeA, activity, activityService);
@@ -121,7 +120,7 @@ public class DatabaseInitializer {
                 if (b) {
                     b = false;
                     routeB = routeService.newRoute(activity, activityService);
-                    routeB.setOwner(user);
+                    routeB.setCreatedBy(user);
                     routeService.save(routeB);
                 }
                 routeService.addRouteToActivity(routeB, activity, activityService);
@@ -272,7 +271,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="asd routes>
         Route route = routeService.newRoute(activityService.findByUser(asd).get(0), activityService);
         route.changeVisibilityTo(VisibilityType.PUBLIC);
-        route.setOwner(null);
+        //route.setOwner(null);
         route.setName("r1 asd (PU)");
         Activity extraActivity = activityService.findByUser(qwe).get(0);
         extraActivity.setRoute(route);
@@ -306,7 +305,7 @@ public class DatabaseInitializer {
         //<editor-fold desc = qwe routes>
         route = routeService.newRoute(activityService.findByUser(qwe).get(0), activityService);
         route.changeVisibilityTo(VisibilityType.PUBLIC);
-        route.setOwner(null);
+        //route.setOwner(null);
         route.setName("r1 qwe (PU)");
         extraActivity = activityService.findByUser(zxc).get(0);
         extraActivity.setRoute(route);

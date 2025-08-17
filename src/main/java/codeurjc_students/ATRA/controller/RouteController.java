@@ -154,7 +154,7 @@ public class RouteController {
         User user = principalVerification(principal);
 
         Route route = routeService.findById(id).orElseThrow(()->new HttpException(404));
-        if (route.getOwner()!=user && !user.hasRole("ADMIN")) throw new HttpException(403, "You cannot delete a route you are not the owner of. Public routes can only be deleted by administrators");
+        if (route.getCreatedBy()!=user && !user.hasRole("ADMIN")) throw new HttpException(403, "You cannot delete a route you are not the owner of. Public routes can only be deleted by administrators");
 
         if (route.getVisibility().isPublic() && !user.hasRole("ADMIN")) throw new HttpException(403, "Public routes can only be deleted by administrators"); //This is indirectly checked above by route.getOwner()!=user, since owner will be null for public routes
         if (route.getVisibility().isMuralSpecific() &&
@@ -176,7 +176,7 @@ public class RouteController {
             User user = principalVerification(principal);
         Route route = routeService.findById(id).orElseThrow(()->new HttpException(404));
         if (route.getVisibility().isPublic()) throw new HttpException(422, "The visibility of a public route cannot be changed");
-        if (!user.getId().equals(route.getOwner().getId()) && !user.hasRole("ADMIN")) throw new HttpException(403);
+        if (!user.getId().equals(route.getCreatedBy().getId()) && !user.hasRole("ADMIN")) throw new HttpException(403);
 
         UtilsService.changeVisibilityHelper(id, body, routeService); //throws error on not found or invalid visibility
         return ResponseEntity.ok(new RouteWithActivityDTO(routeService.findById(id).orElseThrow(
@@ -191,7 +191,7 @@ public class RouteController {
         List<Route> routes = routeService.findById(selectedRoutesIds);
         routes.forEach(route -> {
             if (!route.getVisibility().isMuralSpecific()) return;
-            if (!user.equals(route.getOwner()) && !user.hasRole("ADMIN")) return;
+            if (!user.equals(route.getCreatedBy()) && !user.hasRole("ADMIN")) return;
             route.getVisibility().removeMural(muralId);
 
             routeService.save(route);

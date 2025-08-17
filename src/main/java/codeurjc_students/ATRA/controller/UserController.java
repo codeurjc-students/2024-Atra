@@ -129,7 +129,6 @@ public class UserController {
         for (Route r : new ArrayList<>(user.getCreatedRoutes())) {
             if (r.getVisibility().isMuralSpecific() || r.getVisibility().isMuralPublic()) { //in theory, routes can't be mural public, but just in case
                 r.setVisibility(new Visibility(VisibilityType.PUBLIC));
-                r.setOwner(null);
                 user.removeRoute(r);
             }
         }

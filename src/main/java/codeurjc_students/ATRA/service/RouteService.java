@@ -71,8 +71,8 @@ public class RouteService implements ChangeVisibilityInterface{
 		if (route.getName()==null || route.getName().isEmpty()){
 			route.setName("Route from Activity " + activity.getId());
 		}
-		if (route.getOwner()==null){
-			route.setOwner(activity.getUser());
+		if (route.getCreatedBy()==null){
+			route.setCreatedBy(activity.getUser());
 		}
 		if (route.getDescription()==null || route.getDescription().isEmpty()){
 			route.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus auctor ligula sit amet fermentum ornare. Integer mauris justo, fermentum et arcu ac, vulputate ultrices metus.");
@@ -120,12 +120,10 @@ public class RouteService implements ChangeVisibilityInterface{
 		HashSet<Long> allowedMurals = allowedMuralsCol == null ? new HashSet<>() : new HashSet<>(allowedMuralsCol);
 
 		if (newVisibility==VisibilityType.PRIVATE) {
-			User owner = route.getOwner();
+			User owner = route.getCreatedBy();
 			if (activityRepository.findByRoute(route).stream().anyMatch(activity -> !owner.getId().equals(activity.getUser().getId()))) {
 				throw new HttpException(422, "Cannot change visibility of a route that other users are using.");
 			}
-		} else if (newVisibility == VisibilityType.PUBLIC) {
-			route.setOwner(null);
 		}
 		route.changeVisibilityTo(newVisibility, allowedMurals);
 		routeRepository.save(route);
@@ -144,9 +142,9 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public boolean isVisibleBy(Route route, User user) {
-        return (route.getOwner() == null || route.getVisibility().isPublic())
-				|| route.getOwner().equals(user)
-				|| (user.hasRole("ADMIN") && !route.getVisibility().isPrivate());
+        return route.getVisibility().isPublic()
+			   || route.getCreatedBy().equals(user)
+			   || (user.hasRole("ADMIN") && !route.getVisibility().isPrivate());
     }
 
 	public boolean isVisibleBy(Route route, Mural mural) {

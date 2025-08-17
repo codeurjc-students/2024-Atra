@@ -38,8 +38,8 @@ public class Route implements NamedId {
 
 
 	@ToString.Exclude
-	@ManyToOne(fetch = FetchType.LAZY)
-	private User owner;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	private User createdBy;
 	@ToString.Exclude
 	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
 	private List<Activity> activities = new ArrayList<>();
@@ -59,4 +59,6 @@ public class Route implements NamedId {
 	public void changeVisibilityTo(VisibilityType visibilityType, Collection<Long> allowedMurals) {
 		visibility.changeTo(visibilityType, allowedMurals);
 	}
+
+	public User getCreatedBy(){return createdBy;}
 }
