@@ -9,7 +9,6 @@ import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
 import codeurjc_students.ATRA.service.auxiliary.UtilsService;
-import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.*;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -64,10 +62,10 @@ public class ActivityController {
             @RequestParam(defaultValue = "0", name = "startPage") Integer startPage,
             @RequestParam(defaultValue = "1", name = "pagesToFetch") Integer pagesToFetch,
             @RequestParam(required = false, name = "pageSize") Integer pageSize,
-            @RequestParam(required = false, name = "cond") String cond
-
+            @RequestParam(required = false, name = "cond") String cond,
+            @RequestParam(required = false, name = "visibility") String visibility
     ) {
-        if (fetchAll) return getActivities(principal, from, id, cond);
+        if (fetchAll) return getActivities(principal, from, id, cond, visibility);
         if (pageSize==null) pageSize=Constants.PAGE_SIZE;
 
         boolean shouldFetchRoutes = "nullRoute".equals(cond);
@@ -113,25 +111,34 @@ public class ActivityController {
 
     }
 
-    private ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, String from, Long id, String cond){
+    private ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, String from, Long id, String cond, String visibility){
         User user = principalVerification(principal);
 
-        Collection<Activity> activities = new ArrayList<>();
-        
+        Collection<Activity> activities;
+
         if (from==null || "authUser".equals(from))
-            activities = (activityService.findByUser(user, "nullRoute".equals(cond)));
+            activities = activityService.findByUser(user, "nullRoute".equals(cond));
         else if (id==null) throw new HttpException(400, "Requested activities from a specific user/mural without providing their id");
         else if ("mural".equals(from)) {
             Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
             if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
             activities = activityService.findVisibleTo(mural, "nullRoute".equals(cond));
         }
-        else if ("user".equals(from)) //this is currently not in use.
-            activities = activityService.findByUser( //this filters visibility here. It can be optimized with db, but won't since it's not in use
-                             userService.findById(id).orElseThrow(()->new HttpException(404, "User not found")),
-                             "nullRoute".equals(cond)
-                         ).stream().filter(activity -> activity.getVisibility().isPublic()).toList();
-        else throw new HttpException(400, "Activities requested from an unknown/unhandled entity: " + from);
+        else if ("user".equals(from)) {
+            User targetUser = userService.findById(id).orElseThrow(() -> new HttpException(404, "User not found"));
+            if (!user.equals(targetUser) && !user.hasRole("ADMIN")) {//return public activities
+                activities = activityService.findByUserAndVisibilityType(user, VisibilityType.PUBLIC);
+            } else if (user.equals(targetUser)) {
+                if (visibility==null) activities = activityService.findByUser(user, "nullRoute".equals(cond));
+                else activities = activityService.findByUserAndVisibilityType(user, visibility);
+            } else if (user.hasRole("ADMIN")) {
+                if (visibility==null) activities = activityService.findByUserAndVisibilityNonPrivate(targetUser);
+                else if ("PRIVATE".equals(visibility)) throw new HttpException(400, "No one can see private activities except for the user who created them.");
+                else activities = activityService.findByUserAndVisibilityType(user, visibility);
+            }
+            else throw new HttpException(500, "How'd you even get here? I think you only go here when targetUser is null, but that can only happen if id is null, which has been checked."); //I think this only happens with targetUser==null
+        }
+        else throw new HttpException(400, "Activities requested from an unknown/unhandled entity type: " + from);
 
         //neccessary if they want to fetch all but show paginated
         //<editor-fold desc="headers">
@@ -144,7 +151,6 @@ public class ActivityController {
         headers.add("ATRA-Page-Size",  Integer.toString(-1));
         //</editor-fold>
         return ResponseEntity.ok().headers(headers).body(ActivityDTO.toDto(activities));
-
     }
 
     @PostMapping

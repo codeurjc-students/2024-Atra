@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -237,23 +236,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return true;
 	}
 
-	public List<Activity> getActivitiesFromUser(VisibilityType visibility, User user) {
-		return getActivitiesFromUser(visibility, user, null);
-	}
-	public List<Activity> getActivitiesFromUser(VisibilityType visibility, User user, Long muralId) {
-		List<Activity> activities = activityRepository.findByUser(user);
-        return switch (visibility) {
-            case PUBLIC -> activities.stream().filter(a -> a.getVisibility().isPublic()).toList();
-            case MURAL_PUBLIC -> activities.stream().filter(a -> a.getVisibility().isMuralPublic()).toList();
-            case MURAL_SPECIFIC -> {
-                if (muralId == null)
-                    throw new IllegalArgumentException("getActivities(MURAL_SPECIFIC, ...) called with a null muralId");
-                yield activities.stream().filter(a -> a.getVisibility().isMuralPublic() || a.getVisibility().isVisibleByMural(muralId)).toList();
-            }
-            case PRIVATE -> activities;
-        };
-    }
-
 	public Double elevationGain(Activity activity) {
 		//can be done in a single line with filter and reduce like in activity summary, but this only iterates once
 		double runningTotal = 0.0;
@@ -331,4 +313,25 @@ public class ActivityService implements ChangeVisibilityInterface{
 	public Collection<Activity> findByUserAndVisibleToMural(User user, Mural mural) {
 		return activityRepository.findByUserAndVisibleToMural(user, mural.getId());
 	}
+
+	public Collection<Activity> findByUserAndVisibilityType(User user, String visibility) {
+		VisibilityType visibilityType;
+		try {visibilityType = VisibilityType.valueOf(visibility.toUpperCase(Locale.ROOT));}
+		catch (IllegalArgumentException e) {throw new HttpException(400, "Visibility specified is not a valid VisibilityType. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. \"");		}
+		return findByUserAndVisibilityType(user, visibilityType);
+	}
+
+	public Collection<Activity> findByUserAndVisibilityType(User user, VisibilityType visibility) {
+		return activityRepository.findByVisibilityTypeInAndUserIn(List.of(visibility), List.of(user));
+	}
+
+	public Collection<Activity> findByUserAndVisibilityNonPrivate(User targetUser) {
+	return activityRepository.findByVisibilityTypeInAndUserIn(
+			List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC),
+			List.of(targetUser));
+	}
+
+
+
+
 }

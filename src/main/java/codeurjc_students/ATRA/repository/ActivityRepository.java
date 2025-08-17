@@ -1,7 +1,6 @@
 package codeurjc_students.ATRA.repository;
 
 import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
@@ -16,7 +15,7 @@ import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Collection<Activity> findByVisibilityType(VisibilityType visibilityType);
-    Collection<Activity> findByVisibilityTypeAndUserIn(VisibilityType visibility_type, Collection<User> users);
+    Collection<Activity> findByVisibilityTypeInAndUserIn(Collection<VisibilityType> visibility_types, Collection<User> user);
 
     @Query("""
         SELECT a FROM Activity a

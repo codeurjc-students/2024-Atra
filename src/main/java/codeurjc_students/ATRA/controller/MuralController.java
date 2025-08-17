@@ -110,19 +110,6 @@ public class MuralController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-    }
-
-    @GetMapping("/{muralId}/activities")
-    public ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, @PathVariable Long muralId){
-        //exceptions are handled by HttpExceptionHandler
-        User user = principalVerification(principal);
-        Mural mural = muralService.findById(muralId).orElseThrow(()->new HttpException(404, "Mural not found"));
-        if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "User is not in Mural, thus, they can't access its activities");
-        //user and mural both exists, and user is in the mural
-        //now return the mural's activities
-        return ResponseEntity.ok(ActivityDTO.toDto(activityService.findVisibleTo(mural)));
     }
 
     @PostMapping("/join")

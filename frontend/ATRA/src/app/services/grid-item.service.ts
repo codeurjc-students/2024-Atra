@@ -319,8 +319,8 @@ export class GridItemService {
   fetchActivities(mural: Mural | null, user: User | null): Observable<Activity[]> {
     //should fetch to /murals/:id/activities or /users/:id/activities, no need to pass the list
     //thus, we can omit the argument (we were just receiving entity.activities, we'd be doing the same thing)
-    if (mural!=null) return this.http.get<Activity[]>('/api/murals/'+mural.id+"/activities")
-    if (user!=null) return this.http.get<Activity[]>('/api/users/'+user.id+"/activities")
+    if (mural!=null) return this.http.get<Activity[]>('/api/activities?from=mural&id='+mural.id+"&fetchAll=true")
+    if (user!=null) return this.http.get<Activity[]>('/api/activities?from=user&id='+user.id+"&fetchAll=true")
     //if both are null
     throw new Error("GridItemService.fetchActivities called with null mural and user."); //shouldn't come to this, it should be caught above
   }
