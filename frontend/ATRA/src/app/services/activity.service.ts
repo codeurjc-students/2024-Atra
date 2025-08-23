@@ -42,18 +42,13 @@ export class ActivityService {
         this.alertService.toastError("File upload failed. The file must be a gpx file!")
         return
       }
-      this.authService.isLoggedIn().subscribe({
-        next: (isLoggedIn:boolean) => {
+      this.authService.isLoggedIn().subscribe(
+        (isLoggedIn:boolean) => {
           if (isLoggedIn) this.uploadGPX(file)
           else {
             console.log('Attempted to upload a file without logging in');
-            this.alertService.alert("Sorry, but you need to be logged in to upload a file. In the future we will make this feature available without login")
+            this.alertService.alert("Couldn't verify if you are logged in. You need to be logged in to access this functionality. We are working to make it available without login. Try again later.", "An unexpected error ocurred")
           }
-        },
-        error: (error) => {
-          console.error('An error ocurred trying to check if the user is logged in: ', error);
-          this.alertService.alert("Couldn't verify if you are logged in. Know that you need to be logged in to access this functionality. Try again later.", "An unexpected error ocurred")
-        }
       });
     }
   }

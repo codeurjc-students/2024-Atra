@@ -2,7 +2,7 @@ import { AlertService } from './alert.service';
 import { Injectable, OnInit } from '@angular/core';
 import { User } from '../models/user.model';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, BehaviorSubject, retry, of, map } from 'rxjs';
+import { Observable, tap, BehaviorSubject, retry, of, map, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -34,16 +34,17 @@ export class AuthService {
   }
   private isBackAuthenticated(): Observable<boolean> { //should only be called when isFrontAuthenticated fails
     // Possibly, a call to /me would be better (effectively just fetchAndSetUser). We could use it to update the cache as well (though if the cache is only used for permissions I don't think we'd really need that)
-    return this.http.get<boolean>("/api/auth/IsLoggedIn").pipe(tap({
-      next:(isLoggedIn) => {
+    return this.http.get<boolean>("/api/auth/IsLoggedIn").pipe(
+      tap( isLoggedIn => {
         if (isLoggedIn) {
           this.fetchAndSetUser(); //update the cache
         }
-      },
-      error:(e)=>{
+      }),
+      catchError( e =>{
         console.error("Something went wrong checking the user's authentication, ", e);
-      }
-    }))
+        return of(false);
+      })
+    )
   }
 
   logout() {
