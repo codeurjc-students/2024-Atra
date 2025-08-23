@@ -13,7 +13,9 @@
         <div class="card-body">
           <div class="d-flex flex-column gap-2 align-items-center">
             <!--<input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" formControlName="thumbnail">-->
-            <button type="button" class="btn btn-primary"><i class="fa-solid fa-upload me-2"></i>Upload file</button>
+            <span ngbPopover="You need to log in to access this feature. We're working on making it available without login" triggers="hover" placement="top">
+              <button type="button" class="btn btn-primary" disabled><i class="fa-solid fa-upload me-2"></i>Upload file</button>
+            </span>
 
           </div>
         </div>
@@ -21,7 +23,9 @@
         <div class="card-header" style="border-top: 1px solid #D2D2D2;"><h4 class="card-title">Or syncing to Strava</h4></div>
         <div class="card-body">
           <div class="d-flex flex-column gap-2 align-items-center">
-            <button type="button" class="btn btn-primary" onclick="this.alertService.alert('Sorry, this function is not yet supported.')"><i class="fa-brands fa-strava me-2"></i> Sync with Strava</button>
+            <span ngbPopover="This feature is not available yet. We're working on it" triggers="hover" placement="top">
+              <button type="button" class="btn btn-primary" onclick="this.alertService.alert('Sorry, this function is not yet supported.')" disabled><i class="fa-brands fa-strava me-2"></i> Sync with Strava</button>
+            </span>
           </div>
         </div>
       </div>
@@ -35,7 +39,9 @@
             <button type="button" class="btn btn-primary w-35" (click)="openLoginModal()"> <i class="fa-solid fa-right-to-bracket me-2"></i> Log in</button>
             <button type="button" class="btn btn-primary w-35" (click)="openRegisterModal()"><i class="fa-solid fa-user-plus me-2"></i> Sign up</button>
             <p style="font-weight: 500;font-size: 20px;">or</p>
-            <button type="button" class="btn btn-primary w-70" onclick="this.alertService.alert('Sorry, this function is not yet supported.')"><i class="fa-solid fa-file-import me-2"></i>Import    a previous session</button>
+            <span ngbPopover="This feature is not available yet. We're working on it" triggers="hover" placement="top" class="w-70">
+              <button type="button" class="btn btn-primary w-100" onclick="this.alertService.alert('Sorry, this function is not yet supported.')" disabled><i class="fa-solid fa-file-import me-2"></i>Import    a previous session</button>
+            </span>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { RegisterComponent } from '../register/register.component';
 import { LoginComponent } from '../login/login.component';
 import { ActivityService } from '../../services/activity.service';
@@ -8,7 +8,7 @@ import { ActivityService } from '../../services/activity.service';
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgbPopover],
   templateUrl: './welcome.component.html',
   styleUrl: './welcome.component.scss'
 })
