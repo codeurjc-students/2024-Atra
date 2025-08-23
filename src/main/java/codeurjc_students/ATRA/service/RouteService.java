@@ -152,16 +152,16 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public List<Route> findByOwnerAndVisibilityTypeIn(User user, List<VisibilityType> visibilityTypes) {
-		return routeRepository.findByOwnerAndVisibilityTypeIn(user, visibilityTypes);
+		return routeRepository.findByCreatedByAndVisibilityTypeIn(user, visibilityTypes);
 	}
 	public List<Route> findByOwnerAndVisibilityType(User user, String visibility) {
 		VisibilityType visibilityType;
 		try {visibilityType = VisibilityType.valueOf(visibility.toUpperCase(Locale.ROOT));}
 		catch (IllegalArgumentException e) {throw new HttpException(400, "Visibility specified is not a valid VisibilityType. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. \"");		}
-		return routeRepository.findByOwnerAndVisibilityTypeIn(user, List.of(visibilityType));
+		return routeRepository.findByCreatedByAndVisibilityTypeIn(user, List.of(visibilityType));
 	}
 
 	public List<Route> findUsedOrOwnedBy(User user) {
-		return routeRepository.findUsedOrOwnedBy(user);
+		return routeRepository.findUsedOrCreatedBy(user);
 	}
 }

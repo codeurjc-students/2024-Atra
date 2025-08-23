@@ -59,6 +59,4 @@ public class Route implements NamedId {
 	public void changeVisibilityTo(VisibilityType visibilityType, Collection<Long> allowedMurals) {
 		visibility.changeTo(visibilityType, allowedMurals);
 	}
-
-	public User getCreatedBy(){return createdBy;}
 }
