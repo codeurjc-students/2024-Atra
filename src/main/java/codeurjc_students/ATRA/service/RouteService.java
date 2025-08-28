@@ -25,12 +25,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public List<Route> findById(List<Long> ids) {
-		List<Route> result = new ArrayList<>();
-		for (var id : ids) {
-			Optional<Route> actOpt = findById(id);
-			actOpt.ifPresent(result::add);
-		}
-		return result;
+		return routeRepository.findAllById(ids);
 	}
 
 	public boolean exists(long id) {

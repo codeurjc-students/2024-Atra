@@ -72,7 +72,7 @@ public class MuralService {
 	public Collection<Mural> findOther(List<Mural> memberMurals) {
 		Set<Mural> hashSet = new HashSet<>(findByVisibility(VisibilityType.PUBLIC));
 		memberMurals.forEach(hashSet::remove);
-		return hashSet.stream().filter(mural -> mural.getVisibility() == VisibilityType.PUBLIC).toList();
+		return hashSet;
 	}
 
 	private Collection<Mural> findByVisibility(VisibilityType visibilityType) {
@@ -115,8 +115,6 @@ public class MuralService {
 			userRepository.save(newOwner);
 		}
 		muralRepository.save(mural);
-
-
 	}
 
     public Collection<Mural> findOwnedBy(User user) {

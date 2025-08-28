@@ -36,17 +36,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	@Autowired
 	private UserService userService;
 
-	public Optional<Activity> findById(long id) {
-		return activityRepository.findById(id);
-	}
 
-	public boolean exists(long id) {
-		return activityRepository.existsById(id);
-	}
-
-	public List<Activity> findAll() {
-		return activityRepository.findAll();
-	}
 
 	public void save(Activity activity) {
 		activityRepository.save(activity);
@@ -150,20 +140,8 @@ public class ActivityService implements ChangeVisibilityInterface{
 		activity.addDataPoint(dataPoint);
 	}
 
-	public List<Activity> get(List<Long> ids) {
-		List<Activity> result = new ArrayList<>();
-		for (var id : ids) {
-			Optional<Activity> opt = this.findById(id);
-            opt.ifPresent(result::add);
-		}
-		return result;
-	}
 
-	public Activity get(Long id) {
-		Optional<Activity> opt = this.findById(id);
-        return opt.orElse(null);
-    }
-
+	//<editor-fold desc="calculations">
 	public Double totalDistance(Activity activity) {
 		List<DataPoint> dataPoints = activity.getDataPoints();
 		Double total = 0.0;
@@ -174,8 +152,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 		}
 		return total;
 	}
-
-
 
 	public static Double totalDistance(DataPoint dp1, DataPoint dP2){
 		return totalDistance(dp1.get_lat(), dp1.get_long(), dP2.get_lat(), dP2.get_long());
@@ -202,6 +178,48 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return deg * (Math.PI/180);
 	}
 
+	public Double elevationGain(Activity activity) {
+		//can be done in a single line with filter and reduce like in activity summary, but this only iterates once
+		double runningTotal = 0.0;
+		DataPoint prevDp = null;
+		for (var dp : activity.getDataPoints()) {
+			if (prevDp==null) prevDp=dp;
+			double diff = dp.get_ele()-prevDp.get_ele();
+			if (diff>0) {
+				runningTotal += diff;
+			}
+			prevDp = dp;
+		}
+		return runningTotal;
+	}
+
+	//</editor-fold>
+
+	//<editor-fold desc="fetching methods">
+	public Optional<Activity> findById(long id) {
+		return activityRepository.findById(id);
+	}
+
+	public boolean exists(long id) {
+		return activityRepository.existsById(id);
+	}
+
+	public List<Activity> findAll() {
+		return activityRepository.findAll();
+	}
+	public List<Activity> get(List<Long> ids) {
+		List<Activity> result = new ArrayList<>();
+		for (var id : ids) {
+			Optional<Activity> opt = this.findById(id);
+			opt.ifPresent(result::add);
+		}
+		return result;
+	}
+
+	public Activity get(Long id) {
+		Optional<Activity> opt = this.findById(id);
+		return opt.orElse(null);
+	}
 
 	public List<Activity> findById(List<Long> activityIds) {
 		List<Activity> result = new ArrayList<>();
@@ -212,56 +230,9 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return result;
 	}
 
-	public void routeDeleted(Long deletedRouteId) {
-		activityRepository.findAll().forEach(activity -> {
-			if (activity.getRoute() != null && activity.getRoute().getId().equals(deletedRouteId)) {
-				activity.setRoute(null);
-			}
-		});
-	}
-
-	/**
-	 *
-	 * @param activityId
-	 * @param newVisibility
-	 * @return false if activityId doesn't match any existing activities, true otherwise
-	 */
-	public boolean changeVisibility(Long activityId, VisibilityType newVisibility){ //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		return changeVisibility(activityId,newVisibility,null);
-	}
-	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + activityId + " so the change visibility operation has been canceled"));
-		activity.changeVisibilityTo(newVisibility, allowedMuralsCol);
-		activityRepository.save(activity);
-		return true;
-	}
-
-	public Double elevationGain(Activity activity) {
-		//can be done in a single line with filter and reduce like in activity summary, but this only iterates once
-		double runningTotal = 0.0;
-		DataPoint prevDp = null;
-		for (var dp : activity.getDataPoints()) {
-		    if (prevDp==null) prevDp=dp;
-			double diff = dp.get_ele()-prevDp.get_ele();
-			if (diff>0) {
-				runningTotal += diff;
-			}
-			prevDp = dp;
-		}
-		return runningTotal;
-	}
-
-	public boolean isVisibleToMural(Activity activity, Mural mural) {
-		return activity.getVisibility().isVisibleByMural(mural.getId());
-	}
-
-	public boolean isVisibleToUser(Activity activity, User user) {
-		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.hasRole("ADMIN") && !activity.getVisibility().isPrivate());
-	}
-
-    public Collection<Activity> findByVisibilityType(VisibilityType visibilityType) {
+	public Collection<Activity> findByVisibilityType(VisibilityType visibilityType) {
 		return activityRepository.findByVisibilityType(visibilityType);
-    }
+	}
 
 	public Collection<Activity> findVisibleTo(Mural mural) {
 		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
@@ -296,7 +267,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findByUser(user);
 	}
 
-
 	public Page<Activity> findByUser(User user, int startPage, int pageSize) {
 		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
 		return activityRepository.findByUser(user, pageRequest);
@@ -308,7 +278,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 		if (shouldFetchRoutes) return activityRepository.findByUserAndRouteIsNull(user, pageRequest);
 		return activityRepository.findByUser(user, pageRequest);
 	}
-
 
 	public Collection<Activity> findByUserAndVisibleToMural(User user, Mural mural) {
 		return activityRepository.findByUserAndVisibleToMural(user, mural.getId());
@@ -326,19 +295,18 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	public Collection<Activity> findByUserAndVisibilityNonPrivate(User targetUser) {
-	return activityRepository.findByVisibilityTypeInAndUserIn(
-			List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC),
-			List.of(targetUser));
+		return activityRepository.findByVisibilityTypeInAndUserIn(
+				List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC),
+				List.of(targetUser));
 	}
 
-
-    public Collection<Activity> getByRoute(Route route) {
+	public Collection<Activity> getByRoute(Route route) {
 		return activityRepository.getByRoute(route);
-    }
+	}
 
-    public List<Activity> findByRouteAndUser(Route route, User user) {
+	public List<Activity> findByRouteAndUser(Route route, User user) {
 		return activityRepository.findByRouteAndUser(route, user);
-    }
+	}
 
 	public List<Activity> findByRouteAndUserAndVisibilityTypeIn(Route route, User user, List<VisibilityType> visibilityTypes) {
 		return activityRepository.findByRouteAndUserAndVisibilityTypeIn(route,user,visibilityTypes);
@@ -347,4 +315,39 @@ public class ActivityService implements ChangeVisibilityInterface{
 	public Collection<Activity> findByRouteAndMural(Route route, Mural mural) {
 		return activityRepository.findByRouteAndMural(route,mural.getId());
 	}
+	//</editor-fold>
+
+	public void routeDeleted(Long deletedRouteId) {
+		activityRepository.findAll().forEach(activity -> {
+			if (activity.getRoute() != null && activity.getRoute().getId().equals(deletedRouteId)) {
+				activity.setRoute(null);
+			}
+		});
+	}
+
+	/**
+	 *
+	 * @param activityId
+	 * @param newVisibility
+	 * @return false if activityId doesn't match any existing activities, true otherwise
+	 */
+	public boolean changeVisibility(Long activityId, VisibilityType newVisibility){ //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
+		return changeVisibility(activityId,newVisibility,null);
+	}
+	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
+		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + activityId + " so the change visibility operation has been canceled"));
+		activity.changeVisibilityTo(newVisibility, allowedMuralsCol);
+		activityRepository.save(activity);
+		return true;
+	}
+
+	public boolean isVisibleToMural(Activity activity, Mural mural) {
+		return activity.getVisibility().isVisibleByMural(mural.getId());
+	}
+
+	public boolean isVisibleToUser(Activity activity, User user) {
+		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.hasRole("ADMIN") && !activity.getVisibility().isPrivate());
+	}
+
+
 }
