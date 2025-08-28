@@ -27,7 +27,7 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
     List<Route> findByCreatedByAndVisibilityTypeIn(User user, List<VisibilityType> visibilityTypes);
 
     @Query("""
-    SELECT DISTINCT r FROM Route r LEFT JOIN r.activities a
+    SELECT DISTINCT r FROM Route r LEFT JOIN Activity a ON a.route = r
     WHERE r.createdBy = :user
     OR a.user = :user
     

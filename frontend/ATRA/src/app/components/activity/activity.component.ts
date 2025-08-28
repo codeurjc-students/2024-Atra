@@ -137,7 +137,7 @@ export class ActivityComponent implements OnInit {
   }
 
   fetchRoutes() {
-    this.routeService.fetchAllRoutes().subscribe({
+    this.routeService.getRoutesNoActivities().subscribe({
       next: (receivedRoutes: Route[]) => {
         this.routes = receivedRoutes;
       },

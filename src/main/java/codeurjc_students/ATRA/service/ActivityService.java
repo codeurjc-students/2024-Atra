@@ -230,7 +230,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return changeVisibility(activityId,newVisibility,null);
 	}
 	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404));
+		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + activityId + " so the change visibility operation has been canceled"));
 		activity.changeVisibilityTo(newVisibility, allowedMuralsCol);
 		activityRepository.save(activity);
 		return true;
@@ -332,6 +332,19 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 
+    public Collection<Activity> getByRoute(Route route) {
+		return activityRepository.getByRoute(route);
+    }
 
+    public List<Activity> findByRouteAndUser(Route route, User user) {
+		return activityRepository.findByRouteAndUser(route, user);
+    }
 
+	public List<Activity> findByRouteAndUserAndVisibilityTypeIn(Route route, User user, List<VisibilityType> visibilityTypes) {
+		return activityRepository.findByRouteAndUserAndVisibilityTypeIn(route,user,visibilityTypes);
+	}
+
+	public Collection<Activity> findByRouteAndMural(Route route, Mural mural) {
+		return activityRepository.findByRouteAndMural(route,mural.getId());
+	}
 }

@@ -326,8 +326,8 @@ export class GridItemService {
   }
 
   fetchRoutes(mural: Mural | null, user: User | null) : Observable<Route[]> {
-    if (mural!=null) return this.http.get<Route[]>('/api/routes?from=mural&id='+mural.id)
-    if (user!=null) return this.http.get<Route[]>('/api/routes?from=user&id='+user.id)
+    if (mural!=null) return this.http.get<Route[]>('/api/routes?from=mural&id='+mural.id+'&type=noActivities')
+    if (user!=null) return this.http.get<Route[]>('/api/routes?from=user&id='+user.id+'&type=noActivities')
     //if both are null
     throw new Error("GridItemService.fetchRoutes called with null mural and user."); //shouldn't come to this, it should be caught above
 

@@ -170,8 +170,6 @@ public class ActivityController {
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
         if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "You can only remove the route of activities you own");
-        Route prevRoute = activity.getRoute();
-        routeService.removeActivityFromRoute(activity,prevRoute);
         activity.setRoute(null);
         activityService.save(activity);
         return ResponseEntity.ok(new ActivityDTO(activity));
@@ -188,8 +186,6 @@ public class ActivityController {
 
         activity.setRoute(route);
         activityService.save(activity);
-        route.addActivity(activity);
-        routeService.save(route);
         //danger warning warn problema cuidado
         return ResponseEntity.ok(new ActivityDTO(activity)); //was new ActivityDTO(activity, new BasicNamedId(routeId, route.getName()))
     }
@@ -201,11 +197,6 @@ public class ActivityController {
         Activity activity = activityService.findById(id).orElse(null);
         if (activity==null) return ResponseEntity.notFound().build();
         if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "You can only delete activities you onw");
-        if (activity.getRoute()!=null) {
-            Route route = activity.getRoute();
-            route.removeActivity(activity);
-            routeService.save(route);
-        }
 
         deletionService.deleteActivity(id);
 

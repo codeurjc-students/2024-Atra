@@ -12,6 +12,7 @@ import { ActivitySelectComponent } from "../activity-select/activity-select.comp
 import { FormattingService } from '../../services/formatting.service';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { catchError, EMPTY, forkJoin, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-routes',
@@ -53,14 +54,15 @@ export class RoutesComponent {
 
   constructor(private routeService:RouteService, private activityService:ActivityService, private modalService: NgbModal, private alertService:AlertService, private activatedRoute: ActivatedRoute){}
 
+  mural: undefined | number = undefined;
 
   ngOnInit(): void {
     this.loading=true;
-    var mural: undefined | number = undefined;
     if (this.activatedRoute.snapshot.url[0].toString()=="murals") {
-      mural = this.activatedRoute.snapshot.params['id'];
+      this.mural = this.activatedRoute.snapshot.params['id'];
+      this.routeService.mural = this.mural;
     }
-    this.routeService.getRoutes(mural).subscribe({
+    this.routeService.getRoutes().subscribe({
       next: (value:Route[]) => {
         this.loading=false;
         if (value.length!=0) {
@@ -157,18 +159,16 @@ export class RoutesComponent {
   removeActivity(id: number) {
     if (!this.selectedRoute) throw new Error("Cannot remove activity as there's no selected route")
     this.routeService.removeActivity(this.selectedRoute.id, id).subscribe({
-      next: (reply: Route) => {
-        console.log("success at deleting connection");
-        this.allRoutes.set(reply.id, reply)
-        this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
-        this.select(reply.id)
-        this.fetchActivitiesWithNoRoute()
-
-      },
-      error: () => {
-        console.log("fail");
-        this.alertService.toastError("Couldn't remove the activity. Try again later, or after reloading.")
-      }
+        next: ([route, activities]: [Route, Activity[]]) => {
+          console.log("(RoutesComponent) Updated route fetched successfully");
+          route.activities = activities
+          this.allRoutes.set(route.id, route)
+          this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
+          this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
+          this.select(route.id)
+          this.fetchActivitiesWithNoRoute()
+        },
+        error: () => this.alertService.toastError("There was an error fetching the updated route. Data might be out of date until you reload the page")
     })
   }
 
@@ -176,20 +176,14 @@ export class RoutesComponent {
     this.alertService.confirm("This action is irreversible, are you sure you want to continue?", "Deleting route").subscribe(
       (accept)=> {
         if (this.selectedRoute==null) throw new Error("Trying to delete null route")
-        if (accept) this.routeService.deleteRoute(this.selectedRoute.id).subscribe({
+        if (accept) this.routeService.deleteRouteAndRefetch(this.selectedRoute.id, this.mural).subscribe({
           next: (reply: Route[]) => {
-            console.log("success at deleting connection");
-            if (this.selectedRoute==null) throw new Error("Trying to delete null route")
-            //this.routes.delete(this.selectedRoute.id)
             this.allRoutes = new Map(reply.map(x=>[x.id, x])) //to trigger change detection. should be careful with that
+            this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
             this.select(null)
             this.fetchActivitiesWithNoRoute()
-
           },
-          error: () => {
-            console.log("fail");
-            this.alertService.toastError("Couldn't remove the route. Try again later, or after reloading.")
-          }
+          error: () => this.alertService.toastError("There was an error fetching the updated route. Data might be out of date until you reload the page")
     })})
   }
 
@@ -217,27 +211,21 @@ export class RoutesComponent {
 
   changeVis() {
     if (this.selectedRoute==null || this.currentVis==null) throw new Error("changeVis called with null selectedRoute or currentVis")
-    //if (this.currentVis!=this.selectedRoute?.visibility.type) {
-      //gotta change visibility, so ask backend
       this.routeService.changeVisibility(this.selectedRoute.id, this.currentVis, this.allowedMuralsList).subscribe({
-        next: (reply: Route) => {
-          this.alertService.toastSuccess("Visibility changed successfully")
-          console.log("(RoutesComponent) Visibility changed successfully");
-          this.allRoutes.set(reply.id, reply)
+        next: ([route, activities]: [Route, Activity[]]) => {
+          console.log("(RoutesComponent) Updated route fetched successfully");
+          route.activities = activities
+          this.allRoutes.set(route.id, route)
           this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
-          this.select(reply.id)
+          this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
+          this.select(route.id)
         },
         error: (e) => {
-          if (e.status==422) {
-            this.alertService.toastError(e.error.message)
-          } else {
-            this.alertService.toastError("There was an error changing visibility.")
-          }
+          if (e.message==="error changing visibility") this.currentVis = this.selectedRoute?.visibility.type ?? this.currentVis
+          else this.alertService.toastError("There was an error fetching the updated route. Data might be out of date until you reload the page")
+
         }
-    })
-    //} else {
-    //  this.alertService.toastInfo("Visibility unchanged")
-    //}
+      })
     this.modal.dismiss();
   }
 
@@ -256,21 +244,17 @@ export class RoutesComponent {
   submit(){}
   addActivitiesToRoute(activities: Set<number>){
     if (this.selectedRoute==null)  throw new Error("addActivitiesToRoute called with undefined route")
-    this.routeService.addActivitiesToRoute(activities, this.selectedRoute.id).subscribe({
-      next: (reply: Route) => {
-        console.log("success at creating new connections");
-        this.modal.dismiss();
-        this.allRoutes.set(reply.id, reply)
+    this.routeService.addActivitiesToRouteAndRefetch(activities, this.selectedRoute.id, this.modal).subscribe({
+      next: ([route, activities]: [Route, Activity[]]) => {
+        route.activities = activities
+        this.allRoutes.set(route.id, route)
         this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
-        this.select(reply.id)
+        this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
+        this.select(route.id)
 
         this.fetchActivitiesWithNoRoute()
-
       },
-      error: (e) => {
-        console.error("Error adding activities to route: " + e);
-        this.alertService.toastError("Try again later.", "Error adding activities to route")
-      }
+      error: () => this.alertService.toastError("There was an error fetching the updated route. Data might be out of date until you reload the page")
     })
   }
 

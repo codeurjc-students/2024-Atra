@@ -53,12 +53,6 @@ public class RouteService implements ChangeVisibilityInterface{
 		routeRepository.deleteById(id);
 	}
 
-	public void removeActivityFromRoute(Activity activity, Route route) {
-		if (route==null) return;
-		route.removeActivity(activity);
-		save(route);
-	}
-
 	public Route newRoute(Activity activity, ActivityService activityService) {
 		return this.newRoute(new Route(), activity, activityService);
 	}
@@ -113,7 +107,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		return changeVisibility(routeId,newVisibility,null);
 	}
 	public boolean changeVisibility(Long routeId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		Route route = routeRepository.findById(routeId).orElseThrow(()->new HttpException(404));
+		Route route = routeRepository.findById(routeId).orElseThrow(()->new HttpException(404, "Could not find the route with id " + routeId + " so the change visibility operation has been canceled"));
 		Visibility currentVis = route.getVisibility();
 		if (currentVis.isPublic()) throw new HttpException(422, "Cannot change visibility of a public route");
 
@@ -146,12 +140,16 @@ public class RouteService implements ChangeVisibilityInterface{
 			   || route.getCreatedBy().equals(user)
 			   || (user.hasRole("ADMIN") && !route.getVisibility().isPrivate());
     }
+	public boolean isVisibleByDeep(Route route, User user) {
+		return isVisibleBy(route, user)
+			   || user.getMemberMurals().stream().anyMatch(mural -> isVisibleBy(route, mural));
+	}
 
 	public boolean isVisibleBy(Route route, Mural mural) {
 		return route.getVisibility().isVisibleByMural(mural.getId());
 	}
 
-	public List<Route> findByOwnerAndVisibilityTypeIn(User user, List<VisibilityType> visibilityTypes) {
+	public List<Route> findByCreatedByAndVisibilityTypeIn(User user, List<VisibilityType> visibilityTypes) {
 		return routeRepository.findByCreatedByAndVisibilityTypeIn(user, visibilityTypes);
 	}
 	public List<Route> findByOwnerAndVisibilityType(User user, String visibility) {
@@ -161,7 +159,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		return routeRepository.findByCreatedByAndVisibilityTypeIn(user, List.of(visibilityType));
 	}
 
-	public List<Route> findUsedOrOwnedBy(User user) {
+	public List<Route> findUsedOrCreatedBy(User user) {
 		return routeRepository.findUsedOrCreatedBy(user);
 	}
 }

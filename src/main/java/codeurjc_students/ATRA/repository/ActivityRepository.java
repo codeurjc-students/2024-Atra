@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.repository;
 
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
@@ -65,11 +66,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query("""
         SELECT a FROM Activity a
-        LEFT JOIN a.visibility.allowedMurals m
         WHERE (
             a.visibility.type = 'PUBLIC'
             OR a.visibility.type = 'MURAL_PUBLIC'
-            OR (a.visibility.type = 'MURAL_SPECIFIC' AND m = :muralId)
+            OR (a.visibility.type = 'MURAL_SPECIFIC' AND :muralId IN elements(a.visibility.allowedMurals))
           )
           AND (a.user.id IN :memberIds)
           AND (a.route IS NULL)
@@ -79,7 +79,28 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     @Query("""
     SELECT a FROM Activity a
     WHERE a.user = :user
-    AND :muralId IN elements(a.visibility.allowedMurals)
+    AND (
+            a.visibility.type = 'PUBLIC'
+            OR a.visibility.type = 'MURAL_PUBLIC'
+            OR (a.visibility.type = 'MURAL_SPECIFIC' AND :muralId IN elements(a.visibility.allowedMurals))
+          )
     """)
     List<Activity> findByUserAndVisibleToMural(User user, Long muralId);
+
+    Collection<Activity> getByRoute(Route route);
+
+    List<Activity> findByRouteAndUser(Route route, User user);
+
+    List<Activity> findByRouteAndUserAndVisibilityTypeIn(Route route, User user, List<VisibilityType> visibilityTypes);
+
+    @Query("""
+    SELECT a FROM Activity a
+    WHERE a.route=:route AND
+    (
+        a.visibility.type = 'PUBLIC'
+        OR a.visibility.type = 'MURAL_PUBLIC'
+        OR (a.visibility.type = 'MURAL_SPECIFIC' AND :muralId IN elements(a.visibility.allowedMurals))
+    )
+    """)
+    Collection<Activity> findByRouteAndMural(Route route, Long muralId);
 }

@@ -40,19 +40,12 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 		this.visibility = route.getVisibility();
 	}
 
-	public RouteWithActivityDTO(Route route) {
-		this.id = route.getId();
-		this.totalDistance = route.getTotalDistance();
-		this.elevationGain = route.getElevationGain();
-		this.coordinates = route.getCoordinates();
-		this.name = route.getName();
-		this.description = route.getDescription();
-		this.activities = route.getActivities().stream().map(ActivityOfRouteDTO::new).toList();
-		this.visibility = route.getVisibility();
+	public static List<RouteWithActivityDTO> toDto(List<Route> routes, List<List<ActivityOfRouteDTO>> activityList) {
+		List<RouteWithActivityDTO> result = new ArrayList<>();
+		for (int i = 0; i < routes.size(); i++) {
+			result.add(new RouteWithActivityDTO(routes.get(i),activityList.get(i)));
 
-	}
-
-	public static List<RouteWithActivityDTO> toDto(Collection<Route> routes) {
-		return routes.stream().map(RouteWithActivityDTO::new).toList();
+		}
+		return result;
 	}
 }

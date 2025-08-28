@@ -273,14 +273,14 @@ public class DatabaseInitializer {
         route.changeVisibilityTo(VisibilityType.PUBLIC);
         //route.setOwner(null);
         route.setName("r1 asd (PU)");
-        Activity extraActivity = activityService.findByUser(qwe).get(0);
+        Activity extraActivity = activityService.findByUser(zxc).get(2);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
         route = routeService.newRoute(activityService.findByUser(asd).get(1), activityService);
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId(), qweMural.getId(), zxcMural.getId()));
         route.setName("r2 asd (MS)");
-        extraActivity = activityService.findByUser(qwe).get(1);
+        extraActivity = activityService.findByUser(zxc).get(3);
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);

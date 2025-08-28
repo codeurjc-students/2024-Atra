@@ -40,18 +40,6 @@ public class Route implements NamedId {
 	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	private User createdBy;
-	@ToString.Exclude
-	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
-	private List<Activity> activities = new ArrayList<>();
-
-
-	public void addActivity(Activity activityId) {
-		activities.add(activityId);
-	}
-
-	public void removeActivity(Activity activity) {
-		activities.remove(activity);
-	}
 
 	public void changeVisibilityTo(VisibilityType visibilityType) {
 		visibility.changeTo(visibilityType);
