@@ -231,7 +231,7 @@ public class ActivityController {
             activityService.save(activity);
             muralService.save(mural);
         });
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/OwnedInMural")

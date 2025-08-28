@@ -93,12 +93,12 @@ public class UserController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<Object> changePassword(@RequestBody String password, Principal principal){
+    public ResponseEntity<String> changePassword(@RequestBody String password, Principal principal){
         try {
             User user = this.principalVerification(principal);
             user.setPassword(passwordEncoder.encode(password));
             userService.save(user);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         } catch (HttpException e) {
             return ResponseEntity.status(e.getStatus()).build();
         }
@@ -132,12 +132,9 @@ public class UserController {
                 user.removeRoute(r);
             }
         }
-        for (Mural m: muralService.findOwnedBy(user)) {
-            m.removeOwner();
-        }
+        muralService.findOwnedBy(user).forEach(Mural::removeOwner);
         deletionService.deleteUser(user);
-        return ResponseEntity.ok().build();
-
+        return ResponseEntity.noContent().build();
     }
 
     // <editor-fold desc="Auxiliary Methods">

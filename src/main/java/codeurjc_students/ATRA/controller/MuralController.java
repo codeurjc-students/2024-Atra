@@ -190,7 +190,7 @@ public class MuralController {
         if (!mural.getMembers().contains(user)) throw new HttpException(404, "User is not a member of specified mural");
         if (mural.getMembers().size()==1) {
             deletionService.deleteMural(mural.getId());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         }
 
         //handle owner crap
@@ -247,7 +247,7 @@ public class MuralController {
         } catch (IOException e) {
             throw new HttpException(400, "File could not be opened");
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     private User principalVerification(Principal principal) throws HttpException {

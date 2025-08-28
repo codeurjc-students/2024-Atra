@@ -210,7 +210,7 @@ public class RouteController {
 
             routeService.save(route);
         });
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/OwnedInMural")
