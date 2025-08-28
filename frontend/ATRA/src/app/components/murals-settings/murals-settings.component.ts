@@ -127,7 +127,7 @@ export class MuralsSettingsComponent implements OnInit {
   id: number = -1;
 
 
-  activityList: Activity[] = [];
+  activityList!: Activity[];
   routeList: Route[] = [];
   modal: NgbModalRef |null = null;
   selectedActivities: Set<number> | null = null;
@@ -215,6 +215,12 @@ export class MuralsSettingsComponent implements OnInit {
       this.alertService.alert("You need to select a route to change its visibility", "No routes selected")
       return;
     }
+    for (let routeId of this.selectedRoutes) {
+      if (this.routeList.find(a=>a.id==routeId)) {
+        this.alertService.toastWarning("Some of the selected routes are public, they can't be hidden", "Selected routes include public ones");
+        return;
+      }
+    }
     this.alertService.confirm(
       "Are you sure you want to make these activities not visible to this mural?\nMURAL_SPECIFIC activities will remove the mural from their list.\nMURAL_PUBLIC activities will turn MURAL_SPECIFIC, allowing any mural you're part of, except this one, to see them.",
       "Changing visibility of "+this.selectedRoutes.size+" route"+ (this.selectedRoutes.size > 1 ? "s" : "")
@@ -224,6 +230,7 @@ export class MuralsSettingsComponent implements OnInit {
       if (accepted) this.routeService.makeRoutesNotVisibleToMural(this.id, this.selectedRoutes).subscribe({
         next: () => {
           this.alertService.toastSuccess("Visibility of selected activities changed successfully");
+
           this.reloadRoutes()
           //activityselect component should load until activities are reloaded, to prevent intermediate calls
         },
@@ -242,12 +249,13 @@ export class MuralsSettingsComponent implements OnInit {
       next: (data:any[]) => {
         // Process the data received from the service
         this.loadingActivities = false
-        console.log("Activities and routes in mural:", data);
         this.activityList = this.activityService.process(data)
+        console.log("Activities in mural:", this.activityList);
+
       },
       error: (err) => {
         this.loadingActivities = false
-        console.error("Error fetching activities and routes in mural:", err);
+        console.error("Error fetching activities in mural:", err);
       }
     })
   }
@@ -258,12 +266,12 @@ export class MuralsSettingsComponent implements OnInit {
       next: (data:Route[]) => {
         // Process the data received from the service
         this.loadingRoutes = false
-        console.log("Activities and routes in mural:", data);
+        console.log("Routes in mural:", data);
         this.routeList = data
       },
       error: (err) => {
         this.loadingRoutes = false
-        console.error("Error fetching activities and routes in mural:", err);
+        console.error("Error fetching routes in mural:", err);
       }
     })
   }

@@ -101,7 +101,6 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
           }
         });
       })
-
     })
   }
 
@@ -113,7 +112,8 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
     if (this.map || !this.mapContainer) return;
 
     setTimeout(() => { // Wait for popover to fully render
-      this.map = MapService.mapSetup('popoverMap', false, false);
+      this.map = MapService.mapSetup('popoverMapRoute', false, false);
+
       this.addPathToMap(coordinates)
     });
   }

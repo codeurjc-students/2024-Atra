@@ -220,10 +220,10 @@ public class ActivityController {
         List<Activity> activities = activityService.findById(selectedActivitiesIds);
         activities.forEach(activity -> {
             if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) return;
-            if (activity.getVisibility().isPrivate() || activity.getVisibility().isPublic()) return;
+            if (activity.getVisibility().isPrivate()) return;
             if (activity.getVisibility().isMuralSpecific()) {
                 activity.getVisibility().removeMural(muralId);
-            } else if (activity.getVisibility().isMuralPublic()) {
+            } else if (activity.getVisibility().isMuralPublic() || activity.getVisibility().isPublic()) {
                 List<Long> memberMuralIds = new ArrayList<>(user.getMemberMurals().stream().map(Mural::getId).toList());
                 memberMuralIds.remove(muralId);
                 activity.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, memberMuralIds);

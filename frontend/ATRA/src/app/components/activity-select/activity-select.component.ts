@@ -50,7 +50,6 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
 
   ngOnInit(): void {
-    console.log({"isChild":this.isChild, activitiesIsNull:this.activities!=null});
 
     if (this.isChild || this.activities!=null) return
     this.activities = [];
@@ -82,7 +81,9 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
     } else if (this.loadFrom=='user') {
       this.loading=false;
       throw new Error("Not implemented yet, as there's no real need for it")
-     }
+    }
+    this.loading=false;
+    throw new Error("Invalid loadFrom value" + this.loadFrom);
   }
 
   activitiesReceived(response:HttpResponse<any[]>) {
@@ -111,7 +112,6 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
     }
   }
   activitiesInherited() {
-    console.log({"this.activities.length":this.activities});
 
     this.loading = false;
     this.total = this.activities.length
@@ -122,14 +122,12 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
 
     this.minShown=0
     this.maxShown=this.pageSize
-    this.minShownHTML=1
-    console.log({shownActivities:this.shownActivities, a:1});
-    console.log({activities:this.activities, c:333333333333333333333333333333333333333333333333333333333333333333});
-    this.shownActivities = this.activities.slice(0, this.pageSize);
-    console.log({shownActivities:this.shownActivities, b:2});
+    this.minShownHTML=0
 
-    this.maxShownHTML=Math.min(this.pageSize, this.shownActivities.length)
-    console.log({"lastPage":this.lastPage});
+    this.shownActivities = this.activities.slice(0, this.pageSize);
+
+    this.minShownHTML=this.shownActivities?.length?1:0
+    this.maxShownHTML=Math.min(this.pageSize, this.shownActivities?.length??0)
 
   }
 
@@ -208,7 +206,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
     if (this.map || !this.mapContainer) return;
 
     setTimeout(() => { // Wait for popover to fully render
-      this.map = MapService.mapSetup('popoverMap', false, false);
+      this.map = MapService.mapSetup('popoverMapActivities', false, false);
       this.addPathToMap(coordinates)
     });
   }
@@ -256,10 +254,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   this.maxShown = Math.min((this.currentPage+1) * this.pageSize, this.total);
   this.shownActivities = this.activities.slice(this.minShown, this.maxShown);
 
-  console.log({_cond1:this.shownActivities!=null, _cond2:this.shownActivities.length==0});
-
-
-  this.minShownHTML = this.minShown+1
+  this.minShownHTML = this.minShown==0?0:this.minShown+1
   this.maxShownHTML = this.maxShown
   }
 
