@@ -148,6 +148,9 @@ export class MuralService {
   ban(muralId: number, userId: number) {
     return this.http.post<{name:string,id:number}[]>("/api/murals/"+muralId+"/users/"+userId+"/ban", {})
   }
+  unban(muralId: number, userId: number) {
+    return this.http.post<{name:string,id:number}[]>("/api/murals/"+muralId+"/users/"+userId+"/unban", {})
+  }
   joinMuralCode(muralCode: string): Observable<number> {
     return this.http.post<number>(`/api/murals/join`,muralCode)
   }

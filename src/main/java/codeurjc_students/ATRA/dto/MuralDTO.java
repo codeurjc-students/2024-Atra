@@ -26,6 +26,7 @@ public class MuralDTO {
 	//entities could be User if we modify the user to remove its references. Either set to null or use a DTO
 	private NamedId owner;
 	private List<NamedId> members = new ArrayList<>();
+	private List<NamedId> bannedUsers = new ArrayList<>();
 	private List<NamedId> activities = new ArrayList<>();
 	private List<NamedId> routes = new ArrayList<>();
 
@@ -41,6 +42,9 @@ public class MuralDTO {
 		owner = new BasicNamedId(mural.getOwner().getId(), mural.getOwner().getName());
 		mural.getMembers().forEach(user -> {
 			this.members.add(new BasicNamedId(user.getId(), user.getName()));
+		});
+		mural.getBannedUsers().forEach(user -> {
+			this.bannedUsers.add(new BasicNamedId(user.getId(), user.getName()));
 		});
 	}
 

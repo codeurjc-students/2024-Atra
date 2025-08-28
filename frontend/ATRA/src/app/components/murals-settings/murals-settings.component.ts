@@ -47,7 +47,24 @@ export class MuralsSettingsComponent implements OnInit {
       next: (newUserList) => {
         if (this.owner==null) throw new Error("Lost access to the owner between clicking ban and confirming the intent to do so. How the hell does this happen?")
         this.alertService.toastSuccess("User banned successfully");
-        this.userList = newUserList.filter(user => user.id !== this.owner!.id); // Remove the banned user from the list
+        this.bannedUserList.push({id:id, name:this.userList.find(u=>u.id==id)?.name??"Error. Reload to see name"});
+        this.userList = newUserList.filter(user => user.id !== this.owner!.id); // Remove the banned user from the list. Shouldn't be necessary
+      },
+      error: (err) => {
+        console.error("Error banning user:", err);
+        this.alertService.toastError("There was an error banning the user");
+      }
+    })
+    else this.alertService.toastInfo("Operation cancelled")
+    })
+  }
+  unbanUser(id: number) {
+    if (this.owner==null) return this.alertService.toastError("Try again later or after reloadning", "Something went wrong");
+    this.alertService.confirm("Are you sure you want to unban this user?").subscribe(accepted=> {if (accepted) this.muralService.unban(this.id, id).subscribe({
+      next: (newUserList) => {
+        if (this.owner==null) throw new Error("Lost access to the owner between clicking ban and confirming the intent to do so. How the hell does this happen?")
+        this.alertService.toastSuccess("User unbanned successfully");
+        this.bannedUserList = newUserList;
       },
       error: (err) => {
         console.error("Error banning user:", err);
@@ -119,6 +136,7 @@ export class MuralsSettingsComponent implements OnInit {
 
   selectedInheritor: { id: number, name: string } | null = null;
   userList: { id: number, name: string }[] = [];
+  bannedUserList: { id: number, name: string }[] = [];
 
   newDescription: string = '';
   changingOwner: boolean = true;
@@ -148,6 +166,7 @@ export class MuralsSettingsComponent implements OnInit {
         this.name = mural.name;
         this.isOwner = JSON.parse(localStorage.getItem("user")!).id == mural.owner.id;
         this.userList = mural.members;
+        this.bannedUserList = mural.bannedUsers;
         //remove current owner from userlist
         this.userList = this.userList.filter(user => user.id !== mural.owner.id);
 

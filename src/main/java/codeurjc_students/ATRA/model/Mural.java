@@ -106,6 +106,9 @@ public class Mural implements NamedId {
 	public void banUser(User user) {
 		bannedUsers.add(user);
 	}
+	public void unbanUser(User user) {
+		bannedUsers.remove(user);
+	}
 
 	public void setVisibility(VisibilityType visibilityType) {
 		if (visibilityType==VisibilityType.MURAL_PUBLIC || visibilityType==VisibilityType.MURAL_SPECIFIC) throw new IllegalArgumentException("VisibilityType for a mural must be PUBLIC or PRIVATE, not "+visibilityType);

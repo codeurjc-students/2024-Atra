@@ -7,6 +7,7 @@ import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
+import com.fasterxml.jackson.databind.util.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -150,13 +151,23 @@ public class MuralController {
     }
 
     @PostMapping("/{muralId}/users/{userId}/ban")
-    public ResponseEntity<List<NamedId>> changeBanner(Principal principal, @PathVariable("muralId") Long muralId, @PathVariable("userId") Long userId){
+    public ResponseEntity<List<NamedId>> banUser(Principal principal, @PathVariable("muralId") Long muralId, @PathVariable("userId") Long userId){
         List<NamedId> body = removeSpecifiedUserFromMural(principal, muralId, userId, null).getBody();
         Mural mural = muralService.findById(muralId).orElseThrow(()->new HttpException(404, "Mural not found"));
         User user = userService.findById(userId).orElseThrow(() -> new HttpException(404, "User to ban not found"));
         mural.banUser(user);
         muralService.save(mural);
         return ResponseEntity.ok(body);
+    }
+    @PostMapping("/{muralId}/users/{userId}/unban")
+    public ResponseEntity<List<NamedId>> unbanUser(Principal principal, @PathVariable("muralId") Long muralId, @PathVariable("userId") Long userId){
+        User ppal = principalVerification(principal);
+        Mural mural = muralService.findById(muralId).orElseThrow(()->new HttpException(404, "Mural not found"));
+        if (!ppal.equals(mural.getOwner()) && !ppal.hasRole("ADMIN")) throw new HttpException(403, "Only admin or mural owner can unban users");
+        User user = userService.findById(userId).orElseThrow(() -> new HttpException(404, "User to unban not found"));
+        mural.unbanUser(user);
+        muralService.save(mural);
+        return ResponseEntity.ok(BasicNamedId.from(mural.getBannedUsers().stream().map(u->(NamedId)u).toList()));
     }
 
     @DeleteMapping("/{id}")
@@ -215,6 +226,15 @@ public class MuralController {
             }
         }
 
+        for (Route r: routeService.findByCreatedBy(user)) {
+            if (r.getVisibility().isMuralSpecific()) {
+                r.getVisibility().removeMural(mural.getId());
+            }
+            activityService.getByRoute(r).forEach(activity -> {
+                if (!r.getCreatedBy().equals(activity.getUser()) && r.equals(activity.getRoute()))
+                    activity.setRoute(null);
+            });
+        }
         userService.save(user);
         muralService.save(mural);
         return ResponseEntity.ok(BasicNamedId.from(new ArrayList<>(mural.getMembers())));

@@ -12,6 +12,7 @@ export interface Mural {
 
     owner: {name:string;id:number};
     members: {name:string;id:number}[];
+    bannedUsers: {name:string;id:number}[];
 
     activities: {name:string;id:number}[];
     routes: {name:string;id:number}[];

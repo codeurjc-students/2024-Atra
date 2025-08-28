@@ -157,4 +157,8 @@ public class RouteService implements ChangeVisibilityInterface{
 	public List<Route> findUsedOrCreatedBy(User user) {
 		return routeRepository.findUsedOrCreatedBy(user);
 	}
+
+	public Collection<Route> findByCreatedBy(User user) {
+		return routeRepository.findAllByCreatedBy(user);
+	}
 }
