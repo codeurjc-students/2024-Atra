@@ -126,7 +126,6 @@ export class GridItemService {
 
             const currentValue = Number(value);
 
-
             if (records[key] == null) {
               records[key] = [value, activity.user.name]; // Update the record if it didn't exist
               return; //continue;
@@ -138,7 +137,6 @@ export class GridItemService {
             if ((key.includes("km") || key.includes("mile")) && currentValue!=-1 && currentValue < previousValue) {
               records[key] = [value, activity.user.name]; // Update if the current record is better (lower time)
             } else if ((key.includes("min") || key.includes("hour")) && currentValue > previousValue) {
-
               records[key] = [value, activity.user.name]; // Update if the current record is better (longer distance)
             }
           })
@@ -215,7 +213,7 @@ export class GridItemService {
           rows.push(["Total Distance", FormattingService.formatDistance(activities.reduce((sum, activity) => sum + (activity.summary?.totalDistance || 0), 0)) || "0 km"])
           rows.push(["Total Time",FormattingService.formatTime(activities?.reduce((sum, activity) => sum + (activity.summary?.totalTime || 0), 0) || 0)])
           rows.push(["Avg Pace",activities.length ? FormattingService.formatPace(activities.reduce((sum, activity) => sum + (activity.summary?.averages?.['pace'] || 0), 0) / activities.length) : "No avg pace"])
-          rows.push(["Max Distance",activities.reduce((sum,activity) => activity.summary!.totalDistance>sum.summary!.totalDistance ? activity:sum).summary!.totalDistance.toFixed(2)])
+          rows.push(["Max Distance",FormattingService.formatDistance(activities.reduce((sum,activity) => activity.summary!.totalDistance>sum.summary!.totalDistance ? activity:sum).summary!.totalDistance)])
           rows.push(["Max Time",FormattingService.formatTime(activities.reduce((sum,activity) => activity.summary!.totalTime>sum.summary!.totalTime ? activity:sum).summary!.totalTime)])
         }
 

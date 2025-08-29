@@ -1,38 +1,53 @@
 <div class="d-flex justify-content-center align-items-center w-100 h-100">
   <div class="card w-75 h-75">
-    <input type="file" id="fileInput" accept="image/*" hidden />
+    <input type="file" id="fileInput" accept="image/*" hidden (change)="editPfp($event)"/>
     <div class="profile-pic" onclick="document.getElementById('fileInput').click();">
       <img id="profileImage" src="../assets/profile.svg" alt="Profile Picture">
     </div>
     <div class="card-content d-flex justify-content-center align-items-end h-100 w-100">
       <div class="h-75 w-35 custom-card violet-bg mx-5">
         <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
-          <div class="my-5">
-            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Total number of activities: </span> 312 </div>
-            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Total distance travelled: </span> 1024km</div>
-            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Total time trained: </span> 50h 12m 53s</div>
-            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Best 1km pace: </span> 4:12 </div>
-            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Best 5km pace: </span> 5:22 </div>
-            <div class="fs-5 mx-4 my-2"><span class="fw-bold">Best 10km pace: </span> 5:36 </div>
+          <div class="my-5" *ngIf="!loadingActs">
+            <div class="fs-5 mx-4 my-2" *ngFor="let info of ineditableInfo | keyvalue:keepOrder">
+              <span class="fw-bold">{{info.key}}: </span> {{info.value}}
+            </div>
+          </div>
+          <div class="my-5 h-100 w-100 d-flex justify-content-center align-items-center flex-column" *ngIf="loadingActs">
+            <div class="spinner-border mt-4" role="status"></div>
+            <div class="mb-4">Loading data...</div>
           </div>
         </div>
       </div>
       <div class="h-75 w-35 custom-card green-bg mx-5">
         <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
           <div class="fs-5 my-5">
-            <div><span class="fw-bold">Username: </span> {{user.username}} </div>
-            <div><span class="fw-bold">Password: </span> ***************** </div>
-            <div><span class="fw-bold">Displayname: </span> {{user.name}} </div>
-            <div><span class="fw-bold">Email: </span> {{user.email}} </div>
+            <div class="my-2"
+              [ngbPopover]="'Your username is used for logging in. It is unique to each user and private. No one else can see it'"
+              triggers="hover"
+              [openDelay]="100"
+              popoverClass="custom-popover"><span class="fw-bold">
+              Username: </span> {{user.username}}
+            </div>
+            <div class="my-2"
+              [ngbPopover]="'Your displayname is the public name other users will see when they see your activities, routes, murals etc.'"
+              triggers="hover"
+              [openDelay]="100"
+              popoverClass="custom-popover"><span class="fw-bold">
+                Displayname: </span> {{user.name}}
+            </div>
+            <div class="my-2"
+              [ngbPopover]="'Your email. It is optional, and private. It will be used to send you notifications, reset your password, and other such purposes.'"
+              triggers="hover"
+              [openDelay]="100"
+              popoverClass="custom-popover">
+              <span class="fw-bold">Email: </span> {{user.email}}
+            </div>
           </div>
           <div class="d-flex justify-content-around w-100 my-4">
-            <button class="btn btn-warning" (click)="downloadSession()">Download Session</button>
+            <div [ngbPopover]="'Not available yet. We\'re woring on it'" triggers="hover"><button class="btn btn-warning" disabled>Download Session</button></div>
             <button class="btn btn-primary" (click)="open(changeProfileData)">Change</button>
             <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
           </div>
-
-
-
         </div>
       </div>
     </div>
@@ -55,12 +70,10 @@
         <small class="text-danger d-block" *ngIf="generalForm.get('username')?.touched && generalForm.get('username')?.errors?.['isTaken']">Ese nombre de usuario es inválido</small>
       </div>
 
-
       <div class="mb-3 form-floating">
-        <input type="text" class="form-control" id="name" name="name" formControlName="name" placeholder="Displayname" #name (change)="change(name.value)">
+        <input type="text" class="form-control" id="name" name="name" formControlName="name" placeholder="Displayname" #name>
         <label for="name">Displayname</label>
       </div>
-
 
       <div class="mb-3 form-floating">
         <input type="text" class="form-control" id="email" name="email" formControlName="email" placeholder="Email" #email>

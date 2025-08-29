@@ -1,39 +1,101 @@
+import { FormattingService } from './../../services/formatting.service';
 import { UserService } from './../../services/user.service';
 import { Component, OnInit, TemplateRef } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { User } from '../../models/user.model';
 import { AlertService } from '../../services/alert.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { Activity } from '../../models/activity.model';
+import { ActivityService } from '../../services/activity.service';
+import { every } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NgbPopover],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
 
-  profileModal !: any;
-  passwordModal !: any;
-  user !: User;
-  generalForm !: FormGroup;
-  passwordForm !: FormGroup;
 
-  constructor(private modalService:NgbModal, private userService:UserService, private alertService:AlertService, private router:Router, private fb: FormBuilder, private authService:AuthService){
-    this.user = {
-      id: 1,
-      username: "username",
-      password: "string",
-      name: "name",
-      email: "email",
-      roles: [""]
-    };
+  user !: User;
+
+
+  constructor(
+    private modalService:NgbModal,
+    private userService:UserService,
+    private alertService:AlertService,
+    private router:Router,
+    private fb: FormBuilder,
+    private authService:AuthService,
+    private activityService:ActivityService
+  ){
+    const u = authService.user.value
+    if (u==null) throw new Error("Accessed profile with AuthService.User.value being null. AuthGuard was supposed to prevent this")
+    this.user = u
   }
 
+  ngOnInit(): void {
+    this.userService.getCurrentUser().subscribe({
+      next:(u:any)=>{
+        this.user = u;
+        this.createForms()
+      },
+      error:(e)=>{
+        console.error("There's been an error. Current user could not be loaded: ", e);
+      }
+    })
+    this.fetchActivities()
+  }
+
+  //#region ineditable info
+  activities !: Activity[];
+  ineditableInfo:Map<string, string> = new Map<string, string>()
+  loadingActs:boolean = false;
+  fetchActivities(){
+    console.log("Fetching activities for profile component");
+
+    this.loadingActs=true
+    this.activityService.getAuthenticatedUserActivities(true).subscribe({
+      next:(response:any)=>{
+        console.log("Activities fetched for profile component: ", response.body);
+
+        this.loadingActs=false
+        this.calcIneditableInfo(this.activityService.process(response.body));
+      },
+      error:(e)=>{
+        this.loadingActs=false
+        console.error("There's been an error. User activities could not be loaded: ", e);
+      }
+    })
+  }
+  keepOrder = ()=>0
+  calcIneditableInfo(activities:Activity[]){
+    this.ineditableInfo.clear()
+    this.ineditableInfo.set("Total number of activities", activities.length.toString())
+    this.ineditableInfo.set("Total distance covered", FormattingService.formatDistance(activities.reduce((sum, activity) => sum + (activity.summary?.totalDistance || 0), 0)) || "0 km")
+    this.ineditableInfo.set("Total time trained", FormattingService.formatTime(activities.reduce((sum, activity) => sum + (activity.summary?.totalTime || 0), 0),1))
+    this.ineditableInfo.set("Average pace", FormattingService.formatPace(activities.reduce((sum, activity) => sum + (activity.summary?.averages?.['pace'] || 0), 0) / activities.length))
+    this.ineditableInfo.set("Max Distance", FormattingService.formatDistance(activities.reduce((sum,activity) => activity.summary!.totalDistance>sum.summary!.totalDistance ? activity:sum).summary!.totalDistance))
+    this.ineditableInfo.set("Max Time", FormattingService.formatTime(activities.reduce((sum,activity) => activity.summary!.totalTime>sum.summary!.totalTime ? activity:sum).summary!.totalTime))
+    this.ineditableInfo.set("Best 1km Pace", FormattingService.formatPace(Math.min(...activities.filter(a=>a.summary?.records && a.summary.records['1km']).map(a=>parseFloat(a.summary!.records!['1km'])))))
+    if (this.ineditableInfo.get("Best 1km Pace")==FormattingService.formatPace(-1)) this.ineditableInfo.set("Best 1km Pace", "N/A")
+    this.ineditableInfo.set("Best 5km Pace",  FormattingService.formatPace(Math.min(...activities.filter(a=>a.summary?.records && a.summary.records['5km'  ]).map(a=>parseFloat(a.summary!.records!['5km'])))) || "N/A")
+    if (this.ineditableInfo.get("Best 5km Pace")==FormattingService.formatPace(-1)) this.ineditableInfo.set("Best 5km Pace", "N/A")
+    this.ineditableInfo.set("Best 10km Pace", FormattingService.formatPace(Math.min(...activities.filter(a=>a.summary?.records && a.summary.records['10km']).map(a=>parseFloat(a.summary!.records!['10km'])))) || "N/A")
+    if (this.ineditableInfo.get("Best 10km Pace")==FormattingService.formatPace(-1)) this.ineditableInfo.set("Best 10km Pace", "N/A")
+  }
+  //#endregion
+
+  //#region editable info
+  profileModal !: any;
+  passwordModal !: any;
+  generalForm !: FormGroup;
+  passwordForm !: FormGroup;
   createForms(){
     this.generalForm = this.fb.group({
       username: [this.user.username, { validators: [Validators.required], asyncValidators: [this.userService.isUserNameTaken(this.user.username)], updateOn: 'blur' }],
@@ -49,21 +111,7 @@ export class ProfileComponent implements OnInit {
       validators : [this.userService.matchPasswords("newPassword","confirmPassword")],
       updateOn: 'blur'
     });
-
   }
-
-  ngOnInit(): void {
-    this.userService.getCurrentUser().subscribe({
-      next:(u:any)=>{
-        this.user = u;
-        this.createForms()
-      },
-      error:(e)=>{
-        console.error("There's been an error. Current user could not be loaded: ", e);
-      }
-    })
-  }
-
   open(template: TemplateRef<any>, password?:boolean) {
     const modal = this.modalService.open(template, {backdrop:'static'}); //consider centering. Not doing it now cause it covers more content when centered
     if (password) {
@@ -153,16 +201,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  change(v:string) {
-    console.log(v);
-    console.log(this.generalForm.get('name'));
-
-
-  }
-
-  downloadSession(){
-    this.alertService.alert('Sorry, this functionality is not available yet', 'Functionality not implemented')
-  }
   deleteAccount(){
     this.alertService.confirm(
       'You are deleting this account. This action is irreversible.\n'+
@@ -197,5 +235,14 @@ export class ProfileComponent implements OnInit {
       }
     )
   }
+
+  editPfp(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.alertService.alert("Profile picture upload is not implemented yet", "Not implemented")
+  }
+  //#endregion
 
 }
