@@ -115,7 +115,7 @@
     <select [(ngModel)]="selectedRoute" #selectForRoute class="form-select" (change)="selectedRouteChange()">
       <option value="-1">-- Select a route --</option>
       <option *ngFor="let x of routes" [value]="x.id">
-        {{ x.name }} ({{ x.totalDistance }} km)
+        {{ x.name }} ({{ formatDistanceExtender(x.totalDistance) }})
       </option>
     </select>
       <div class="thin-grey-border fixed-height-450 mt-3" id="routeMap" *ngIf="selectedRoute!=-1"></div>

@@ -13,6 +13,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RouteService } from '../../services/route.service';
 import { Route } from '../../models/route.model';
 import { AlertService } from '../../services/alert.service';
+import { FormattingService } from '../../services/formatting.service';
 
 
 @Component({
@@ -252,6 +253,9 @@ export class ActivityComponent implements OnInit {
 
       }
     })
+  }
 
+  protected formatDistanceExtender(n:number){
+    return FormattingService.formatDistance(n);
   }
 }
