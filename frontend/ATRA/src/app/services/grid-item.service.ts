@@ -211,14 +211,6 @@ export class GridItemService {
         if (routes)     rows.push(["# of routes", routes.length.toString()])
 
         if (activities){
-          console.log("reduce " + activities.reduce((sum,activity) => {
-            console.log("\n current: " + activity.summary!.totalDistance);
-            console.log("max: " + sum.summary!.totalDistance);
-
-            return activity.summary!.totalDistance>sum.summary!.totalDistance ? activity:sum
-
-          }).summary?.totalDistance)
-
           rows.push(["# of activities", activities.length.toString()])
           rows.push(["Total Distance", FormattingService.formatDistance(activities.reduce((sum, activity) => sum + (activity.summary?.totalDistance || 0), 0)) || "0 km"])
           rows.push(["Total Time",FormattingService.formatTime(activities?.reduce((sum, activity) => sum + (activity.summary?.totalTime || 0), 0) || 0)])
@@ -227,6 +219,8 @@ export class GridItemService {
           rows.push(["Max Time",FormattingService.formatTime(activities.reduce((sum,activity) => activity.summary!.totalTime>sum.summary!.totalTime ? activity:sum).summary!.totalTime)])
         }
 
+        if (this.user) rows.push(["username",this.user.username])
+        if (this.user) rows.push(["displayname",this.user.name])
         this.rowValues.get("info")?.next(rows);
       }
     })

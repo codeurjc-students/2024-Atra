@@ -35,7 +35,7 @@ export class UserService {
   }
 
   getCurrentUser(){
-    return this.http.get("/api/users/me")
+    return this.http.get<User>("/api/users/me")
   }
 
   update(user: User) { //prev user: {id: number, name: string; email: string; username: string}
