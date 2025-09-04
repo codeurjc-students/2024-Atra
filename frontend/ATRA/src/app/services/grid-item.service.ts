@@ -108,93 +108,103 @@ export class GridItemService {
     });
   }
   private populateRecords() {
-    //['Category', 'Best', 'User']
-    //console.log("GridItemService.populateRecords waiting for activities to be fetched.");
     this.activityList.subscribe({
       next: (activities) => {
-        //console.log("GridItemService.populateRecords received activities: " + activities);
-        if (activities == null) throw new Error("Trying to populate records with null activities");
-
-        const recordValues: string[][] = [];
-        const columnNames = this.getColNames("records");
-
-        // Assuming we want to find the best record for each distance
-        const records: Record<string, [string,string]> = {}; //category: best | user
-        for (const activity of activities) {
-          if (!activity.summary || !activity.summary.records) continue; // Skip activities without summary
-          Object.entries(activity.summary.records).forEach(([key, value]) => {
-
-            const currentValue = Number(value);
-
-            if (records[key] == null) {
-              records[key] = [value, activity.user.name]; // Update the record if it didn't exist
-              return; //continue;
-            }
-            const previousValue = Number(records[key][0]);
-
-            if (Number.isNaN(previousValue)) throw new Error(`Previous value for key ${key} is NaN (${records[key][0]}). This should not happen.`);
-
-            if ((key.includes("km") || key.includes("mile")) && currentValue!=-1 && currentValue < previousValue) {
-              records[key] = [value, activity.user.name]; // Update if the current record is better (lower time)
-            } else if ((key.includes("min") || key.includes("hour")) && currentValue > previousValue) {
-              records[key] = [value, activity.user.name]; // Update if the current record is better (longer distance)
-            }
-          })
-        }
-        // found the records for each category. Now we format them pretty, and order them
-        for (const [category, [best, by]] of Object.entries(records)) {
-          if (Number(best) == -1) { // -1 is used to indicate no record
-            records[category] = ["-", "-"]; //Quisiera que aparezcan al final, o que no aparezcan y punto
-            continue;
-          }
-          if ((category.includes("km") || category.includes("mile"))) {
-            records[category] = [FormattingService.formatTime(Number(best)), by];
-          } else if ((category.includes("min") || category.includes("hour"))) {
-            records[category] = [FormattingService.formatDistance(Number(best)), by];
-          }
-        }
-        const sortedEntries = Object.entries(records).sort(([keyA], [keyB]) => {
-          const priority: Record<string, number> = {km: 1,mile: 2,min: 3,hour: 4};
-          const parseKey = (key: string) => {
-            const match = key.match(/^(\d+)(km|mile|min|hour)$/);
-            if (!match) throw new Error("Invalid key format: " + key);
-            return { num: Number(match[1]), unit: match[2] };
-          };
-
-          const a = parseKey(keyA);
-          const b = parseKey(keyB);
-
-          // First compare by unit
-          if (a.unit !== b.unit) {
-            return priority[a.unit] - priority[b.unit];
-          }
-
-          // Then compare numerically
-          return a.num - b.num;
-        });
-        // found the records for each category, now we need to populate the recordValues
-        for (const [category, [best, by]] of sortedEntries) {
-          const currentRow: string[] = Array(columnNames.length).fill("");
-          currentRow[columnNames.indexOf("Category")] = category;
-          currentRow[columnNames.indexOf("Best")] = best;
-          currentRow[columnNames.indexOf("User")] = by;
-
-          recordValues.push(currentRow);
-        }
-        //console.log(recordValues);
-
-        //now to set recordValues into rowValues
-        this.rowValues.get('records')?.next(recordValues);
-
-        //if (this.mural) {
-        //  this.rowLinks.get('records')?.next(records.map(record => `/murals/${this.mural!.id}/records/${record[0]}`));
-        //} else if (this.user) {
-        //  this.rowLinks.get('records')?.next(records.map(record => `/me/records/${record[0]}`));
-        //}
-
+        this.rowValues.get('records')?.next(this.calcRecords(activities));
       }
     })
-}
+
+  }
+  calcRecords(activities: Activity[]|null, ignoreIds:boolean=true): string[][] {
+    //['Category', 'Best', 'User']
+     if (activities == null) throw new Error("Trying to populate records with null activities");
+
+     const recordValues: string[][] = [];
+     const columnNames = this.getColNames("records");
+
+     // Assuming we want to find the best record for each distance
+     const records: Record<string, [string,string,string,number]> = {}; //category: best | user
+     for (const activity of activities) {
+       if (!activity.summary || !activity.summary.records) continue; // Skip activities without summary
+       Object.entries(activity.summary.records).forEach(([key, value]) => {
+
+         const currentValue = Number(value);
+
+         if (records[key] == null) {
+           records[key] = [value, activity.user.name,activity.name, activity.id]; // Update the record if it didn't exist
+           return; //continue;
+         }
+         const previousValue = Number(records[key][0]);
+
+         if (Number.isNaN(previousValue)) throw new Error(`Previous value for key ${key} is NaN (${records[key][0]}). This should not happen.`);
+
+         if ((key.includes("km") || key.includes("mile")) && currentValue!=-1 && currentValue < previousValue) {
+           records[key] = [value, activity.user.name,activity.name, activity.id]; // Update if the current record is better (lower time)
+         } else if ((key.includes("min") || key.includes("hour")) && currentValue > previousValue) {
+           records[key] = [value, activity.user.name,activity.name, activity.id]; // Update if the current record is better (longer distance)
+         }
+       })
+     }
+    // found the records for each category. Now we format them pretty, and order them
+    for (const [category, [best, by, inAct, actId]] of Object.entries(records)) {
+      if (Number(best) == -1) { // -1 is used to indicate no record
+        records[category] = ["-", "-","-",-1]; //Quisiera que aparezcan al final, o que no aparezcan y punto
+        continue;
+      }
+      if ((category.includes("km") || category.includes("mile"))) {
+        records[category] = [FormattingService.formatTime(Number(best)), by, inAct, actId];
+      } else if ((category.includes("min") || category.includes("hour"))) {
+        records[category] = [FormattingService.formatDistance(Number(best)), by, inAct, actId];
+      }
+    }
+    const sortedEntries = Object.entries(records).sort(([keyA], [keyB]) => {
+      const priority: Record<string, number> = {km: 1,mile: 2,min: 3,hour: 4};
+      const parseKey = (key: string) => {
+        const match = key.match(/^(\d+)(km|mile|min|hour)$/);
+        if (!match) throw new Error("Invalid key format: " + key);
+        return { num: Number(match[1]), unit: match[2] };
+      };
+
+      const a = parseKey(keyA);
+      const b = parseKey(keyB);
+
+      // First compare by unit
+      if (a.unit !== b.unit) {
+        return priority[a.unit] - priority[b.unit];
+      }
+
+      // Then compare numerically
+      return a.num - b.num;
+    });
+    // found the records for each category, now we need to populate the recordValues
+    for (const [category, [best, by, inAct, actId]] of sortedEntries) {
+      const currentRow: string[] = Array(columnNames.length).fill("");
+      currentRow[columnNames.indexOf("Category")] = category;
+      currentRow[columnNames.indexOf("Best")] = best;
+      currentRow[columnNames.indexOf("User")] = by;
+      currentRow[columnNames.indexOf("Activity")] = inAct;
+      currentRow.push(actId.toString())
+
+      recordValues.push(currentRow);
+    }
+
+    if (this.mural){
+      this.rowLinks.get('records')?.next(recordValues.map(record => `/murals/${this.mural!.id}/activities/${record.at(-1)}`));
+    } else if (this.user) {
+      this.rowLinks.get('records')?.next(recordValues.map(record => `/me/activities/${record.at(-1)}`));
+    }
+    if (ignoreIds) return recordValues.map(v=>v.slice(0,-1))
+    //console.log(recordValues);
+
+    //now to set recordValues into rowValues
+    return recordValues;
+
+    //if (this.mural) {
+    //  this.rowLinks.get('records')?.next(records.map(record => `/murals/${this.mural!.id}/records/${record[0]}`));
+    //} else if (this.user) {
+    //  this.rowLinks.get('records')?.next(records.map(record => `/me/records/${record[0]}`));
+    //}
+  }
   private populateInfo() {
     // which holds name, description, owner, etc, and is clickable.
     // When clicked, everything is displayed in better detail, and the owner is given options to add/delete members, change owner, and delete the mural.
@@ -328,7 +338,7 @@ export class GridItemService {
   getColNames(type:ComponentType): string[] {
     const colNames = new Map<string,string[]>([
       ['members',    ['Name', 'Total Time', 'Total Distance', '# of Activities']],
-      ['records',    ['Category', 'Best', 'User']],
+      ['records',    ['Category', 'Best', 'User', 'Activity']],
       ['info',       ['Name', 'Value']], //or maybe [Name, Best|By, Avg]
       ['activities', ['Name', 'Date', 'Avg Pace', 'Distance', 'Time']],
       ['routes',     ['Name', 'Efforts', 'Distance', 'Best Time | By']]

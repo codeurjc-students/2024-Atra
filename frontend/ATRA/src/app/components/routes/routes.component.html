@@ -5,10 +5,11 @@
     <div class="d-flex justify-content-between align-items-center mb-1">
       <h2 class="h5 mb-0">Routes</h2>
       <div>
-        <button class="btn btn-primary" (click)="open(filterModal, true)"><i class="fa-solid fa-filter"></i></button>
-
+        <button class="btn btn-warning mx-1" (click)="openCompareModal(compareModal, true)" *ngIf="selectedRoute!=null"><i class="fa-solid fa-code-compare"></i></button>
         <button class="btn btn-info mx-1" *ngIf="selectedRoute!=null && currentVis!='PUBLIC'" (click)="open(changeVisModal, true, false)"><i class="fa-solid fa-eye"></i></button>
-        <button class="btn btn-danger" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC'" (click)="deleteSelectedRoute()"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn btn-danger mx-1" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC'" (click)="deleteSelectedRoute()"><i class="fa-solid fa-trash"></i></button>
+
+        <button class="btn btn-primary mx-1" (click)="open(filterModal, true)"><i class="fa-solid fa-filter"></i></button>
       </div>
       </div>
 
@@ -150,9 +151,6 @@
   </div>
 </ng-template>
 
-
-
-
 <ng-template #changeVisModal> <!-- let-modal -->
   <div class="modal-header d-flex justify-content-start">
     <h5 class="modal-title">Change visibility of selected route</h5>
@@ -182,6 +180,22 @@
   </div>
 </ng-template>
 
+<ng-template #compareModal let-modal> <!-- let-modal -->
+  <div class="modal-header d-flex justify-content-start">
+    <h5 class="modal-title">Select activities in this route you want to compare</h5>
+  </div>
+  <div class="modal-body">
+    <div>Selected activities will be compared. By default all activities are selected.</div>
+    <div class="form-check">
+      <div *ngFor="let act of selectedRoute!.activities"><label for="act{{act.id}}-checkbox"><input type="checkbox" class="mx-1" (change)="toggleCompare(act.id)" id="act{{act.id}}-checkbox" [checked]="actsToCompare.has(act.id)">{{act.name}}</label></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-warning" (click)="actsToCompare.clear()" [disabled]="actsToCompare.size==0">Deselect all</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="compareSelected(modal)" [disabled]="actsToCompare.size==0">Compare selected</button>
+  </div>
+</ng-template>
 
 <ng-template #loadingTemplate>
   <tbody>

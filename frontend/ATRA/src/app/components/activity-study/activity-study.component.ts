@@ -7,7 +7,7 @@ import { ActivityService } from './../../services/activity.service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener, OnInit, TemplateRef, ViewChild, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { GraphService } from '../../services/graph.service';
+import { GraphService, NamedSeries, NameValue } from '../../services/graph.service';
 import { FormsModule } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
@@ -35,12 +35,12 @@ export class ActivityStudyComponent implements OnInit {
   //Chart Manipulation
   xAxisRepresents: string = "timeElapsed";
   extrasSet: Set<string> = new Set();
-  referenceLines: {name:string, value:number}[] = [{name:'median',value:640}]
+  referenceLines: NameValue[] = [{name:'median',value:640}]
   yAxisTickFormat: (value: number) => string = (value) => value.toString()
 
   //Data
-  dataset : {name:string, value:number}[] = [];
-  displayData: {name:string, series:{name:string, value:number}[]} [] | { name: string; value: number }[] = [];
+  dataset : NameValue[] = [];
+  displayData: NamedSeries[] | NameValue[] = [];
   partitionNum: number= 5
 
   //Metrics
@@ -126,7 +126,6 @@ export class ActivityStudyComponent implements OnInit {
       this.updateGoals()
     this.pushExtras()
     this.updateExtraRatings() //posssibly could be called only when event===extras
-
   }
   updateExtraRatings() {
     this.ratings[1].set("Between Goal and LL", this.graphService.getBetween(this.dataset.map((x)=>x.value), this.goals.goal, this.goals.lowerLimit))

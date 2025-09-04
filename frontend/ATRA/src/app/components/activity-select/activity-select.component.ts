@@ -81,9 +81,12 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
     } else if (this.loadFrom=='user') {
       this.loading=false;
       throw new Error("Not implemented yet, as there's no real need for it")
+    } else {
+      this.loading=false;
+      throw new Error("Invalid loadFrom value " + this.loadFrom);
     }
     this.loading=false;
-    throw new Error("Invalid loadFrom value" + this.loadFrom);
+
   }
 
   activitiesReceived(response:HttpResponse<any[]>) {
@@ -164,13 +167,13 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   }
 
   defaultSubmit(){
+    const selectedActs = Array.from(this.selected);
     if (this.selected.size === 0 ) { this.alertService.alert("You must select at least one activity") }
     else if (this.selected.size === 1) {
-      this.router.navigate([this.urlStart, "activities", Array.from(this.selected)[0]])
-    } else if (this.selected.size === 2) {
-      this.router.navigate([this.urlStart, "activities", "compare", `${Array.from(this.selected)[0]}-${Array.from(this.selected)[1]}`])
+      this.router.navigate([this.urlStart, "activities", selectedActs[0]])
     } else {
-      this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
+      this.router.navigate([this.urlStart, "activities", "compare", `${selectedActs.join("-")}`])
+      //this.alertService.alert("Sorry, for now you can select no more than 2 elements. We are working on expanding this feature.")
     }
   }
 

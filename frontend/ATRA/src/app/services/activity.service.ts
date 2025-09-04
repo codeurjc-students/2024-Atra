@@ -58,12 +58,12 @@ export class ActivityService {
     formData.append('file', file);
     this.http.post('/api/activities', formData).subscribe({
       next: (activity:any) => {
-        this.alertService.confirm("Activity has been added. Do you want to see it?").subscribe(
+        this.alertService.confirm("Activity has been added. Do you want to see it?", "Activity created successfully").subscribe(
           (accepted) => {
             if (accepted)
               this.router.navigate(["/me/activities/", activity.id])
             //else reload current page
-            else window.location.reload()
+            else this.alertService.alert("You might need to refresh the current page for it to show data from the new activity", "Be advised")
           }
         )
       },
@@ -106,8 +106,9 @@ export class ActivityService {
     return new Activity(value);
   }
 
-  get(id: number, muralId?:string|null): Observable<Activity|null>{
-    if (this.currentActivity.getValue()==null || this.currentActivity.getValue()?.id!=id) {
+  get(id: number, muralId?:string|null): Observable<Activity>{
+    const currentValue = this.currentActivity.getValue();
+    if (currentValue==null || currentValue?.id!=id) {
       this.loadingActivity=true;
       window.clearTimeout(this.timeout);
       const muralAddOn = muralId==null ? "":"?mural="+muralId
@@ -119,7 +120,11 @@ export class ActivityService {
         })
       );
     }
-    return of(this.currentActivity.getValue());
+    return of(currentValue!);
+  }
+  getActivities(id:number[], muralId?:number){
+    const m = muralId ? "&muralId="+muralId:""
+    return this.http.get<Activity[]>("/api/activities/byIds?ids="+id.toString()+m, {observe:'response'})
   }
 
   removeRoute(id: number){

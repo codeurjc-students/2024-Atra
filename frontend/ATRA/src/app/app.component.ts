@@ -68,7 +68,7 @@ export class AppComponent implements OnInit{
   }
   isRouteStudy() {
     const p = this.location.path().split("/")
-    return (p.length==4 && !Number.isNaN(Number(p[3]))) || (p.length==5 && !Number.isNaN(Number(p[4])));
+    return (p.length==4 && !Number.isNaN(Number(p[3]))) || (p.length==5 && !Number.isNaN(Number(p[4])) && p[3]!='compare');
   }
   isRouteCompare() {
     const p = this.location.path().split("/")

@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
         }
         //check if it's a mural with no access
         if (state.url.startsWith('/murals/')) {
-          const muralId = route.paramMap.get('id');
+          const muralId = route.paramMap.get('id') ?? route.paramMap.get('muralId');
           if (isNaN(Number(muralId))) return of(true) //skip if id is not a number (other,owned...)
           return this.muralService.isVisible(Number(muralId)).pipe(map(
             isVisible => {

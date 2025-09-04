@@ -24,7 +24,7 @@ export const routes: Routes = [
   {path: 'me/home', component: UserDashboardComponent, canActivate: [AuthGuard],},
   {path: 'me/routes', component: RoutesComponent, canActivate: [AuthGuard],},
   //{path: 'me/activity-comparison', component: ActivitySelectComponent, canActivate: [AuthGuard],},
-  {path: 'me/activities/compare/:id', component: ComparisonComponent, canActivate: [AuthGuard],}, // this with extra ones in query parameters. Alt would be me/activity-comparison?ids=1,2
+  {path: 'me/activities/compare/:activityId', component: ComparisonComponent, canActivate: [AuthGuard],}, // this with extra ones in query parameters. Alt would be me/activity-comparison?ids=1,2
                                                                         // this depends on wether I want to differentiate the elements being compared. If there is one important one
                                                                         // being compared against others, it should be /:id?ids=1,2. If all take the same importance, it should be
                                                                         // /activity-comparison?ids=1,2,
@@ -35,6 +35,7 @@ export const routes: Routes = [
   //{path: 'murals/:id/activity-comparison', component: ComparisonComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/activities', component: ActivitySelectComponent, data: { loadFrom:'mural' }, canActivate: [AuthGuard],},
   {path: 'murals/:muralId/activities/:activityId', component: ActivityComponent, canActivate: [AuthGuard],},
+  {path: 'murals/:muralId/activities/compare/:activityId', component: ComparisonComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/dashboard', component: MuralsDashboardComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/routes', component: RoutesComponent, canActivate: [AuthGuard],},
   {path: 'murals/:id/settings', component: MuralsSettingsComponent, canActivate: [AuthGuard],},

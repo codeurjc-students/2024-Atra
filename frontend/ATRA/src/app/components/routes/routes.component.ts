@@ -10,9 +10,8 @@ import L from 'leaflet';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { ActivitySelectComponent } from "../activity-select/activity-select.component";
 import { FormattingService } from '../../services/formatting.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { catchError, EMPTY, forkJoin, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-routes',
@@ -52,7 +51,13 @@ export class RoutesComponent {
   allActivities !: Activity[];
   errorLoadingActivities : boolean = false;
 
-  constructor(private routeService:RouteService, private activityService:ActivityService, private modalService: NgbModal, private alertService:AlertService, private activatedRoute: ActivatedRoute){}
+  constructor(private routeService:RouteService,
+    private activityService:ActivityService,
+    private modalService: NgbModal,
+    private alertService:AlertService,
+    private activatedRoute: ActivatedRoute,
+    private router:Router
+  ){}
 
   mural: undefined | number = undefined;
 
@@ -259,5 +264,22 @@ export class RoutesComponent {
   }
 
   //#endregion
+
+  actsToCompare:Set<number>=new Set();
+  openCompareModal(template:TemplateRef<any>,enableBackdrop:boolean) {
+    this.selectedRoute!.activities.forEach(a=>this.actsToCompare.add(a.id))
+    this.open(template,enableBackdrop)
+  }
+  toggleCompare(id:number){
+    if (this.actsToCompare.has(id)) this.actsToCompare.delete(id)
+    else this.actsToCompare.add(id)
+  }
+  compareSelected(modal:any) {
+    const urlParts = this.activatedRoute.snapshot.url
+    const urlStart = urlParts[0].toString()
+    if  (urlStart=='me') this.router.navigate([urlStart, 'activities', 'compare', Array.from(this.actsToCompare).join("-")])
+    else this.router.navigate([urlStart, urlParts[1].toString(), 'activities', 'compare', Array.from(this.actsToCompare).join("-")])
+    modal.dismiss()
+  }
 
 }

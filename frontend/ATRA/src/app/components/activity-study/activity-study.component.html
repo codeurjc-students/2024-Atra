@@ -126,8 +126,8 @@
   <div class="modal-body">
     <div *ngIf="selectedChart!=='histogram'">
       <div>
-        X axis is
-        <select [(ngModel)]="xAxisRepresents" (change)="updateChart('xAxisRepresents')" >
+        X axis is:
+        <select [(ngModel)]="xAxisRepresents" (change)="updateChart('xAxisRepresents')" class="form-select w-auto d-inline-block" >
           <option value="timeElapsed">Time Elapsed</option>
           <option value="timeOfDay">Time of day</option>
           <option value="totalDistance">Total distance</option>
@@ -137,11 +137,11 @@
         Show
         <ul>
 
-          <li><label><input type="checkbox" [checked]="this.extrasSet.has('goal')" (change)="updateExtras('goal')"> Show Goal</label></li>
-          <li><label><input type="checkbox" [checked]="this.extrasSet.has('upperLimit')" (change)="updateExtras('upperLimit')"> Show Upper Limit</label> </li>
-          <li><label><input type="checkbox" [checked]="this.extrasSet.has('lowerLimit')" (change)="updateExtras('lowerLimit')"> Show Lower Limit</label></li>
-          <li><label><input type="checkbox" [checked]="this.extrasSet.has('percentiles')" (change)="updateExtras('percentiles')"> Show Percentiles</label></li>
-          <li><label><input type="checkbox" [checked]="this.extrasSet.has('outlierLimits')" (change)="updateExtras('outlierLimits')"> Show Outlier Limits</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('goal')" (change)="updateExtras('goal')"> Goal</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('upperLimit')" (change)="updateExtras('upperLimit')"> Upper Limit</label> </li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('lowerLimit')" (change)="updateExtras('lowerLimit')"> Lower Limit</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('percentiles')" (change)="updateExtras('percentiles')"> Percentiles</label></li>
+          <li><label><input type="checkbox" [checked]="this.extrasSet.has('outlierLimits')" (change)="updateExtras('outlierLimits')"> Outlier Limits</label></li>
         </ul>
       </div>
     </div>

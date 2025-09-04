@@ -12,6 +12,7 @@ import codeurjc_students.ATRA.service.auxiliary.UtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,6 +52,29 @@ public class ActivityController {
 
         //then fetch and return the activity
         return ResponseEntity.ok(new ActivityDTO(activity));
+    }
+
+    @GetMapping("/byIds")
+    public ResponseEntity<List<ActivityDTO>> getActivitiesByIds(Principal principal, @RequestParam List<Long> ids, @RequestParam(required=false) Long muralId) {
+        User user = principalVerification(principal);
+        Mural mural;
+        if (muralId!=null) {
+            mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Requested mural not found"));
+            if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "User is not a member of specified mural");
+        } else {
+            mural = null;
+        }
+        List<Activity> activities = activityService.findById(ids);
+        List<Activity> filteredActivities = activities.stream().filter(a->
+                (user.hasRole("ADMIN")&&!a.getVisibility().isPrivate()) ||
+                user.equals(a.getUser()) ||
+                a.getVisibility().isPublic() ||
+                mural!=null && a.getVisibility().isVisibleByMural(muralId)
+        ).toList();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("ATRA-requested-forbidden", Boolean.toString(ids.size()!=filteredActivities.size()));
+
+        return new ResponseEntity<>(ActivityDTO.toDto(filteredActivities), headers, HttpStatus.OK);
     }
 
     @GetMapping
@@ -154,13 +178,13 @@ public class ActivityController {
     }
 
     @PostMapping
-    public ResponseEntity<Activity> createActivity(@RequestParam("file") MultipartFile file, Principal principal){
+    public ResponseEntity<ActivityDTO> createActivity(@RequestParam("file") MultipartFile file, Principal principal){
         if (principal==null) {
             return  ResponseEntity.badRequest().build();
         }
 
         Activity activity = activityService.newActivity(file, principal.getName());
-        return ResponseEntity.ok(activity);
+        return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
 
