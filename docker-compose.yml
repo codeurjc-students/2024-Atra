@@ -1,0 +1,51 @@
+
+services:
+  frontend:
+    build:
+      context: ./frontend/ATRA   # folder with Angular Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "4200:8080"           # expose frontend on localhost:4200
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/ATRA/proxy.conf.docker.json:/usr/src/app/src/proxy.conf.json
+    networks:
+      - appnet
+
+  backend:
+    build:
+      context: ./    # folder with Spring Boot Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"         # expose backend on localhost:8080
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    #restart: on-failure
+    #entrypoint: ["tail", "-f", "/dev/null"]
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"         # optional: expose DB for local tools
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - appnet
+
+volumes:
+  db_data:
+
+networks:
+  appnet:

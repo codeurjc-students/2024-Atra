@@ -8,8 +8,10 @@ import codeurjc_students.ATRA.repository.MuralRepository;
 import codeurjc_students.ATRA.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -80,17 +82,15 @@ public class MuralService {
 	}
 
 	public static byte[] getDefaultThumbnailBytes() {
-		File file = new File("target/classes/static/defaultThumbnailImage.png");
 		try {
-			return Files.readAllBytes(file.toPath());
+			return new ClassPathResource("static/defaultThumbnailImage.png").getInputStream().readAllBytes();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	public static byte[] getDefaultBannerBytes() {
-		File file = new File("target/classes/static/defaultBannerImage.png");
 		try {
-			return Files.readAllBytes(file.toPath());
+			return new ClassPathResource("static/defaultBannerImage.png").getInputStream().readAllBytes();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

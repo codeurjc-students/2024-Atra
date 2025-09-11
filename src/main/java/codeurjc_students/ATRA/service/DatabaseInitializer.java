@@ -5,11 +5,13 @@ import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import jakarta.annotation.PreDestroy;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.context.event.EventListener;
@@ -44,36 +46,40 @@ public class DatabaseInitializer {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() throws IOException {
-        emptyDB();
+        //emptyDB();
         //smolInit(); //currently broken
         beegInit();
     }
 
-    @Transactional
+    @PreDestroy
     public void emptyDB() {
+/*
+        System.out.println("\n\n\n\n\n\n\n\nEmptying db\n\n\n\n\n\n\n\n");
         entityManager.flush();
 
         // Disable FK checks
         entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
 
         // Truncate all tables JPA manages
-        entityManager.createNativeQuery("TRUNCATE TABLE activities").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE activity_allowed_murals").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE activity_data_points").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE activity_mural").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE banned_user_mural").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE murals").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE route_allowed_murals").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE route_coordinates").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE route_mural").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE routes").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE user_mural").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE user_roles").executeUpdate();
-        entityManager.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS activities").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS activity_allowed_murals").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS activity_data_points").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS activity_mural").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS banned_user_mural").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS murals").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS route_allowed_murals").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS route_coordinates").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS route_mural").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS routes").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS user_mural").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS user_roles").executeUpdate();
+        entityManager.createNativeQuery("DROP TABLE IF EXISTS users").executeUpdate();
         // Add more tables as needed
 
         // Re-enable FK checks
         entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
+*/
+        System.out.println("\n\n\n\n\n\n\n\ndb emptied\n\n\n\n\n\n\n\n");
     }
     private void smolInit() throws IOException {
         //<editor-fold desc="users">
@@ -94,7 +100,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="activities">
         Map<String, Activity> activityMap = new HashMap<>();
         for (int i=0;i<20;i++) {
-            Activity createdAct = activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), users.get(i%users.size()).getUsername(), true);
+            Activity createdAct = activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), users.get(i%users.size()).getUsername(), true);
             if (i%3==0) createdAct.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
             activityMap.put(createdAct.getName(),createdAct);
             muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
@@ -141,7 +147,7 @@ public class DatabaseInitializer {
         //</editor-fold>
     }
     @Transactional
-    public void beegInit() {
+    public void beegInit() throws IOException {
 
         //<editor-fold desc="Users">
         User admin = new User("admin", passwordEncoder.encode("admin"));
@@ -200,7 +206,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="Activities">
         List<Activity> activities = new ArrayList<>();
         for (int i=0;i<19;i++) {
-            activities.add(activityService.newActivity(Paths.get("target\\classes\\static\\track" + i + ".gpx"), asd.getUsername(), false));
+            activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), asd.getUsername(), false));
         }        //all activities are initially created as property of asd, though asd does not know this
 
         System.out.println("Activities created");
@@ -252,7 +258,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="set userx activities">
         for (int i=0; i<users.size();i++) {
             User user = users.get(i);
-            Activity activity = activityService.newActivity(Paths.get("target\\classes\\static\\track" + 19 + ".gpx"), user.getUsername(), true);
+            Activity activity = activityService.newActivity(new ClassPathResource("static/track" + 19 + ".gpx").getInputStream(), user.getUsername(), true);
             switch (i % 4) {
                 case 0 -> activity.changeVisibilityTo(VisibilityType.PUBLIC);
                 case 1 -> activity.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
@@ -349,10 +355,8 @@ public class DatabaseInitializer {
     }
 
     private void setThumbnailAndBanner(Mural mural) throws IOException {
-        File file = new File("target/classes/static/defaultThumbnailImage.png");
-        byte[] thumbnailBytes = Files.readAllBytes(file.toPath());
-        file = new File("target/classes/static/altBannerImage.png");
-        byte[] bannerBytes = Files.readAllBytes(file.toPath());
+        byte[] thumbnailBytes = new ClassPathResource("static/defaultThumbnailImage.png").getInputStream().readAllBytes();
+        byte[] bannerBytes = new ClassPathResource("static/altBannerImage.png").getInputStream().readAllBytes();
         mural.setBanner(bannerBytes);
         mural.setThumbnail(thumbnailBytes);
     }

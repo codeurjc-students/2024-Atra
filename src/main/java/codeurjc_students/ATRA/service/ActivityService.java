@@ -22,8 +22,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
 
@@ -60,10 +61,10 @@ public class ActivityService implements ChangeVisibilityInterface{
     }
 
 	@Transactional
-	public Activity newActivity(Path path, String username, boolean saveToUser){
+	public Activity newActivity(InputStream path, String username, boolean saveToUser){
 		GPX gpx;
         try {
-			gpx = GPX.read(path);
+			gpx = GPX.Reader.DEFAULT.read(path);
 		} catch (IOException e) {
             throw new RuntimeException(e);
         }
