@@ -255,6 +255,15 @@ export class ActivityComponent implements OnInit {
     })
   }
 
+  editName(newName:string) {
+    this.activityService.editName(this.activity.id, newName).subscribe({
+      next:(act:Activity) => {
+        this.receivedAnActivityHandler(act)
+        this.modal.dismiss()
+      }
+    })
+  }
+
   protected formatDistanceExtender(n:number){
     return FormattingService.formatDistance(n);
   }

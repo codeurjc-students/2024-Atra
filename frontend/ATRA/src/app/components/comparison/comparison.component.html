@@ -26,7 +26,7 @@
   <div class="tabs-container">
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active d-flex justify-content-between align-items-top " id="summary" role="tabpanel" aria-labelledby="summary-tab">
-        <div class="mx-2 w-50 clickable">
+        <div class="mx-2 w-50">
           <h5>Overview</h5>
           <div [innerHTML]="overviewMessage"></div>
           <div *ngIf="loading" class="d-flex justify-content-center align-items-center w-100 h-100 flex-column">
@@ -108,8 +108,8 @@
             </div>
           </div>
           <div id="second_item" class="h-100 thin-curved-border mx-2 d-flex flex-column">
-            <div class="d-flex justify-content-between mb-1">
-              <h5>Splits</h5>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h5 class="me-2">Splits</h5>
               <div class="d-flex flex-row">
                 <select (change)="updateSplits(splitValueSelect.value)" class="form-select w-auto" #splitValueSelect>
                   <option value="1">1</option>
@@ -353,7 +353,7 @@
         <tbody>
           <tr *ngFor="let record of records" class="clickable" (click)="goTo(record.at(-1))">
             <td>{{ record[0] }}</td>
-            <td>{{record[1] }}</td>
+            <td>{{ record[1] }}</td>
             <td>{{ record[2]}}</td>
             <td>{{ record[3]}}</td>
           </tr>

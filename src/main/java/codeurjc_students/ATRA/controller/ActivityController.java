@@ -264,6 +264,18 @@ public class ActivityController {
         Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
         return ResponseEntity.ok(ActivityDTO.toDto(activityService.findByUserAndVisibleToMural(user, mural)));
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ActivityDTO> editActivity(Principal principal, @PathVariable Long id, @RequestBody Activity activity) {
+        User user = principalVerification(principal);
+        Activity act = activityService.findById(id).orElseThrow(()->new HttpException(404, "Activity not found"));
+        if (!user.equals(act.getUser()) && ! user.hasRole("ADMIN")) throw new HttpException(403, "User does not have access to specified activity");
+        if (activity.getName()!=null) {
+            act.setName(activity.getName());
+        }
+        activityService.save(act);
+        return ResponseEntity.ok(new ActivityDTO(act));
+    }
     private User principalVerification(Principal principal) throws HttpException {
         if (principal==null) throw new HttpException(401);
         return userService.findByUserName(principal.getName()).orElseThrow(() -> new HttpException(404, "User not found"));

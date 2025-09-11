@@ -8,6 +8,7 @@
       <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
       <button class="btn btn-primary mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
       <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
+      <button class="btn btn-warning mx-1"  *ngIf="activity && this.owned" (click)="open(editNameModal)"><i class="fa-solid fa-pencil"></i> Update name</button>
       <button class="btn btn-info mx-1"    *ngIf="activity && this.owned" (click)="open(visibilityModal)"><i class="fa-solid fa-eye"></i> Change Visibility</button>
       <button class="btn btn-danger mx-1"  *ngIf="activity && this.owned" (click)="deleteActivity()"><i class="fa-solid fa-trash"></i> Delete</button>
 
@@ -20,9 +21,6 @@
       </li>
       <li class="nav-item" role="presentation">
           <button class="nav-link" id="study-tab" data-bs-toggle="tab" data-bs-target="#study" type="button" role="tab" aria-controls="study" aria-selected="false">Study</button>
-      </li>
-      <li class="nav-item" role="presentation">
-          <button class="nav-link" id="segments-tab" data-bs-toggle="tab" data-bs-target="#segments" type="button" role="tab" aria-controls="segments" aria-selected="false">Segments</button>
       </li>
   </ul>
 
@@ -55,9 +53,7 @@
         <app-activity-study *ngIf="this.activity" [activity]="this.activity"></app-activity-study>
       </div>
 
-      <div class="tab-pane fade" id="segments" role="tabpanel" aria-labelledby="segments-tab">
-        <p>Segments content goes here...</p>
-      </div>
+
     </div>
   </div>
 </div>
@@ -160,6 +156,29 @@
 
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
     <button type="button" class="btn btn-success" (click)="submitChangeVisibility(selectForVisibility.value)"><i class="fa-solid fa-floppy-disk"></i> Confirm</button>
+  </div>
+</div>
+</ng-template>
+
+<ng-template #editNameModal> <!-- let-modal -->
+  <div>
+  <div class="modal-header d-flex justify-content-between">
+    <h5 class="modal-title">Edit name</h5>
+    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <div>For now you can only change the name of an activity.</div>
+    <div class="form-floating my-2">
+  <input type="text" [value]="activity.name" #newName class="form-control" id="newName" placeholder="New name">
+  <label for="newName">New name</label>
+</div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="editName(newName.value)"><i class="fa-solid fa-floppy-disk"></i> Confirm</button>
   </div>
 </div>
 </ng-template>

@@ -1,9 +1,18 @@
 .active {
-  background-color: blueviolet !important;
+  background-color: var(--navbar-icon-selected-bg-color) !important;
 }
 
 .navbar-icons {
   gap: 10px;
+}
+
+.navbar-brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 70px;
+  color: var(--navbar-text-color);
 }
 
 .icon-link {
@@ -12,8 +21,8 @@
   align-items: center;
   width: 70px;
   height: 70px;
-  background-color: #555;
-  color: white;
+  background-color: var(--navbar-icon-bg-color);
+  color: var(--navbar-text-color);
   border-radius: 5px;
   text-decoration: none;
   margin-bottom: 5px;
@@ -22,7 +31,7 @@
 }
 
 .icon-link:hover {
-  background-color: #777;
+  background-color: var(--navbar-icon-bg-color-hover);
 }
 
 .icon-link i {
@@ -40,4 +49,10 @@
   position: sticky;
   top:0px;
   z-index: 10;
+  background-color: var(--navbar-color);
+  color: var(--navbar-text-color);
+}
+
+.sidebar {
+  background-color: var(--sidebar-color);
 }

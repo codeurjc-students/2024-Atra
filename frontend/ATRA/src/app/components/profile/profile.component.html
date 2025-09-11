@@ -5,7 +5,7 @@
       <img id="profileImage" src="../assets/profile.svg" alt="Profile Picture">
     </div>
     <div class="card-content d-flex justify-content-center align-items-end h-100 w-100">
-      <div class="h-75 w-35 custom-card violet-bg mx-5">
+      <div class="h-75 w-35 custom-card thin-curved-border mx-5">
         <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
           <div class="my-5" *ngIf="!loadingActs">
             <div class="fs-5 mx-4 my-2" *ngFor="let info of ineditableInfo | keyvalue:keepOrder">
@@ -18,7 +18,7 @@
           </div>
         </div>
       </div>
-      <div class="h-75 w-35 custom-card green-bg mx-5">
+      <div class="h-75 w-35 custom-card thin-curved-border  mx-5">
         <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
           <div class="fs-5 my-5">
             <div class="my-2"
@@ -44,7 +44,7 @@
             </div>
           </div>
           <div class="d-flex justify-content-around w-100 my-4">
-            <div [ngbPopover]="'Not available yet. We\'re woring on it'" triggers="hover"><button class="btn btn-warning" disabled>Download Session</button></div>
+            <div [ngbPopover]="'Not available yet. We\'re working on it'" triggers="hover"><button class="btn btn-warning" disabled>Download Session</button></div>
             <button class="btn btn-primary" (click)="open(changeProfileData)">Change</button>
             <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
           </div>

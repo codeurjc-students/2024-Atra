@@ -1,4 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --navbar-color: #202529;
+  --navbar-text-color: white;
+  --navbar-icon-bg-color: #555;
+  --navbar-icon-bg-color-hover: #777;
+  --navbar-icon-selected-bg-color: blueviolet;
+
+  --sidebar-color: #202529;
+  --sidebar-text-color: white;
+  --sidebar-icon-bg-color: #555;
+  --sidebar-icon-bg-color-hover: #777;
+  --sidebar-icon-selected-bg-color: blueviolet;
+}
+
 .black-bg {
   background-color: black !important;
 }

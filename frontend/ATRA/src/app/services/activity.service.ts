@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ActivityService {
+
   makeActivitiesNotVisibleToMural(id: number, selectedActivities: Set<number> | null) {
     if (selectedActivities==null) throw new Error("(ActivityService) makeActivitiesNotVisibleToMural called with null selectedActivities");
     return this.http.patch("/api/activities/visibility/mural?id="+id, Array.from(selectedActivities)/*,   { headers: { 'Content-Type': 'application/json' } }*/)
@@ -227,6 +228,10 @@ export class ActivityService {
       }
     }))
   };
+
+  editName(id: number, newName: string) {
+    return this.http.patch<Activity>("/api/activities/"+id,{name:newName})
+  }
 }
 
 type ActivityVisibility = "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC";

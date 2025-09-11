@@ -15,7 +15,6 @@ import { FormsModule } from '@angular/forms';
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
 import { ActivityStreams } from '../../models/activity-streams.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DataPoint } from '../../models/datapoint.model';
 
 @Component({
   selector: 'app-comparison',
@@ -95,13 +94,8 @@ export class ComparisonComponent implements OnInit {
   overviewMessage: string = "";
   compareActivities() {
     this.records = this.gridItemService.calcRecords(this.activities, false);
-    console.log("recordsLen "+this.records.length);
-    console.log(this.records);
-
 
     this.records = this.records.filter(r=>r[1]!="-"&&r[1]!="0.00km")
-    console.log("recordsLen "+this.records.length);
-
 
     var actsWithoutSummary = 0
     var actsWithoutAverages = 0
@@ -378,6 +372,7 @@ export class ComparisonComponent implements OnInit {
   }
 
   updateSplits(v?:string){
+    this.splits.clear()
     if (v=="-1") {this.customSplits=true;this.currentSplitDistance=1}
     else if (v) {this.customSplits=false; this.currentSplitDistance=parseInt(v)}
     const localSplits:number[][] = []
@@ -392,7 +387,7 @@ export class ComparisonComponent implements OnInit {
       for (let actSplit of localSplits) {
         currentSplit.push(actSplit[i]?FormattingService.formatPace(actSplit[i]):"-")
       }
-      this.splits.set(i,currentSplit)
+      this.splits.set((i+1)*this.currentSplitDistance,currentSplit)
     }
   }
 
