@@ -65,39 +65,39 @@ public class RestSecurityConfig {
 
 				// URLs that need authentication to access to it
 					.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-					.requestMatchers(HttpMethod.GET, "/api/auth/IsLoggedIn").permitAll()
+					.requestMatchers(HttpMethod.GET,  "/api/auth/IsLoggedIn").permitAll()
 					.requestMatchers(HttpMethod.POST, "/api/auth/refresh").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
 					.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/users/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.POST, "/api/users/verify-password").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.POST, "/api/users/password").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.PATCH, "/api/users/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/users/IsUsernameTaken").permitAll()
-					.requestMatchers(HttpMethod.POST, "/api/users").anonymous() //can only create a user if not logged in
+					.requestMatchers(HttpMethod.GET,    "/api/users/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST,   "/api/users/verify-password").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST,   "/api/users/password").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.PATCH,  "/api/users/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/users/me").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/users/IsUsernameTaken").permitAll()
+					.requestMatchers(HttpMethod.POST,   "/api/users").anonymous() //can only create a user if not logged in
 
 					.requestMatchers(HttpMethod.DELETE, "/api/activities/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/activities/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/activities/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.DELETE, "/api/activities/{id:[0-9]+}/route").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.POST, "/api/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.POST, "/api/activities/{id:[0-9]+}/route").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST,   "/api/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST,   "/api/activities/{id:[0-9]+}/route").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
-					.requestMatchers(HttpMethod.GET, "/api/murals/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/murals/{id:[0-9]+}/banner").permitAll()
-					.requestMatchers(HttpMethod.GET, "/api/murals/{id:[0-9]+}/thumbnail").permitAll()
-					.requestMatchers(HttpMethod.GET, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,  "/api/murals/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,  "/api/murals/{id:[0-9]+}/banner").permitAll()
+					.requestMatchers(HttpMethod.GET,  "/api/murals/{id:[0-9]+}/thumbnail").permitAll()
+					.requestMatchers(HttpMethod.GET,  "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.POST, "/api/murals").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
 					.requestMatchers(HttpMethod.DELETE, "/api/routes/{rid:[0-9]+}/activities/{aid:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 					.requestMatchers(HttpMethod.DELETE, "/api/routes/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.POST, "/api/routes/{id:[0-9]+}/activities/").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.POST, "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/routes/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
-					.requestMatchers(HttpMethod.GET, "/api/routes/{id:[0-9]+}/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST,   "/api/routes/{id:[0-9]+}/activities/").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.POST,   "/api/routes").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/routes/{id:[0-9]+}").hasAnyRole(USER_ROLE, ADMIN_ROLE)
+					.requestMatchers(HttpMethod.GET,    "/api/routes/{id:[0-9]+}/activities").hasAnyRole(USER_ROLE, ADMIN_ROLE)
 
 
 

@@ -4,6 +4,7 @@ import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
 import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -40,6 +41,10 @@ public class Activity implements NamedId {
 	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Route route;
+
+	@JsonIgnore
+	@OneToOne(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+	private ActivitySummary summary;
 
 	public void addDataPoint(DataPoint dataPoint) {
 		dataPoints.add(dataPoint);

@@ -103,4 +103,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     )
     """)
     Collection<Activity> findByRouteAndMural(Route route, Long muralId);
+
+    @Query("""
+    SELECT a FROM Activity a
+    WHERE a.route.id = :routeId
+    """)
+    List<Activity> findByRoute(@Param("routeId") Long routeId);
 }

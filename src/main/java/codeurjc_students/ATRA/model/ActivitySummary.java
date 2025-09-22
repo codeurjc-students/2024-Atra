@@ -1,8 +1,11 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.ATRA.model;
 
+import codeurjc_students.ATRA.dto.ActivityDTO;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.service.ActivityService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,19 +16,35 @@ import java.util.*;
 
 @Getter
 @Setter
+@Entity
 @NoArgsConstructor
 public class ActivitySummary {
-    private long id;
+    @Id
+    private Long id;
     private Instant startTime;
     private Double totalDistance;
     private Long totalTime; //seconds
     private Double elevationGain;
-    private Map<String, Double> averages;
-    private Map<String, String> records;
+    @ElementCollection
+    @CollectionTable(name = "activity_summary_averages", joinColumns = @JoinColumn(name = "activity_id"))
+    @MapKeyColumn(name = "metric")
+    @Column(name = "value")
+    private Map<String, Double> averages = new HashMap<>();
+
+    @ElementCollection
+    @CollectionTable(name = "activity_summary_records", joinColumns = @JoinColumn(name = "activity_id"))
+    @MapKeyColumn(name = "record")
+    @Column(name = "value")
+    private Map<String, String> records = new HashMap<>();
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    @JsonIgnore
+    private Activity activity;
 
 
-    public ActivitySummary(Long id, Activity activity) {
-        this.id = id;
+    public ActivitySummary(Activity activity) {
+        //this.id = activity.getId();
         startTime = activity.getStartTime();
 
         if (activity.getDataPoints().isEmpty()) throw new IllegalArgumentException("Activity datapoints can't be empty");
@@ -37,9 +56,10 @@ public class ActivitySummary {
 
         averages = setUpAverages(streams);
         records = setUpRecords(streams);
+        this.activity = activity;
     }
 
-    ActivitySummary(ActivityDTO activity) {
+    public ActivitySummary(ActivityDTO activity) {
         id = activity.getId();
         startTime = activity.getStartTime();
 

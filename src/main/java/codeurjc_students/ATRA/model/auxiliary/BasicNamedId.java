@@ -38,7 +38,7 @@ public class BasicNamedId implements NamedId{
         this.name = namedId.getName();
     }
 
-    public static List<NamedId> from(Collection<NamedId> entities) {
+    public static List<NamedId> from(Collection<? extends NamedId> entities) {
         List<NamedId> result = new ArrayList<>();
         for (var i : entities) {
             result.add(new BasicNamedId(i));

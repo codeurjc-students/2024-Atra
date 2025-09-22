@@ -100,7 +100,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="activities">
         Map<String, Activity> activityMap = new HashMap<>();
         for (int i=0;i<20;i++) {
-            Activity createdAct = activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), users.get(i%users.size()).getUsername(), true);
+            Activity createdAct = activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), users.get(i%users.size()));
             if (i%3==0) createdAct.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
             activityMap.put(createdAct.getName(),createdAct);
             muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
@@ -116,7 +116,7 @@ public class DatabaseInitializer {
             if (entry.getKey().contains("Morning Run")) {
                 if (a) {
                     a=false;
-                    routeA=routeService.newRoute(activity,activityService);
+                    routeA=routeService.newRoute(activity);
                     routeA.setCreatedBy(user);
                     routeService.save(routeA);
                 }
@@ -125,7 +125,7 @@ public class DatabaseInitializer {
             if (entry.getKey().contains("vuelta")) {
                 if (b) {
                     b = false;
-                    routeB = routeService.newRoute(activity, activityService);
+                    routeB = routeService.newRoute(activity);
                     routeB.setCreatedBy(user);
                     routeService.save(routeB);
                 }
@@ -206,7 +206,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="Activities">
         List<Activity> activities = new ArrayList<>();
         for (int i=0;i<19;i++) {
-            activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), asd.getUsername(), false));
+            activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), asd));
         }        //all activities are initially created as property of asd, though asd does not know this
 
         System.out.println("Activities created");
@@ -258,7 +258,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="set userx activities">
         for (int i=0; i<users.size();i++) {
             User user = users.get(i);
-            Activity activity = activityService.newActivity(new ClassPathResource("static/track" + 19 + ".gpx").getInputStream(), user.getUsername(), true);
+            Activity activity = activityService.newActivity(new ClassPathResource("static/track" + 19 + ".gpx").getInputStream(), user);
             switch (i % 4) {
                 case 0 -> activity.changeVisibilityTo(VisibilityType.PUBLIC);
                 case 1 -> activity.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
@@ -275,7 +275,7 @@ public class DatabaseInitializer {
 
         //<editor-fold desc="Routes">
         //<editor-fold desc="asd routes>
-        Route route = routeService.newRoute(activityService.findByUser(asd).get(0), activityService);
+        Route route = routeService.newRoute(activityService.findByUser(asd).get(0));
         route.changeVisibilityTo(VisibilityType.PUBLIC);
         //route.setOwner(null);
         route.setName("r1 asd (PU)");
@@ -283,7 +283,7 @@ public class DatabaseInitializer {
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
-        route = routeService.newRoute(activityService.findByUser(asd).get(1), activityService);
+        route = routeService.newRoute(activityService.findByUser(asd).get(1));
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId(), qweMural.getId(), zxcMural.getId()));
         route.setName("r2 asd (MS)");
         extraActivity = activityService.findByUser(zxc).get(3);
@@ -291,12 +291,12 @@ public class DatabaseInitializer {
         activityService.save(extraActivity);
         routeService.save(route);
 
-        route = routeService.newRoute(activityService.findByUser(asd).get(2), activityService);
+        route = routeService.newRoute(activityService.findByUser(asd).get(2));
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 asd (MS)");
         routeService.save(route);
 
-        route = routeService.newRoute(activityService.findByUser(asd).get(3), activityService);
+        route = routeService.newRoute(activityService.findByUser(asd).get(3));
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 asd (MS)");
         extraActivity = activityService.findByUser(asd).get(4);
@@ -309,7 +309,7 @@ public class DatabaseInitializer {
         routeService.save(route);
         //</editor-fold>
         //<editor-fold desc = qwe routes>
-        route = routeService.newRoute(activityService.findByUser(qwe).get(0), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(0));
         route.changeVisibilityTo(VisibilityType.PUBLIC);
         //route.setOwner(null);
         route.setName("r1 qwe (PU)");
@@ -317,7 +317,7 @@ public class DatabaseInitializer {
         extraActivity.setRoute(route);
         activityService.save(extraActivity);
         routeService.save(route);
-        route = routeService.newRoute(activityService.findByUser(qwe).get(1), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(1));
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId(), qweMural.getId(), zxcMural.getId()));
         route.setName("r2 qwe (MS)");
         extraActivity = activityService.findByUser(zxc).get(1);
@@ -325,12 +325,12 @@ public class DatabaseInitializer {
         activityService.save(extraActivity);
         routeService.save(route);
 
-        route = routeService.newRoute(activityService.findByUser(qwe).get(2), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(2));
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 qwe (MS)");
         routeService.save(route);
 
-        route = routeService.newRoute(activityService.findByUser(qwe).get(3), activityService);
+        route = routeService.newRoute(activityService.findByUser(qwe).get(3));
         route.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of());
         route.setName("r3 qwe (MS)");
         extraActivity = activityService.findByUser(qwe).get(4);

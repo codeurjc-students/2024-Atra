@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.dto;
 
+import codeurjc_students.ATRA.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,4 +22,12 @@ public class UserDTO {
     //private List<Long> murals;
 
     private List<String> roles;
+
+    public UserDTO(User user) {
+        id = user.getId();
+        name = user.getName();
+        username = user.getUsername();
+        roles = user.getRoles();
+        email = user.getEmail();
+    }
 }

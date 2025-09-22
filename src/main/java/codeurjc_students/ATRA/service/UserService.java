@@ -1,67 +1,124 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.dto.NewUserDTO;
 import codeurjc_students.ATRA.dto.UserDTO;
+import codeurjc_students.ATRA.exception.EntityNotFoundException;
+import codeurjc_students.ATRA.exception.IncorrectParametersException;
+import codeurjc_students.ATRA.exception.PermissionException;
+import codeurjc_students.ATRA.model.Mural;
+import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.ATRA.repository.ActivityRepository;
+import codeurjc_students.ATRA.repository.MuralRepository;
+import codeurjc_students.ATRA.repository.RouteRepository;
 import codeurjc_students.ATRA.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
 	@Autowired
-	private UserRepository repository;
+	private UserRepository userRepository;
+	@Autowired
+	private RouteRepository routeRepository;
+	@Autowired
+	private MuralRepository muralRepository;
+	@Autowired
+	private ActivityRepository activityRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-
-	public Optional<User> findById(long id) {
-		return repository.findById(id);
-	}
 
 	public Optional<User> findByUserName(String name) {
-		return repository.findByUsername(name);
+		return userRepository.findByUsername(name);
 	}
 	public boolean exists(long id) {
-		return repository.existsById(id);
+		return userRepository.existsById(id);
 	}
 	public boolean existsByUsername(String username) {
-		return repository.findByUsername(username).isPresent();
-	}
-
-	public List<User> findAll() {
-		return repository.findAll();
+		return userRepository.findByUsername(username).isPresent();
 	}
 
 	public void save(User user) {
-		repository.save(user);
+		userRepository.save(user);
 	}
 
-	/**
-	 * DeletionService.deleteUser(Long id) should be called instead.
-	 * @param id
-	 */
-	void delete(long id) {
-		repository.deleteById(id);
-	}
-	/**
-	 * DeletionService.deleteUser(User user) should be called instead.
-	 * @param user
-	 */
-	void delete(User user) {
-		repository.delete(user);
+	public User patchUser(User authUser, Long userId, UserDTO receivedUser) {
+		User user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("User not found"));
+		if (!authUser.equals(user)) throw new PermissionException("User lacks permission to modify specified user");
+
+		if (receivedUser.getUsername()!=null && !receivedUser.getUsername().isEmpty() && !this.existsByUsername(receivedUser.getUsername())) {
+			user.setUsername(receivedUser.getUsername());
+		}
+		if (receivedUser.getName()!=null && !receivedUser.getName().isEmpty()) {
+			user.setName(receivedUser.getName());
+		}
+		if (receivedUser.getEmail()!=null && !receivedUser.getEmail().isEmpty()) {
+			user.setEmail(receivedUser.getEmail());
+		}
+		this.save(user);
+		return user;
 	}
 
-    public UserDTO toDTO(User user) {
-		UserDTO dto = new UserDTO();
-		dto.setId(user.getId());
-		dto.setName(user.getName());
-		dto.setUsername(user.getUsername());
-		dto.setRoles(user.getRoles());
+	public void changePassword(User user, String password) {
+		user.setPassword(passwordEncoder.encode(password));
+		this.save(user);
+	}
 
-		dto.setEmail(user.getEmail());
-		return dto;
-    }
+	public User createUser(NewUserDTO userDTO) {
+		if (userDTO.getUsername()==null || userDTO.getPassword()==null) throw new IncorrectParametersException("Could not parse the user. Make sure it has the correct fields");
+		if (this.existsByUsername(userDTO.getUsername())) throw new IncorrectParametersException("Could not parse the user. Make sure it has the correct fields");
+
+		User user = new User(userDTO.getUsername(), passwordEncoder.encode(userDTO.getPassword()));
+
+		if (userDTO.hasEmail()) user.setEmail(userDTO.getEmail());
+		if (userDTO.hasDisplayName())
+			user.setName(userDTO.getName());
+		else
+			user.setName(userDTO.getUsername());
+
+		this.save(user);
+		return user;
+	}
+
+	public void deleteUser(User user) {
+		for (Route r : routeRepository.findAllByCreatedBy(user)) {
+			if (r.getVisibility().isMuralSpecific() || r.getVisibility().isMuralPublic()) { //in theory, routes can't be mural public, but just in case
+				r.setVisibility(new Visibility(VisibilityType.PUBLIC));
+			}
+		}
+		muralRepository.findByOwner(user).forEach(Mural::removeOwner);
+		this.deleteUserConsequences(user);
+	}
+
+	public User getUser(Long id) {
+		return  userRepository.findById(id).orElseThrow(()->new EntityNotFoundException("User not found"));
+	}
+
+	public Boolean verifyPassword(String password, String password1) {
+		return passwordEncoder.matches(password, password1);
+	}
+
+	private void deleteUserConsequences(User user) {
+		if (user==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
+
+		//this should happen automatically with cascade.
+		activityRepository.deleteAll(activityRepository.findByUser(user));
+		muralRepository.findByOwner(user).forEach(mural -> {
+			mural.removeOwner(user, null);
+			muralRepository.save(mural);
+		});
+		user.getMemberMurals().forEach(mural -> {
+			mural.removeMember(user);
+			muralRepository.save(mural);
+		});
+		userRepository.delete(user);
+	}
 }

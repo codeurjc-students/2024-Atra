@@ -1,13 +1,10 @@
 package codeurjc_students.ATRA.service;
 
-import codeurjc_students.ATRA.exception.HttpException;
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.repository.ActivityRepository;
+import codeurjc_students.ATRA.exception.*;
+import codeurjc_students.ATRA.model.*;
+import codeurjc_students.ATRA.model.auxiliary.*;
+import codeurjc_students.ATRA.repository.*;
+import codeurjc_students.ATRA.service.auxiliary.AtraUtils;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
@@ -22,7 +19,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -33,54 +29,47 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 	@Autowired
 	private ActivityRepository activityRepository;
-
 	@Autowired
-	private UserService userService;
-
+	private RouteRepository routeRepository;
+	@Autowired
+	private ActivitySummaryRepository summaryRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private MuralRepository muralRepository;
 
 
 	public void save(Activity activity) {
 		activityRepository.save(activity);
 	}
 
-	/**
-	 * DeletionService.deleteActivity(Long id) should be called instead.
-	 * @param id the id of the activity to delete
-	 */
-	void delete(long id) {
-		activityRepository.deleteById(id);
-	}
-
-	public Activity newActivity(MultipartFile file, String username){
+	public Activity newActivity(MultipartFile file, User user){
 		final GPX gpx;
         try {
 			gpx = GPX.Reader.DEFAULT.read(file.getInputStream());
         } catch (IOException e) {throw new RuntimeException(e);}
 
-		return newActivity(gpx, username, true);
+		return newActivity(gpx, user);
     }
 
 	@Transactional
-	public Activity newActivity(InputStream path, String username, boolean saveToUser){
+	public Activity newActivity(InputStream path, User user){
 		GPX gpx;
         try {
 			gpx = GPX.Reader.DEFAULT.read(path);
 		} catch (IOException e) {
             throw new RuntimeException(e);
         }
-		return newActivity(gpx, username, saveToUser);
+		return newActivity(gpx, user);
     }
 
-	private Activity newActivity(GPX gpx, String username, boolean saveToUser){
+	private Activity newActivity(GPX gpx, User user){
 		Track track = gpx.getTracks().get(0);
 		List<WayPoint> pts = track.getSegments().get(0).getPoints();
 
 
 		Activity activity = new Activity();
-		//set user
-		User user = userService.findByUserName(username).orElseThrow(()->new HttpException(404, "User not found"));
 		activity.setUser(user);
-
 
 		//process the metadata
 		gpx.getMetadata().ifPresent(metadata -> activity.setStartTime(metadata.getTime().get()));
@@ -96,7 +85,15 @@ public class ActivityService implements ChangeVisibilityInterface{
 			return null;
 		}
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
+		activityRepository.saveAndFlush(activity);
+
+
+		//create summary
+		ActivitySummary activitySummary = new ActivitySummary(activity);
+		activity.setSummary(activitySummary);
+		summaryRepository.save(activitySummary); //superfluous in theory, saving the activity should cascade to this. Need to test it before I'm comfortable removing this call
 		activityRepository.save(activity);
+
 
 		return activity;
 	}
@@ -205,9 +202,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.existsById(id);
 	}
 
-	public List<Activity> findAll() {
-		return activityRepository.findAll();
-	}
 	public List<Activity> get(List<Long> ids) {
 		List<Activity> result = new ArrayList<>();
 		for (var id : ids) {
@@ -218,25 +212,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	public Activity get(Long id) {
-		Optional<Activity> opt = this.findById(id);
-		return opt.orElse(null);
-	}
-
-	public List<Activity> findById(List<Long> activityIds) {
-		List<Activity> result = new ArrayList<>();
-		for (var id : activityIds) {
-			Optional<Activity> actOpt = findById(id);
-            actOpt.ifPresent(result::add);
-		}
-		return result;
-	}
-
-	public Collection<Activity> findByVisibilityType(VisibilityType visibilityType) {
-		return activityRepository.findByVisibilityType(visibilityType);
-	}
-
-	public Collection<Activity> findVisibleTo(Mural mural) {
-		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
+		return activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
 	}
 
 	public Collection<Activity> findVisibleTo(Mural mural, boolean shouldRouteBeNull) {
@@ -244,19 +220,10 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList());
 	}
 
-	public Page<Activity> findVisibleTo(Mural mural, int startPage, int pageSize) {
-		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
-		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
-	}
-
 	public Page<Activity> findVisibleTo(Mural mural, int startPage, int pageSize, boolean shouldRouteBeNull) {
 		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
 		if (shouldRouteBeNull) return activityRepository.findVisibleToMuralAndRouteIsNull(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
 		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
-	}
-
-	public Collection<Activity> findByRoute(Route route) {
-		return activityRepository.findByRoute(route);
 	}
 
 	public List<Activity> findByUser(User user) {
@@ -268,20 +235,11 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findByUser(user);
 	}
 
-	public Page<Activity> findByUser(User user, int startPage, int pageSize) {
-		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
-		return activityRepository.findByUser(user, pageRequest);
-	}
-
 	public Page<Activity> findByUser(User user, int startPage, int pageSize, boolean shouldFetchRoutes) {
 		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
 
 		if (shouldFetchRoutes) return activityRepository.findByUserAndRouteIsNull(user, pageRequest);
 		return activityRepository.findByUser(user, pageRequest);
-	}
-
-	public Collection<Activity> findByUserAndVisibleToMural(User user, Mural mural) {
-		return activityRepository.findByUserAndVisibleToMural(user, mural.getId());
 	}
 
 	public Collection<Activity> findByUserAndVisibilityType(User user, String visibility) {
@@ -301,10 +259,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 				List.of(targetUser));
 	}
 
-	public Collection<Activity> getByRoute(Route route) {
-		return activityRepository.getByRoute(route);
-	}
-
 	public List<Activity> findByRouteAndUser(Route route, User user) {
 		return activityRepository.findByRouteAndUser(route, user);
 	}
@@ -313,18 +267,8 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findByRouteAndUserAndVisibilityTypeIn(route,user,visibilityTypes);
 	}
 
-	public Collection<Activity> findByRouteAndMural(Route route, Mural mural) {
-		return activityRepository.findByRouteAndMural(route,mural.getId());
-	}
 	//</editor-fold>
 
-	public void routeDeleted(Long deletedRouteId) {
-		activityRepository.findAll().forEach(activity -> {
-			if (activity.getRoute() != null && activity.getRoute().getId().equals(deletedRouteId)) {
-				activity.setRoute(null);
-			}
-		});
-	}
 
 	/**
 	 *
@@ -334,6 +278,15 @@ public class ActivityService implements ChangeVisibilityInterface{
 	 */
 	public boolean changeVisibility(Long activityId, VisibilityType newVisibility){ //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
 		return changeVisibility(activityId,newVisibility,null);
+	}
+	public Activity changeVisibility(User user, Long id, Visibility newVisibility) {
+		Activity activity = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Could not find the activity with id " + id + " so the change visibility operation has been canceled"));
+		if (!user.equals(activity.getUser())) throw new PermissionException("Only the owner of an activity can change its visibility.");
+		this.changeVisibility(id, newVisibility);
+		return activity;
+	}
+	public boolean changeVisibility(Long id, Visibility newVisibility) {
+		return changeVisibility(id, newVisibility.getType(), newVisibility.getAllowedMurals());
 	}
 	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
 		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + activityId + " so the change visibility operation has been canceled"));
@@ -347,8 +300,210 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	public boolean isVisibleToUser(Activity activity, User user) {
-		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.hasRole("ADMIN") && !activity.getVisibility().isPrivate());
+		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.isAdmin() && !activity.getVisibility().isPrivate());
 	}
 
+	public List<List<Activity>> getActivitiesFromRoutes(List<Route> routes, User user, String from, Long targetId) {
+		List<List<Activity>> activityList = new ArrayList<>();
+		if (from==null || "authUser".equals(from)) routes.forEach(route -> activityList.add(this.findByRouteAndUser(route, user)));
+		else if ("user".equals(from)){
+			User targetUser = userRepository.findById(targetId).orElseThrow(()-> new HttpException(404, "Target user not found"));
+			if (!user.equals(targetUser) && !user.isAdmin()) {//return public activities
+				routes.forEach(route -> activityList.add(this.findByRouteAndUserAndVisibilityTypeIn(route, user, List.of(VisibilityType.PUBLIC))));
+			} else if (user.equals(targetUser)) {
+				routes.forEach(route -> activityList.add(this.findByRouteAndUser(route, user)));
+			} else if (user.isAdmin()) {
+				routes.forEach(route -> activityList.add(this.findByRouteAndUserAndVisibilityTypeIn(route, user, List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC))));
+			}
+			else throw new HttpException(500, "How'd you even get here? I think you only go here when targetUser is null, but that can only happen if id is null, which has been checked."); //I think this only happens with targetUser==null
+		}
+		else {
+			Mural mural = muralRepository.findById(targetId).orElseThrow(() -> new HttpException(404, "Requested mural doesn't exist"));
+			routes.forEach(route -> activityList.add(activityRepository.findByRouteAndMural(route, mural.getId()).stream().toList()));
+		}
+		return activityList;
+	}
 
+	public void removeActivityFromRoute(User user, Long routeId, Long activityId) {
+		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
+		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new EntityNotFoundException("Activity not found"));
+		if (!activityRepository.findByRoute(route).contains(activity)) throw new EntityNotFoundException("The requested activity is not a member of the specified route.");
+		if (!user.equals(activity.getUser()) && !user.isAdmin()) throw new PermissionException("You can only remove your own activities from a route");
+
+		//Confirmed that route and activity exists, and that they're related
+		activity.setRoute(null);
+		activityRepository.save(activity);
+	}
+
+	public Activity getActivity(User user, Long id, Long muralId) {
+		Activity activity = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
+
+		if (muralId!=null) {
+			Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Requesting mural not found"));
+			if (!this.isVisibleToMural(activity, mural)) throw new VisibilityException("Activity is not visible to specified mural");
+		} else {
+			if (!this.isVisibleToUser(activity, user)) throw new VisibilityException("Activity is not visible to user");
+		}
+		return activity;
+	}
+
+	public List<Activity> getActivitiesByIds(User user, List<Long> ids, Long muralId) {
+		Mural mural;
+		if (muralId!=null) {
+			mural = muralRepository.findById(muralId).orElseThrow(() -> new HttpException(404, "Requested mural not found"));
+			if (!mural.getMembers().contains(user) && !user.isAdmin()) throw new HttpException(403, "User is not a member of specified mural");
+		} else {
+			mural = null;
+		}
+		List<Activity> activities = activityRepository.findAllById(ids);
+		return activities.stream().filter(a->
+				(user.isAdmin()&&!a.getVisibility().isPrivate()) ||
+						user.equals(a.getUser()) ||
+						a.getVisibility().isPublic() ||
+						mural!=null && a.getVisibility().isVisibleByMural(muralId)
+			).toList();
+	}
+
+	public PagedActivities getActivitiesPaged(User user, GetActivitiesParams params) {
+		String from = params.getFrom();
+		Long id = params.getId();
+		Integer startPage = params.getStartPage();
+		Integer pagesToFetch = params.getPagesToFetch();
+		Integer pageSize = params.getPageSize();
+		String cond = params.getCond();
+
+		if (pageSize==null) pageSize=Constants.PAGE_SIZE;
+
+		boolean shouldFetchRoutes = "nullRoute".equals(cond);
+
+		PagedActivities activities = new PagedActivities();
+		Page<Activity> firstPage;
+		int pagesSent;
+
+		if (from == null || "authUser".equals(from)) {
+			firstPage = this.findByUser(user, startPage, pageSize, shouldFetchRoutes);
+			activities.addAll(firstPage.getContent());
+			for (pagesSent = 1; pagesSent < pagesToFetch; pagesSent++) {
+				Page<Activity> currentPage = this.findByUser(user, startPage + pagesSent, pageSize, shouldFetchRoutes);
+				if (!currentPage.hasContent()) break;
+				activities.addAll(currentPage.getContent());
+			}
+		}
+		else if ("mural".equals(from)) {
+			if (id==null) throw new IncorrectParametersException("Requested activities from a specific mural without providing their id");
+			Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Mural not found"));
+			if (!mural.getMembers().contains(user) && !user.isAdmin()) throw new VisibilityException("Authenticated user is not a member of requested mural");
+
+			firstPage = this.findVisibleTo(mural, startPage, pageSize, shouldFetchRoutes);
+			activities.addAll(firstPage.getContent());
+			for (pagesSent=1; pagesSent < pagesToFetch; pagesSent++) {
+				Page<Activity> currentPage = this.findVisibleTo(mural, startPage + pagesSent, pageSize, shouldFetchRoutes);
+				if (!currentPage.hasContent()) break;
+				activities.addAll(currentPage.getContent());
+			}
+		}
+		else throw new IncorrectParametersException("Specified value for 'from' ("+from+") is invalid. Valid values are: 'authUser', 'mural'");
+
+		activities.setTotalPages(firstPage.getTotalPages());
+		activities.setTotalEntries(firstPage.getTotalElements());
+		activities.setStartPage(startPage);
+		activities.setPagesSent(pagesSent);
+		activities.setEntriesSent(activities.size());
+		activities.setPageSize(pageSize);
+		return activities;
+	}
+
+	public Collection<Activity> getActivities(User user, GetActivitiesParams params) {
+		String from = params.getFrom();
+		Long id = params.getId();
+		String cond = params.getCond();
+		String visibility = params.getVisibility();
+		Collection<Activity> activities;
+
+		if (from==null || "authUser".equals(from))
+			activities = this.findByUser(user, "nullRoute".equals(cond));
+		else if (id==null) throw new IncorrectParametersException("Requested activities from a specific user/mural without providing their id");
+		else if ("mural".equals(from)) {
+			Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Mural not found"));
+			if (!mural.getMembers().contains(user) && !user.isAdmin()) throw new VisibilityException("Authenticated user is not a member of requested mural");
+			activities = this.findVisibleTo(mural, "nullRoute".equals(cond));
+		}
+		else if ("user".equals(from)) {
+			User targetUser = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
+			if (!user.equals(targetUser) && !user.isAdmin()) {//return public activities
+				activities = this.findByUserAndVisibilityType(user, VisibilityType.PUBLIC);
+			} else if (user.equals(targetUser)) {
+				if (visibility==null) activities = this.findByUser(user, "nullRoute".equals(cond));
+				else activities = this.findByUserAndVisibilityType(user, visibility);
+			} else if (user.isAdmin()) {
+				if (visibility==null) activities = this.findByUserAndVisibilityNonPrivate(targetUser);
+				else if ("PRIVATE".equals(visibility)) throw new IncorrectParametersException("No one can see private activities except for the user who created them.");
+				else activities = this.findByUserAndVisibilityType(user, visibility);
+			}
+			else throw new RuntimeException("How'd you even get here? I think you only go here when targetUser is null, but that can only happen if id is null, which has been checked."); //I think this only happens with targetUser==null
+		}
+		else throw new IncorrectParametersException("Activities requested from an unknown/unhandled entity type: " + from);
+
+		return activities;
+	}
+
+	public Activity removeRoute(User user, Long id) {
+		Activity activity = activityRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Activity not found"));
+		if (!user.equals(activity.getUser())) throw new PermissionException("You can only remove the route of activities you own");
+		activity.setRoute(null);
+		activityRepository.save(activity);
+		return activity;
+	}
+
+	public Activity addRoute(User user, Long activityId, Long routeId) {
+		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new EntityNotFoundException("Activity not found"));
+		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
+		if (!user.equals(activity.getUser())) throw new PermissionException("You can only change the route of activities you own");
+		if (!AtraUtils.isRouteVisibleBy(route, user)) throw new VisibilityException("User has no visibility of selected route. Can't use a non-visible route");
+
+		activity.setRoute(route);
+		activityRepository.save(activity);
+		return activity;
+	}
+
+	public Activity deleteActivity(User user, Long id) {
+		Activity activity = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
+		if (!user.equals(activity.getUser()) && !user.isAdmin()) throw new PermissionException("You can only delete an activity if you're its creator or you're an admin");
+		if (!user.equals(activity.getUser()) && user.isAdmin()  && activity.getVisibility().isPrivate()) throw new PermissionException("Only the creator can delete private activities.");
+		activityRepository.deleteById(id);
+		return activity;
+	}
+
+	public void makeActivitiesNotVisibleToMural(User user, Long muralId, List<Long> selectedActivitiesIds) {
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()-> new EntityNotFoundException("Mural not found"));
+		List<Activity> activities = activityRepository.findAllById(selectedActivitiesIds);
+		activities.forEach(activity -> {
+			if (!user.equals(activity.getUser()) && !user.isAdmin()) return;
+			if (activity.getVisibility().isPrivate()) return;
+			if (activity.getVisibility().isMuralSpecific()) {
+				activity.getVisibility().removeMural(muralId);
+			} else if (activity.getVisibility().isMuralPublic() || activity.getVisibility().isPublic()) {
+				List<Long> memberMuralIds = new ArrayList<>(user.getMemberMurals().stream().map(Mural::getId).toList());
+				memberMuralIds.remove(muralId);
+				activity.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, memberMuralIds);
+			}
+			activityRepository.save(activity);
+			muralRepository.save(mural);
+		});
+	}
+
+	public List<Activity> getOwnedActivitiesInMural(User user, Long muralId) {
+		Mural mural = muralRepository.findById(muralId).orElseThrow(() -> new EntityNotFoundException("Mural not found"));
+		return activityRepository.findByUserAndVisibleToMural(user, mural.getId());
+	}
+
+	public Activity editActivity(User user, Long id, Activity activity) {
+		Activity act = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
+		if (!user.equals(act.getUser()) && ! user.isAdmin()) throw new PermissionException("User does not have access to specified activity");
+		if (activity.getName()!=null) {
+			act.setName(activity.getName());
+		}
+		activityRepository.save(act);
+		return act;
+	}
 }

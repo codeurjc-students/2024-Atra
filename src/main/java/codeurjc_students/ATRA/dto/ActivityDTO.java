@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.dto;
 
 import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.ATRA.model.ActivitySummary;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
@@ -31,7 +32,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 	private VisibilityType visibility;
 	private Collection<Long> allowedMurals;
 
-	public ActivityDTO(Activity activity, boolean getSummary){
+	public ActivityDTO(Activity activity, ActivitySummary actSummary){
 		id = activity.getId();
 		name = activity.getName();
 		type = activity.getType();
@@ -39,7 +40,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		user = new BasicNamedId(activity.getUser());
 		dataPoints = activity.getDataPoints();
 		streams = setUpStreams(activity.getDataPoints());
-		summary = getSummary?new ActivitySummary(this):null;
+		summary = actSummary;
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 		visibility = activity.getVisibility().getType();
 		allowedMurals = activity.getVisibility().getAllowedMurals();
@@ -53,42 +54,11 @@ public class ActivityDTO implements ActivityDtoInterface {
 		user = new BasicNamedId(activity.getUser());
 		dataPoints = activity.getDataPoints();
 		streams = setUpStreams(activity.getDataPoints());
-		summary = new ActivitySummary(this);
+		summary = activity.getSummary();
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 		visibility = activity.getVisibility().getType();
 		allowedMurals = activity.getVisibility().getAllowedMurals();
 	}
-
-	//these may not be needed (since activity holds its route now)
-	public ActivityDTO(Activity activity, NamedId routeIdAndName) {
-		id = activity.getId();
-		name = activity.getName();
-		type = activity.getType();
-		startTime = activity.getStartTime();
-		user = new BasicNamedId(activity.getUser());
-		route = routeIdAndName;
-		dataPoints = activity.getDataPoints();
-		streams = setUpStreams(activity.getDataPoints());
-		summary = new ActivitySummary(this);
-		visibility = activity.getVisibility().getType();
-		allowedMurals = activity.getVisibility().getAllowedMurals();
-	}
-
-	//these may not be needed.
-	public ActivityDTO(Activity activity, Route route) {
-		this.id = activity.getId();
-		this.name = activity.getName();
-		this.type = activity.getType();
-		this.startTime = activity.getStartTime();
-		this.user = new BasicNamedId(activity.getUser());
-		this.route = new BasicNamedId(route);
-		this.dataPoints = activity.getDataPoints();
-		streams = setUpStreams(activity.getDataPoints());
-		summary = new ActivitySummary(this);
-		visibility = activity.getVisibility().getType();
-		allowedMurals = activity.getVisibility().getAllowedMurals();
-	}
-
 
 
 	public static Map<String, List<String>> setUpStreams(List<DataPoint> dataPoints) {

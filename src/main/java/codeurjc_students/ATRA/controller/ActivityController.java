@@ -1,16 +1,15 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.ActivityDTO;
-import codeurjc_students.ATRA.exception.HttpException;
+import codeurjc_students.ATRA.exception.*;
 import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.ATRA.model.auxiliary.GetActivitiesParams;
+import codeurjc_students.ATRA.model.auxiliary.PagedActivities;
+import codeurjc_students.ATRA.model.auxiliary.Visibility;
 import codeurjc_students.ATRA.service.*;
-import codeurjc_students.ATRA.service.auxiliary.UtilsService;
+import codeurjc_students.ATRA.service.auxiliary.AtraUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,53 +27,22 @@ public class ActivityController {
 	private ActivityService activityService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private RouteService routeService;
-    @Autowired
-    private MuralService muralService;
-    @Autowired
-    private DeletionService deletionService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ActivityDTO> getActivity(Principal principal, @PathVariable("id") Long id, @RequestParam(value="mural", required=false) Long muralId){
-        if (id==null) return ResponseEntity.badRequest().build(); // this is useless unless the method is used somewhere. Spring won't allow it to be null
-
         User user = principalVerification(principal);
-        Activity activity = activityService.findById(id).orElseThrow(()->new HttpException(404));
-
-        //first check visibility
-        if (muralId!=null) {
-            Mural mural = muralService.findById(muralId).orElseThrow(()->new HttpException(404, "Requesting mural not found"));
-            if (!activityService.isVisibleToMural(activity, mural)) throw new HttpException(403, "Activity is not visible to specified mural");
-        } else {
-            if (!activityService.isVisibleToUser(activity, user)) throw new HttpException(403, "Activity is not visible to user");
-        }
-
-        //then fetch and return the activity
+        Activity activity = activityService.getActivity(user, id, muralId);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @GetMapping("/byIds")
     public ResponseEntity<List<ActivityDTO>> getActivitiesByIds(Principal principal, @RequestParam List<Long> ids, @RequestParam(required=false) Long muralId) {
         User user = principalVerification(principal);
-        Mural mural;
-        if (muralId!=null) {
-            mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Requested mural not found"));
-            if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "User is not a member of specified mural");
-        } else {
-            mural = null;
-        }
-        List<Activity> activities = activityService.findById(ids);
-        List<Activity> filteredActivities = activities.stream().filter(a->
-                (user.hasRole("ADMIN")&&!a.getVisibility().isPrivate()) ||
-                user.equals(a.getUser()) ||
-                a.getVisibility().isPublic() ||
-                mural!=null && a.getVisibility().isVisibleByMural(muralId)
-        ).toList();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("ATRA-requested-forbidden", Boolean.toString(ids.size()!=filteredActivities.size()));
+        List<Activity> activities = activityService.getActivitiesByIds(user, ids, muralId);
 
-        return new ResponseEntity<>(ActivityDTO.toDto(filteredActivities), headers, HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("ATRA-requested-forbidden", Boolean.toString(ids.size()!=activities.size()));
+        return new ResponseEntity<>(ActivityDTO.toDto(activities), headers, HttpStatus.OK);
     }
 
     @GetMapping
@@ -89,101 +57,38 @@ public class ActivityController {
             @RequestParam(required = false, name = "cond") String cond,
             @RequestParam(required = false, name = "visibility") String visibility
     ) {
-        if (fetchAll) return getActivities(principal, from, id, cond, visibility);
-        if (pageSize==null) pageSize=Constants.PAGE_SIZE;
-
-        boolean shouldFetchRoutes = "nullRoute".equals(cond);
-
-        User user = principalVerification(principal);
-        Collection<Activity> activities = new ArrayList<>();
-        HttpHeaders headers = new HttpHeaders();
-        Page<Activity> firstPage;
-        int pagesSent;
-
-        if (from == null || "authUser".equals(from)) {
-            firstPage = activityService.findByUser(user, startPage, pageSize, shouldFetchRoutes);
-            activities.addAll(firstPage.getContent());
-            for (pagesSent = 1; pagesSent < pagesToFetch; pagesSent++) {
-                Page<Activity> currentPage = activityService.findByUser(user, startPage + pagesSent, pageSize, shouldFetchRoutes);
-                if (!currentPage.hasContent()) break;
-                activities.addAll(currentPage.getContent());
-            }
-        }
-        else if ("mural".equals(from)) {
-            if (id==null) throw new HttpException(400, "Requested activities from a specific mural without providing their id");
-            Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
-            if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
-
-            firstPage = activityService.findVisibleTo(mural, startPage, pageSize, shouldFetchRoutes);
-            activities.addAll(firstPage.getContent());
-            for (pagesSent=1; pagesSent < pagesToFetch; pagesSent++) {
-                Page<Activity> currentPage = activityService.findVisibleTo(mural, startPage + pagesSent, pageSize, shouldFetchRoutes);
-                if (!currentPage.hasContent()) break;
-                activities.addAll(currentPage.getContent());
-            }
-        }
-        else throw new HttpException(400, "Specified value for 'from' ("+from+") is invalid. Valid values are: 'authUser', 'mural'");
-        headers.add("ATRA-Total-Pages",   Integer.toString(firstPage.getTotalPages()));
-        headers.add("ATRA-Total-Entries", Long.toString(firstPage.getTotalElements()));
-        headers.add("ATRA-Start-Page",  Integer.toString(startPage));
-        headers.add("ATRA-Pages-Sent",    Long.toString(pagesSent));
-        headers.add("ATRA-Entries-Sent",  Integer.toString(activities.size()));
-        headers.add("ATRA-Page-Size",  Integer.toString(pageSize));
-
-
-        return ResponseEntity.ok().headers(headers).body(ActivityDTO.toDto(activities));
-
-    }
-
-    private ResponseEntity<List<ActivityDTO>> getActivities(Principal principal, String from, Long id, String cond, String visibility){
         User user = principalVerification(principal);
 
+        GetActivitiesParams params = new GetActivitiesParams(from, id, startPage, pagesToFetch, pageSize, cond, visibility);
         Collection<Activity> activities;
-
-        if (from==null || "authUser".equals(from))
-            activities = activityService.findByUser(user, "nullRoute".equals(cond));
-        else if (id==null) throw new HttpException(400, "Requested activities from a specific user/mural without providing their id");
-        else if ("mural".equals(from)) {
-            Mural mural = muralService.findById(id).orElseThrow(() -> new HttpException(404, "Mural not found"));
-            if (!mural.getMembers().contains(user) && !user.hasRole("ADMIN")) throw new HttpException(403, "Authenticated user is not a member of requested mural");
-            activities = activityService.findVisibleTo(mural, "nullRoute".equals(cond));
-        }
-        else if ("user".equals(from)) {
-            User targetUser = userService.findById(id).orElseThrow(() -> new HttpException(404, "User not found"));
-            if (!user.equals(targetUser) && !user.hasRole("ADMIN")) {//return public activities
-                activities = activityService.findByUserAndVisibilityType(user, VisibilityType.PUBLIC);
-            } else if (user.equals(targetUser)) {
-                if (visibility==null) activities = activityService.findByUser(user, "nullRoute".equals(cond));
-                else activities = activityService.findByUserAndVisibilityType(user, visibility);
-            } else if (user.hasRole("ADMIN")) {
-                if (visibility==null) activities = activityService.findByUserAndVisibilityNonPrivate(targetUser);
-                else if ("PRIVATE".equals(visibility)) throw new HttpException(400, "No one can see private activities except for the user who created them.");
-                else activities = activityService.findByUserAndVisibilityType(user, visibility);
-            }
-            else throw new HttpException(500, "How'd you even get here? I think you only go here when targetUser is null, but that can only happen if id is null, which has been checked."); //I think this only happens with targetUser==null
-        }
-        else throw new HttpException(400, "Activities requested from an unknown/unhandled entity type: " + from);
-
-        //neccessary if they want to fetch all but show paginated
-        //<editor-fold desc="headers">
         HttpHeaders headers = new HttpHeaders();
-        headers.add("ATRA-Total-Pages",   Integer.toString(-1));
-        headers.add("ATRA-Total-Entries", Long.toString(activities.size()));
-        headers.add("ATRA-Start-Page",  Integer.toString(0));
-        headers.add("ATRA-Pages-Sent",    Long.toString(-1));
-        headers.add("ATRA-Entries-Sent",  Integer.toString(activities.size()));
-        headers.add("ATRA-Page-Size",  Integer.toString(-1));
-        //</editor-fold>
+        if (fetchAll) {
+            activities = activityService.getActivities(user, params);
+            headers.add("ATRA-Total-Pages",   Integer.toString(-1));
+            headers.add("ATRA-Total-Entries", Long.toString(activities.size()));
+            headers.add("ATRA-Start-Page",  Integer.toString(0));
+            headers.add("ATRA-Pages-Sent",    Long.toString(-1));
+            headers.add("ATRA-Entries-Sent",  Integer.toString(activities.size()));
+            headers.add("ATRA-Page-Size",  Integer.toString(-1));
+        } else {
+            PagedActivities pActivities = activityService.getActivitiesPaged(user, params);
+            activities = pActivities.getActivities();
+            headers.add("ATRA-Total-Pages",   Integer.toString(pActivities.getTotalPages()));
+            headers.add("ATRA-Total-Entries", Long.toString(pActivities.getTotalEntries()));
+            headers.add("ATRA-Start-Page",  Integer.toString(startPage));
+            headers.add("ATRA-Pages-Sent",    Long.toString(pActivities.getPagesSent()));
+            headers.add("ATRA-Entries-Sent",  Integer.toString(pActivities.getEntriesSent()));
+            headers.add("ATRA-Page-Size",  Integer.toString(pageSize));
+        }
         return ResponseEntity.ok().headers(headers).body(ActivityDTO.toDto(activities));
+
     }
 
     @PostMapping
-    public ResponseEntity<ActivityDTO> createActivity(@RequestParam("file") MultipartFile file, Principal principal){
-        if (principal==null) {
-            return  ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<ActivityDTO> createActivity(Principal principal, @RequestParam("file") MultipartFile file){
+        User user = principalVerification(principal);
 
-        Activity activity = activityService.newActivity(file, principal.getName());
+        Activity activity = activityService.newActivity(file, user);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
@@ -191,89 +96,51 @@ public class ActivityController {
     @DeleteMapping("/{id}/route")
     public ResponseEntity<ActivityDTO> removeRoute(Principal principal, @PathVariable Long id) {
         User user = principalVerification(principal);
-        Activity activity = activityService.findById(id).orElse(null);
-        if (activity==null) return ResponseEntity.notFound().build();
-        if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "You can only remove the route of activities you own");
-        activity.setRoute(null);
-        activityService.save(activity);
+        Activity activity = activityService.removeRoute(user, id);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @PostMapping("/{activityId}/route")
     public ResponseEntity<ActivityDTO> addRoute(Principal principal, @PathVariable Long activityId, @RequestBody Long routeId) {
         User user = principalVerification(principal);
-        Activity activity = activityService.findById(activityId).orElse(null);
-        Route route = routeService.findById(routeId).orElse(null);
-        if (activity==null || route==null) return ResponseEntity.notFound().build();
-        if (!user.equals(activity.getUser())) throw new HttpException(403, "You can only change the route of activities you own");
-        if (!routeService.isVisibleBy(route, user)) throw new HttpException(404, "Target route not found"); //in others used 403. (security)
 
-        activity.setRoute(route);
-        activityService.save(activity);
-        //danger warning warn problema cuidado
-        return ResponseEntity.ok(new ActivityDTO(activity)); //was new ActivityDTO(activity, new BasicNamedId(routeId, route.getName()))
+        Activity activity = activityService.addRoute(user, activityId, routeId);
+        return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ActivityDTO> deleteActivity(Principal principal, @PathVariable Long id) {
-        //gotta check permissions. If not allowed, should return 404 instead of 403, so as to not show ids in use
         User user = principalVerification(principal);
-        Activity activity = activityService.findById(id).orElse(null);
-        if (activity==null) return ResponseEntity.notFound().build();
-        if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403, "You can only delete activities you onw");
-
-        deletionService.deleteActivity(id);
-
+        Activity activity = activityService.deleteActivity(user, id);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @PatchMapping("/{id}/visibility")
     public ResponseEntity<ActivityDTO> changeVisibility(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
         User user = principalVerification(principal);
-        Activity activity = activityService.findById(id).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"));
-        if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) throw new HttpException(403);
-        UtilsService.changeVisibilityHelper(id, body, activityService); //throws error on not found or invalid visibility
-        return ResponseEntity.ok(new ActivityDTO(activityService.findById(id).orElseThrow(
-                ()->new HttpException(404, "Could not find the activity with id " + id + " so the change visibility operation has been canceled"))));
+        Visibility requestedVisibility = AtraUtils.parseVisibility(body);
+        Activity updatedAct = activityService.changeVisibility(user, id, requestedVisibility);
+        return ResponseEntity.ok(new ActivityDTO(updatedAct));
     }
 
     @PatchMapping("/visibility/mural")
     public ResponseEntity<String> makeActivitiesNotVisibleToMural(Principal principal, @RequestParam("id") Long muralId, @RequestBody List<Long> selectedActivitiesIds) {
         User user = principalVerification(principal);
-        Mural mural = muralService.findById(muralId).orElseThrow(()-> new HttpException(404, "Mural not found"));
-        List<Activity> activities = activityService.findById(selectedActivitiesIds);
-        activities.forEach(activity -> {
-            if (!user.equals(activity.getUser()) && !user.hasRole("ADMIN")) return;
-            if (activity.getVisibility().isPrivate()) return;
-            if (activity.getVisibility().isMuralSpecific()) {
-                activity.getVisibility().removeMural(muralId);
-            } else if (activity.getVisibility().isMuralPublic() || activity.getVisibility().isPublic()) {
-                List<Long> memberMuralIds = new ArrayList<>(user.getMemberMurals().stream().map(Mural::getId).toList());
-                memberMuralIds.remove(muralId);
-                activity.changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, memberMuralIds);
-            }
-            activityService.save(activity);
-            muralService.save(mural);
-        });
+        activityService.makeActivitiesNotVisibleToMural(user, muralId, selectedActivitiesIds);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/OwnedInMural")
     public ResponseEntity<Collection<ActivityDTO>> getOwnedActivitiesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
         User user = principalVerification(principal);
-        Mural mural = muralService.findById(muralId).orElseThrow(() -> new HttpException(404, "Mural not found"));
-        return ResponseEntity.ok(ActivityDTO.toDto(activityService.findByUserAndVisibleToMural(user, mural)));
+        List<Activity> activities = activityService.getOwnedActivitiesInMural(user, muralId);
+        return ResponseEntity.ok(ActivityDTO.toDto(activities));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ActivityDTO> editActivity(Principal principal, @PathVariable Long id, @RequestBody Activity activity) {
         User user = principalVerification(principal);
-        Activity act = activityService.findById(id).orElseThrow(()->new HttpException(404, "Activity not found"));
-        if (!user.equals(act.getUser()) && ! user.hasRole("ADMIN")) throw new HttpException(403, "User does not have access to specified activity");
-        if (activity.getName()!=null) {
-            act.setName(activity.getName());
-        }
-        activityService.save(act);
+        Activity act = activityService.editActivity(user, id, activity);
         return ResponseEntity.ok(new ActivityDTO(act));
     }
     private User principalVerification(Principal principal) throws HttpException {

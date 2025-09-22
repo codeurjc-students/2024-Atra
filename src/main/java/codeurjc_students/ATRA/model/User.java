@@ -30,9 +30,6 @@ public class User implements NamedId {
 	@ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 	private List<Mural> memberMurals = new ArrayList<>();
 
-	@OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-	private List<Route> createdRoutes = new ArrayList<>();
-
 	//<editor-fold desc="private List<String> roles">
 	@Column(name = "role")
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -62,16 +59,13 @@ public class User implements NamedId {
 		return this.roles.contains(role);
 	}
 
+	public boolean isAdmin() {
+		return this.roles.contains("ADMIN");
+	}
+
 
     public void addMemberMural(Mural mural) {
 		memberMurals.add(mural);
     }
-
-	public void addRoute(Route route) {
-		createdRoutes.add(route);
-	}
-
-	public void removeRoute(Route r) {
-		createdRoutes.remove(r);
-	}
+	
 }
