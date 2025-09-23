@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -110,4 +111,16 @@ public class Visibility {
     *   2. /api/murals/id/activities/id, returns the activity if the mural can see it and you're in the mural
     *
     */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Visibility that)) return false;
+        return type == that.type && Objects.equals(allowedMurals, that.allowedMurals);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, allowedMurals);
+    }
 }

@@ -39,14 +39,11 @@ public class UserService {
 	public Optional<User> findByUserName(String name) {
 		return userRepository.findByUsername(name);
 	}
-	public boolean exists(long id) {
-		return userRepository.existsById(id);
-	}
 	public boolean existsByUsername(String username) {
 		return userRepository.findByUsername(username).isPresent();
 	}
 
-	public void save(User user) {
+	protected void save(User user) {
 		userRepository.save(user);
 	}
 
@@ -57,24 +54,28 @@ public class UserService {
 		if (receivedUser.getUsername()!=null && !receivedUser.getUsername().isEmpty() && !this.existsByUsername(receivedUser.getUsername())) {
 			user.setUsername(receivedUser.getUsername());
 		}
-		if (receivedUser.getName()!=null && !receivedUser.getName().isEmpty()) {
-			user.setName(receivedUser.getName());
+		if (receivedUser.getName()!=null) {
+			if (!receivedUser.getName().isEmpty())
+				user.setName(receivedUser.getName());
+			else
+				user.setName(user.getUsername());
 		}
-		if (receivedUser.getEmail()!=null && !receivedUser.getEmail().isEmpty()) {
+		if (receivedUser.getEmail()!=null) {
 			user.setEmail(receivedUser.getEmail());
 		}
-		this.save(user);
+		userRepository.save(user);
 		return user;
 	}
 
 	public void changePassword(User user, String password) {
 		user.setPassword(passwordEncoder.encode(password));
-		this.save(user);
+		userRepository.save(user);
 	}
 
 	public User createUser(NewUserDTO userDTO) {
 		if (userDTO.getUsername()==null || userDTO.getPassword()==null) throw new IncorrectParametersException("Could not parse the user. Make sure it has the correct fields");
-		if (this.existsByUsername(userDTO.getUsername())) throw new IncorrectParametersException("Could not parse the user. Make sure it has the correct fields");
+		if (userDTO.getUsername().isEmpty() || userDTO.getPassword().isEmpty()) throw new IncorrectParametersException("Could not parse the user. Make sure it has the correct fields");
+		if (userRepository.existsByUsername(userDTO.getUsername())) throw new IncorrectParametersException("Username is taken");
 
 		User user = new User(userDTO.getUsername(), passwordEncoder.encode(userDTO.getPassword()));
 
@@ -84,18 +85,30 @@ public class UserService {
 		else
 			user.setName(userDTO.getUsername());
 
-		this.save(user);
+		userRepository.save(user);
 		return user;
 	}
 
 	public void deleteUser(User user) {
+		if (user==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
+
+		activityRepository.deleteAll(activityRepository.findByUser(user));
+
 		for (Route r : routeRepository.findAllByCreatedBy(user)) {
 			if (r.getVisibility().isMuralSpecific() || r.getVisibility().isMuralPublic()) { //in theory, routes can't be mural public, but just in case
 				r.setVisibility(new Visibility(VisibilityType.PUBLIC));
+				routeRepository.save(r);
 			}
 		}
-		muralRepository.findByOwner(user).forEach(Mural::removeOwner);
-		this.deleteUserConsequences(user);
+		muralRepository.findByOwner(user).forEach(m-> {
+			m.removeOwner();
+			muralRepository.save(m);
+		});
+		user.getMemberMurals().forEach(mural -> {
+			mural.removeMember(user);
+			muralRepository.save(mural);
+		});
+		userRepository.delete(user);
 	}
 
 	public User getUser(Long id) {
@@ -104,21 +117,5 @@ public class UserService {
 
 	public Boolean verifyPassword(String password, String password1) {
 		return passwordEncoder.matches(password, password1);
-	}
-
-	private void deleteUserConsequences(User user) {
-		if (user==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
-
-		//this should happen automatically with cascade.
-		activityRepository.deleteAll(activityRepository.findByUser(user));
-		muralRepository.findByOwner(user).forEach(mural -> {
-			mural.removeOwner(user, null);
-			muralRepository.save(mural);
-		});
-		user.getMemberMurals().forEach(mural -> {
-			mural.removeMember(user);
-			muralRepository.save(mural);
-		});
-		userRepository.delete(user);
 	}
 }
