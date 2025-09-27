@@ -94,7 +94,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		return changeVisibility(routeId,newVisibility,null);
 	}
 	public boolean changeVisibility(Long routeId, Visibility newVisibility){ //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		return changeVisibility(routeId,newVisibility.getType(),newVisibility.getAllowedMurals());
+		return changeVisibility(routeId,newVisibility.getType(),newVisibility.getAllowedMuralsNonNull());
 	}
 	public boolean changeVisibility(Long routeId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
 		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Could not find the route with id " + routeId + " so the change visibility operation has been canceled"));

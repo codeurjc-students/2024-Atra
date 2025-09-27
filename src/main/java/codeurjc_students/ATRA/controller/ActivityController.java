@@ -1,6 +1,7 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.ActivityDTO;
+import codeurjc_students.ATRA.dto.ActivityEditDTO;
 import codeurjc_students.ATRA.exception.*;
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.User;
@@ -138,7 +139,7 @@ public class ActivityController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ActivityDTO> editActivity(Principal principal, @PathVariable Long id, @RequestBody Activity activity) {
+    public ResponseEntity<ActivityDTO> editActivity(Principal principal, @PathVariable Long id, @RequestBody ActivityEditDTO activity) {
         User user = principalVerification(principal);
         Activity act = activityService.editActivity(user, id, activity);
         return ResponseEntity.ok(new ActivityDTO(act));

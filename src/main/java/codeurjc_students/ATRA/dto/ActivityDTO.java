@@ -2,7 +2,6 @@ package codeurjc_students.ATRA.dto;
 
 import codeurjc_students.ATRA.model.Activity;
 import codeurjc_students.ATRA.model.ActivitySummary;
-import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.DataPoint;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
@@ -43,7 +42,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		summary = actSummary;
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 		visibility = activity.getVisibility().getType();
-		allowedMurals = activity.getVisibility().getAllowedMurals();
+		allowedMurals = activity.getVisibility().getAllowedMuralsNonNull();
 	}
 
 	public ActivityDTO(Activity activity){
@@ -57,7 +56,7 @@ public class ActivityDTO implements ActivityDtoInterface {
 		summary = activity.getSummary();
 		route = activity.getRoute() != null ? new BasicNamedId(activity.getRoute().getId(), activity.getRoute().getName()) : null;
 		visibility = activity.getVisibility().getType();
-		allowedMurals = activity.getVisibility().getAllowedMurals();
+		allowedMurals = activity.getVisibility().getAllowedMuralsNonNull();
 	}
 
 

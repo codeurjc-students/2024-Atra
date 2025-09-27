@@ -3,7 +3,6 @@ package codeurjc_students.ATRA.model.auxiliary;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,8 +36,12 @@ public class Visibility {
         if (type==VisibilityType.MURAL_SPECIFIC) this.allowedMurals = new HashSet<>(allowedMurals);
     }
 
-    @Transient
     public Collection<Long> getAllowedMurals() {
+        return allowedMurals;
+    }
+
+    @Transient
+    public Collection<Long> getAllowedMuralsNonNull() {
         return allowedMurals == null ? Set.of() : new HashSet<>(allowedMurals);
     }
 
@@ -59,7 +62,7 @@ public class Visibility {
     }
 
     public boolean isVisibleByMural(Long id) {
-        return isMuralPublic() || isPublic() || allowedMurals.contains(id);
+        return isMuralPublic() || isPublic() || (allowedMurals!=null && allowedMurals.contains(id));
     }
 
     public void addMural(Long id) {

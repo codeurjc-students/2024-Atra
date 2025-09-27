@@ -186,9 +186,9 @@ public class MuralService {
 			mural.removeMember(user);
 		}
 		for (Activity a : activityRepository.findByUser(user)) {
-			if (a.getVisibility().isMuralSpecific() && a.getVisibility().getAllowedMurals().contains(mural.getId())) {
+			if (a.getVisibility().isMuralSpecific() && a.getVisibility().getAllowedMuralsNonNull().contains(mural.getId())) {
 				a.getVisibility().removeMural(mural.getId());
-				if (a.getVisibility().getAllowedMurals().isEmpty()) a.changeVisibilityTo(VisibilityType.PRIVATE);
+				if (a.getVisibility().getAllowedMuralsNonNull().isEmpty()) a.changeVisibilityTo(VisibilityType.PRIVATE);
 			}
 		}
 

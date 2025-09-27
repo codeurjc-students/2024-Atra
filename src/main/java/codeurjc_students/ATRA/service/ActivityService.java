@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.dto.ActivityEditDTO;
 import codeurjc_students.ATRA.exception.*;
 import codeurjc_students.ATRA.model.*;
 import codeurjc_students.ATRA.model.auxiliary.*;
@@ -67,7 +68,6 @@ public class ActivityService implements ChangeVisibilityInterface{
 		Track track = gpx.getTracks().get(0);
 		List<WayPoint> pts = track.getSegments().get(0).getPoints();
 
-
 		Activity activity = new Activity();
 		activity.setUser(user);
 
@@ -87,13 +87,11 @@ public class ActivityService implements ChangeVisibilityInterface{
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).get_time());
 		activityRepository.saveAndFlush(activity);
 
-
 		//create summary
 		ActivitySummary activitySummary = new ActivitySummary(activity);
 		activity.setSummary(activitySummary);
 		summaryRepository.save(activitySummary); //superfluous in theory, saving the activity should cascade to this. Need to test it before I'm comfortable removing this call
 		activityRepository.save(activity);
-
 
 		return activity;
 	}
@@ -286,20 +284,20 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activity;
 	}
 	public boolean changeVisibility(Long id, Visibility newVisibility) {
-		return changeVisibility(id, newVisibility.getType(), newVisibility.getAllowedMurals());
+		return changeVisibility(id, newVisibility.getType(), newVisibility.getAllowedMuralsNonNull());
 	}
 	public boolean changeVisibility(Long activityId, VisibilityType newVisibility, Collection<Long> allowedMuralsCol) { //feel free to change this to just take a Visibility instead of VisibilityType and Collection<Long>
-		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new HttpException(404, "Could not find the activity with id " + activityId + " so the change visibility operation has been canceled"));
+		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new EntityNotFoundException("Could not find the activity with id " + activityId + " so the change visibility operation has been canceled"));
 		activity.changeVisibilityTo(newVisibility, allowedMuralsCol);
 		activityRepository.save(activity);
 		return true;
 	}
 
-	public boolean isVisibleToMural(Activity activity, Mural mural) {
+	private boolean isVisibleToMural(Activity activity, Mural mural) {
 		return activity.getVisibility().isVisibleByMural(mural.getId());
 	}
 
-	public boolean isVisibleToUser(Activity activity, User user) {
+	private boolean isVisibleToUser(Activity activity, User user) {
 		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.isAdmin() && !activity.getVisibility().isPrivate());
 	}
 
@@ -324,15 +322,19 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityList;
 	}
 
-	public void removeActivityFromRoute(User user, Long routeId, Long activityId) {
-		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
+	public Activity removeActivityFromRoute(User user, Long routeId, Long activityId) {
 		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new EntityNotFoundException("Activity not found"));
-		if (!activityRepository.findByRoute(route).contains(activity)) throw new EntityNotFoundException("The requested activity is not a member of the specified route.");
+
+		if (routeId!=-1){ //it's -1 when called from this.removeRoute
+			Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
+			if (!route.equals(activity.getRoute())) throw new IncorrectParametersException("The requested activity is not a member of the specified route.");
+		}
 		if (!user.equals(activity.getUser()) && !user.isAdmin()) throw new PermissionException("You can only remove your own activities from a route");
 
 		//Confirmed that route and activity exists, and that they're related
 		activity.setRoute(null);
 		activityRepository.save(activity);
+		return activity;
 	}
 
 	public Activity getActivity(User user, Long id, Long muralId) {
@@ -340,6 +342,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 		if (muralId!=null) {
 			Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Requesting mural not found"));
+			if (!mural.getMembers().contains(user)) throw new IncorrectParametersException("Cannot request activities through a mural you're not part of");
 			if (!this.isVisibleToMural(activity, mural)) throw new VisibilityException("Activity is not visible to specified mural");
 		} else {
 			if (!this.isVisibleToUser(activity, user)) throw new VisibilityException("Activity is not visible to user");
@@ -448,11 +451,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	public Activity removeRoute(User user, Long id) {
-		Activity activity = activityRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Activity not found"));
-		if (!user.equals(activity.getUser())) throw new PermissionException("You can only remove the route of activities you own");
-		activity.setRoute(null);
-		activityRepository.save(activity);
-		return activity;
+		return removeActivityFromRoute(user, -1L, id);
 	}
 
 	public Activity addRoute(User user, Long activityId, Long routeId) {
@@ -497,11 +496,14 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findByUserAndVisibleToMural(user, mural.getId());
 	}
 
-	public Activity editActivity(User user, Long id, Activity activity) {
+	public Activity editActivity(User user, Long id, ActivityEditDTO activity) {
 		Activity act = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
-		if (!user.equals(act.getUser()) && ! user.isAdmin()) throw new PermissionException("User does not have access to specified activity");
-		if (activity.getName()!=null) {
+		if (!user.equals(act.getUser())) throw new PermissionException("User does not have access to specified activity");
+		if (activity.getName()!=null && !activity.getName().isEmpty()) {
 			act.setName(activity.getName());
+		}
+		if (activity.getType()!=null && !activity.getType().isEmpty()) {
+			act.setType(activity.getType());
 		}
 		activityRepository.save(act);
 		return act;
