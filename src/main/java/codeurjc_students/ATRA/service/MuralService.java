@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.service;
 
+import codeurjc_students.ATRA.dto.MuralEditDTO;
 import codeurjc_students.ATRA.exception.EntityNotFoundException;
 import codeurjc_students.ATRA.exception.IncorrectParametersException;
 import codeurjc_students.ATRA.exception.PermissionException;
@@ -42,7 +43,7 @@ public class MuralService {
 	 * Generates the mural code, and adds the mural to the memberList of all its member users
 	 * @param mural
 	 */
-	public void newMural(Mural mural) {
+	protected void newMural(Mural mural) {
 		String code;
 		do {
 			String[] parts = UUID.randomUUID().toString().split("-");
@@ -82,20 +83,20 @@ public class MuralService {
 		}
 	}
 
-    private void patch(Mural mural, Map<String, String> newMural) {
-		String name = newMural.get("name");
-		String description = newMural.get("description");
-		String newOwnerString = newMural.get("owner");
-		if (name!=null) mural.setName(name);
-		if (description!=null) mural.setDescription(description);
-		if (newOwnerString!=null) {
-			User newOwner = userRepository.findById(Long.parseLong(newOwnerString)).orElseThrow(() -> new EntityNotFoundException("User not found, can't change owner"));
+    private void patch(Mural mural, MuralEditDTO newMural) {
+		String name = newMural.getName();
+		String description = newMural.getDescription();
+		Long newOwnerLong = newMural.getNewOwner();
+		if (newOwnerLong!=null) {
+			User newOwner = userRepository.findById(newOwnerLong).orElseThrow(() -> new EntityNotFoundException("User not found, can't change owner"));
 			if (!mural.getMembers().contains(newOwner)) throw new IncorrectParametersException("New owner is not a member of the mural. Cannot transfer ownership");
 			User previousOwner = mural.getOwner();
 			mural.setOwner(newOwner);
 			userRepository.save(previousOwner);
 			userRepository.save(newOwner);
 		}
+		if (name!=null && !name.isEmpty()) mural.setName(name);
+		if (description!=null && !description.isEmpty()) mural.setDescription(description);
 		muralRepository.save(mural);
 	}
 
@@ -130,22 +131,12 @@ public class MuralService {
 		else throw new EntityNotFoundException("500 Internal Server Error: Unknown type for GET /api/murals");
 	}
 
-	public Mural createMural(User owner, String name, String description, String visibility, MultipartFile thumbnail, MultipartFile banner) {
-		try {
-			if (!"PRIVATE".equals(visibility) && !"PUBLIC".equals(visibility)) throw new IncorrectParametersException("Invalid visibility");
-			Mural newMural = new Mural(
-					name,
-					description,
-					owner,
-					VisibilityType.valueOf(visibility),
-					thumbnail.getBytes(),
-					banner.getBytes()
-			);
-			this.newMural(newMural);
-			return newMural;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public Mural createMural(Mural mural) {
+		if (mural.getVisibility()!=VisibilityType.PRIVATE && mural.getVisibility()!=VisibilityType.PUBLIC) throw new IncorrectParametersException("Invalid visibility");
+
+		this.newMural(mural);
+		return mural;
+
 	}
 
 	public Integer joinMural(User user, String muralCode, Long muralId) {
@@ -164,7 +155,7 @@ public class MuralService {
 	}
 
 	private List<User> removeSpecifiedUserFromMural(Mural mural, User user, Long inheritorId) {
-		if (!mural.getMembers().contains(user)) throw new EntityNotFoundException("Target user is not a member of specified mural");
+		if (!mural.getMembers().contains(user)) throw new IncorrectParametersException("Target user is not a member of specified mural");
 		if (mural.getMembers().size()==1) {
 			this.deleteMuralConsequences(mural.getId());
 			return new ArrayList<>();
@@ -189,6 +180,7 @@ public class MuralService {
 			if (a.getVisibility().isMuralSpecific() && a.getVisibility().getAllowedMuralsNonNull().contains(mural.getId())) {
 				a.getVisibility().removeMural(mural.getId());
 				if (a.getVisibility().getAllowedMuralsNonNull().isEmpty()) a.changeVisibilityTo(VisibilityType.PRIVATE);
+				activityRepository.save(a);
 			}
 		}
 
@@ -197,9 +189,12 @@ public class MuralService {
 				r.getVisibility().removeMural(mural.getId());
 			}
 			activityRepository.getByRoute(r).forEach(activity -> {
-				if (!r.getCreatedBy().equals(activity.getUser()) && r.equals(activity.getRoute()))
+				if (!r.getCreatedBy().equals(activity.getUser()) && r.equals(activity.getRoute())){
 					activity.setRoute(null);
+					activityRepository.save(activity);
+				}
 			});
+			routeRepository.save(r);
 		}
 		userRepository.save(user);
 		muralRepository.save(mural);
@@ -215,16 +210,18 @@ public class MuralService {
 	}
 
 	public List<User> banUser(User user, Long muralId, Long userId) {
-
+		if (muralId==null || userId==null) throw new IncorrectParametersException("You need to specify a user id and mural id");
 		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
 		User targetUser = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User to ban not found"));
 
-		List<User> body = removeSpecifiedUserFromMural(mural, targetUser, null);
+		if (!user.equals(mural.getOwner())) throw new PermissionException("Only admins and the mural owner can remove users from murals");
+		if (targetUser.equals(mural.getOwner())) throw new IncorrectParametersException("The owner of the mural cannot be banned");
 
-		mural.banUser(user);
+		List<User> members = removeSpecifiedUserFromMural(mural, targetUser, null);
+
+		mural.banUser(targetUser);
 		muralRepository.save(mural);
-		return body;
-
+		return members;
 	}
 
 	public List<User> unbanUser(User ppal, Long targetUserId, Long muralId) {
@@ -243,10 +240,10 @@ public class MuralService {
 		this.deleteMuralConsequences(id);
 	}
 
-	public Mural editMural(User user, Long id, Map<String, String> body) {
-		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
-		if (!user.equals(mural.getOwner()) && !user.isAdmin()) throw new PermissionException("User is not authorized to edit this mural");
-		this.patch(mural, body);
+	public Mural editMural(User user, Long muralId, MuralEditDTO changes) {
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		if (!user.equals(mural.getOwner())) throw new PermissionException("User is not authorized to edit this mural");
+		this.patch(mural, changes);
 		return mural;
 	}
 
@@ -265,7 +262,7 @@ public class MuralService {
 		muralRepository.save(mural);
 	}
 
-	public void deleteMuralConsequences(long id) {
+	private void deleteMuralConsequences(long id) {
 		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
 
 		List<User> members = mural.getMembers();

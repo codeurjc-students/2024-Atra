@@ -1,11 +1,13 @@
 package codeurjc_students.ATRA.controller;
 
 import codeurjc_students.ATRA.dto.*;
+import codeurjc_students.ATRA.exception.EntityNotFoundException;
 import codeurjc_students.ATRA.exception.HttpException;
 import codeurjc_students.ATRA.exception.IncorrectParametersException;
 import codeurjc_students.ATRA.model.*;
 import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
 import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -68,7 +70,23 @@ public class MuralController {
                                                 @RequestParam("banner") MultipartFile banner
                                                 ) {
         User user = principalVerification(principal);
-        return ResponseEntity.ok(new MuralDTO(muralService.createMural(user, name, description, visibility, thumbnail, banner)));
+        Mural newMural;
+        try {
+            newMural = new Mural(
+                    name,
+                    description,
+                    user,
+                    VisibilityType.valueOf(visibility),
+                    thumbnail.getBytes(),
+                    banner.getBytes()
+            );
+        } catch (IOException e) {
+            throw new IncorrectParametersException("There was an error reading the selected thumbnail or banner. Make sure they are images with the correct format.", e);
+        } catch (IllegalArgumentException e) {
+            throw new IncorrectParametersException("Selected visibility is not a valid visibility. Valid visibility values are PRIVATE and PUBLIC.", e);
+        }
+
+        return ResponseEntity.ok(new MuralDTO(muralService.createMural(newMural)));
     }
 
     @PostMapping("/join")
@@ -115,7 +133,7 @@ public class MuralController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<MuralDTO> editMural(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<MuralDTO> editMural(Principal principal, @PathVariable Long id, @RequestBody MuralEditDTO body) {
         User user = principalVerification(principal);
         Mural mural = muralService.editMural(user, id, body);
         return ResponseEntity.ok(new MuralDTO(mural));

@@ -728,8 +728,5 @@ public class ActivityServiceTest {
 
     //</editor-fold>
 
-
-
-
 }
 
