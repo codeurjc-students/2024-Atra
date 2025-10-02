@@ -16,10 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.context.event.EventListener;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -222,7 +219,7 @@ public class DatabaseInitializer {
         for (int i=0;i<7;i++) {
             Activity activity = activities.get(i);
             activity.setName("act" + i +" "+ asd.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
-            activity.setUser(asd);
+            activity.setOwner(asd);
             activityService.save(activity);
         }
         //</editor-fold>
@@ -236,7 +233,7 @@ public class DatabaseInitializer {
         for (int i=7;i<13;i++) {
             Activity activity = activities.get(i);
             activity.setName("act " + i + qwe.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
-            activity.setUser(qwe);
+            activity.setOwner(qwe);
             activityService.save(activity);
         }
         //</editor-fold>
@@ -250,7 +247,7 @@ public class DatabaseInitializer {
         for (int i=13;i<19;i++) {
             Activity activity = activities.get(i);
             activity.setName("act " + i + zxc.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
-            activity.setUser(zxc);
+            activity.setOwner(zxc);
             activityService.save(activity);
         }
         //</editor-fold>

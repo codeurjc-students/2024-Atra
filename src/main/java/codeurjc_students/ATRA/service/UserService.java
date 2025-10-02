@@ -5,7 +5,6 @@ import codeurjc_students.ATRA.dto.UserDTO;
 import codeurjc_students.ATRA.exception.EntityNotFoundException;
 import codeurjc_students.ATRA.exception.IncorrectParametersException;
 import codeurjc_students.ATRA.exception.PermissionException;
-import codeurjc_students.ATRA.model.Mural;
 import codeurjc_students.ATRA.model.Route;
 import codeurjc_students.ATRA.model.User;
 import codeurjc_students.ATRA.model.auxiliary.Visibility;
@@ -92,7 +91,7 @@ public class UserService {
 	public void deleteUser(User user) {
 		if (user==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
 
-		activityRepository.deleteAll(activityRepository.findByUser(user));
+		activityRepository.deleteAll(activityRepository.findByOwner(user));
 
 		for (Route r : routeRepository.findAllByCreatedBy(user)) {
 			if (r.getVisibility().isMuralSpecific() || r.getVisibility().isMuralPublic()) { //in theory, routes can't be mural public, but just in case

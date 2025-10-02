@@ -24,7 +24,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -299,10 +298,10 @@ public class MuralServiceTest {
         userOwner.setName("juan");
         otherUser.setName("francisco");
 
-        activity.setUser(user);
+        activity.setOwner(user);
         route.setCreatedBy(user);
 
-        otherAct.setUser(otherUser);
+        otherAct.setOwner(otherUser);
         otherAct.setRoute(route);
 
         mural.setOwner(userOwner);
@@ -314,7 +313,7 @@ public class MuralServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         when(routeRepository.findAllByCreatedBy(user)).thenReturn(List.of(route));
-        when(activityRepository.findByUser(user)).thenReturn(List.of(activity));
+        when(activityRepository.findByOwner(user)).thenReturn(List.of(activity));
         when(activityRepository.getByRoute(route)).thenReturn(List.of(otherAct));
         //then
         List<User> actual = muralService.banUser(userOwner, 1L, 1L);
@@ -362,10 +361,10 @@ public class MuralServiceTest {
         userOwner.setName("juan");
         otherUser.setName("francisco");
 
-        activity.setUser(user);
+        activity.setOwner(user);
         route.setCreatedBy(user);
 
-        otherAct.setUser(otherUser);
+        otherAct.setOwner(otherUser);
         otherAct.setRoute(route);
 
         mural.setOwner(userOwner);
@@ -377,7 +376,7 @@ public class MuralServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         when(routeRepository.findAllByCreatedBy(user)).thenReturn(List.of(route));
-        when(activityRepository.findByUser(user)).thenReturn(List.of(activity));
+        when(activityRepository.findByOwner(user)).thenReturn(List.of(activity));
         when(activityRepository.getByRoute(route)).thenReturn(List.of(otherAct));
         //then
         List<User> actual = muralService.removeUserFromMural(userOwner, 1L, 1L, null);

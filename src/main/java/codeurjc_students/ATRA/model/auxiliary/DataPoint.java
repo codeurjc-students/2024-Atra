@@ -2,9 +2,7 @@ package codeurjc_students.ATRA.model.auxiliary;
 
 import codeurjc_students.ATRA.service.MapToStringConverter;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -16,6 +14,8 @@ import java.util.Map;
 @Data
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
 public class DataPoint {
 	private Instant _time;
@@ -29,6 +29,11 @@ public class DataPoint {
 
 	@Convert(converter = MapToStringConverter.class) //this means that, when serializing, it will be converted into a String
 	private Map<String, String> other = new HashMap<>();
+
+	public DataPoint(Double lat, Double lon){
+		_lat=lat;
+		_long=lon;
+	}
 
 	public void put(String key, String value){
 		switch (key) {

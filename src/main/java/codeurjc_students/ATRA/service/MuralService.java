@@ -17,7 +17,6 @@ import codeurjc_students.ATRA.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -176,7 +175,7 @@ public class MuralService {
 			user.removeMemberMural(mural);
 			mural.removeMember(user);
 		}
-		for (Activity a : activityRepository.findByUser(user)) {
+		for (Activity a : activityRepository.findByOwner(user)) {
 			if (a.getVisibility().isMuralSpecific() && a.getVisibility().getAllowedMuralsNonNull().contains(mural.getId())) {
 				a.getVisibility().removeMural(mural.getId());
 				if (a.getVisibility().getAllowedMuralsNonNull().isEmpty()) a.changeVisibilityTo(VisibilityType.PRIVATE);
@@ -189,7 +188,7 @@ public class MuralService {
 				r.getVisibility().removeMural(mural.getId());
 			}
 			activityRepository.getByRoute(r).forEach(activity -> {
-				if (!r.getCreatedBy().equals(activity.getUser()) && r.equals(activity.getRoute())){
+				if (!r.getCreatedBy().equals(activity.getOwner()) && r.equals(activity.getRoute())){
 					activity.setRoute(null);
 					activityRepository.save(activity);
 				}

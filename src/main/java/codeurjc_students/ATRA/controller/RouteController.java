@@ -4,6 +4,7 @@ import codeurjc_students.ATRA.dto.*;
 import codeurjc_students.ATRA.exception.*;
 import codeurjc_students.ATRA.model.*;
 import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
 import codeurjc_students.ATRA.service.*;
 import codeurjc_students.ATRA.service.auxiliary.AtraUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,11 @@ public class RouteController {
         //probably could/should add some authentication, but for now this works
         User user = principalVerification(principal);
 
-        List<Route> routes = routeService.getAllRoutes(user, type, from, id, visibility);
+        VisibilityType visibilityType;
+        try {visibilityType = visibility==null?null:VisibilityType.valueOf(visibility.toUpperCase(Locale.ROOT));}
+        catch (IllegalArgumentException e) {throw new IncorrectParametersException("Visibility was either not specified or not a valid VisibilityType. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. \"");		}
+
+        List<Route> routes = routeService.getAllRoutes(user, type, from, id, visibilityType);
         if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes)); //ideally we'd just return Routes, but we kinda can't
         List<List<Activity>> activityList = activityService.getActivitiesFromRoutes(routes, user, from, id);
 
@@ -60,9 +65,10 @@ public class RouteController {
         //Route should have in its id field the id of the route from which it is to be created
         User user = principalVerification(principal);
         Long activityId = route.getId();
+        route.setId(null);
 
         return ResponseEntity.ok(new RouteWithActivityDTO(
-                routeService.createRoute(user, activityId),
+                routeService.createRoute(user, activityId, route),
                 List.of(new ActivityOfRouteDTO(activityService.get(activityId))
                 )));
 

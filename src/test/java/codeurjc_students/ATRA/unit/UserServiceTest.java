@@ -49,7 +49,7 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    //<editor-fold desc="createUser tests">
+    //<editor-fold desc="createUser">
     @Test
     void whenCreateUserOkThenDBIsUpdated() {
         //given
@@ -170,7 +170,7 @@ public class UserServiceTest {
     }
     //</editor-fold>
 
-    //<editor-fold desc=patchUser tests>
+    //<editor-fold desc="patchUser">
     @Test
     void whenPatchUserAllFieldsOkThenDbIsUpdated() {
         //given
@@ -337,7 +337,7 @@ public class UserServiceTest {
     }
     //</editor-fold>
 
-    //<editor-fold desc=deleteUser tests>
+    //<editor-fold desc="deleteUser">
 
     @Test
     void deleteUserOk() {
@@ -397,8 +397,6 @@ public class UserServiceTest {
     }
 
     //</editor-fold>
-
-
 
 }
 

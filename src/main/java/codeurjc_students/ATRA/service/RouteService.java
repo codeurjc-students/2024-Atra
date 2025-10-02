@@ -39,34 +39,31 @@ public class RouteService implements ChangeVisibilityInterface{
 		routeRepository.save(user);
 	}
 
-	public Route newRoute(Activity activity) {
-		return this.newRoute(new Route(), activity);
+	protected Route newRoute(Activity activity) {
+		return this.newRoute(activity, new Route());
 	}
-	public Route newRoute(Route route, Activity activity) {
+	protected Route newRoute(Activity activity, Route route) {
 		ActivitySummary summary = activity.getSummary();
-		if (route == null) {
-			route = new Route();
-		}
+		if (route==null) route = new Route();
+
 		route.setCoordinates(Coordinates.fromActivity(activity));
+		route.setCreatedBy(activity.getOwner());
 
 		if (route.getName()==null || route.getName().isEmpty()){
 			route.setName("Route from Activity " + activity.getId());
 		}
-		if (route.getCreatedBy()==null){
-			route.setCreatedBy(activity.getUser());
-		}
 		if (route.getDescription()==null || route.getDescription().isEmpty()){
-			route.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus auctor ligula sit amet fermentum ornare. Integer mauris justo, fermentum et arcu ac, vulputate ultrices metus.");
+			route.setDescription("This route has no description. Feel free to add one!");
 		}
-		if (route.getTotalDistance()==null || route.getTotalDistance()==0) {
+		if (summary!=null && (route.getTotalDistance()==null || route.getTotalDistance()<=0)) {
 			route.setTotalDistance(summary.getTotalDistance());
 		}
-		if (route.getElevationGain()==null || route.getElevationGain()==0) {
+		if (summary!=null && (route.getElevationGain()==null || route.getElevationGain()==0)) {
 			route.setElevationGain(summary.getElevationGain());
 		}
 
 		route.setId(null);
-		this.save(route);
+		routeRepository.save(route);
 
 		activity.setRoute(route);
 		activityRepository.save(activity);
@@ -78,7 +75,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		if (route==null) throw new RuntimeException("Can't add nonexistent route to activity");
 		if (route.getCoordinates()==null || route.getCoordinates().isEmpty()) {
 			route.setCoordinates(Coordinates.fromActivity(activity));
-			this.save(route);
+			routeRepository.save(route);
 		}
 		activity.setRoute(route);
 		activityService.save(activity);
@@ -105,7 +102,7 @@ public class RouteService implements ChangeVisibilityInterface{
 
 		if (newVisibility==VisibilityType.PRIVATE) {
 			User owner = route.getCreatedBy();
-			if (activityRepository.findByRoute(route).stream().anyMatch(activity -> !owner.getId().equals(activity.getUser().getId()))) {
+			if (activityRepository.findByRoute(route).stream().anyMatch(activity -> !owner.getId().equals(activity.getOwner().getId()))) {
 				throw new IncorrectParametersException("Cannot change visibility of a route that other users are using.");
 			}
 		}
@@ -118,30 +115,14 @@ public class RouteService implements ChangeVisibilityInterface{
         return routeRepository.findVisibleToMural(mural.getId());
 	}
 
-	public List<Route> findByCreatedByAndVisibilityTypeIn(User user, List<VisibilityType> visibilityTypes) {
-		return routeRepository.findByCreatedByAndVisibilityTypeIn(user, visibilityTypes);
-	}
-	public List<Route> findByOwnerAndVisibilityType(User user, String visibility) {
-		VisibilityType visibilityType;
-		try {visibilityType = VisibilityType.valueOf(visibility.toUpperCase(Locale.ROOT));}
-		catch (IllegalArgumentException e) {throw new HttpException(400, "Visibility specified is not a valid VisibilityType. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. \"");		}
-		return routeRepository.findByCreatedByAndVisibilityTypeIn(user, List.of(visibilityType));
-	}
-
-	public List<Route> findUsedOrCreatedBy(User user) {
-		return routeRepository.findUsedOrCreatedBy(user);
-	}
-
 	public Collection<Activity> getActivitiesAssignedToRoute(Long routeId, User user, Long muralId) {
-		Route route = this.findById(routeId).orElseThrow(() -> new HttpException(404, "No route with id " + routeId));
-		Optional<Mural> muralOpt = muralRepository.findById(muralId);
-		if (!AtraUtils.isRouteVisibleByUserOrOwnedMurals(route, user)) throw new HttpException(403, "Authenticated user has no visibility of specified route"); //technically 404 would be safer, gives less info
-		if (muralOpt.isPresent() && !muralOpt.get().getMembers().contains(user)) throw new HttpException(403, "User is not a member of specified mural. You need to be a member of a mural in order to view data bound to it.");
+		Route route = routeRepository.findById(routeId).orElseThrow(() -> new EntityNotFoundException("No route with id " + routeId));
+		if (!AtraUtils.isRouteVisibleByUserOrOwnedMurals(route, user)) throw new VisibilityException("Authenticated user has no visibility of specified route"); //technically 404 would be safer, gives less info
+		if (muralId==null) return activityRepository.findByRouteAndOwner(route, user);
 
-		if (muralOpt.isEmpty()) {
-			return activityRepository.findByRouteAndUser(route, user);
-		}
-		return activityRepository.findByRouteAndMural(route, muralOpt.get().getId());
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		if (!mural.getMembers().contains(user)) throw new PermissionException("User is not a member of specified mural. You need to be a member of a mural in order to view data bound to it.");
+		return activityRepository.findByRouteAndMural(route, mural.getId());
 	}
 
     public Route getRoute(User user, Long id) {
@@ -150,54 +131,60 @@ public class RouteService implements ChangeVisibilityInterface{
 		return route;
 	}
 
-	public List<Route> getAllRoutes(User user, String type, String from, Long id, String visibility) {
+	public List<Route> getAllRoutes(User user, String type, String from, Long targetId, VisibilityType visibility) {
 		//For mural return all mural_specific and mural_public it sees
 		//for public ones, return only if at least one user has an activity in it
 
 		//for user return all created by them, and all public such that he has an activity there
 		List<Route> routes;
-		if (from==null || "authUser".equals(from)) routes = this.findUsedOrCreatedBy(user);
+		if (from==null || "authUser".equals(from)) routes = routeRepository.findUsedOrCreatedBy(user);
+		else if (targetId==null) throw new IncorrectParametersException("Target id can only be null if from is null or 'authUser'");
 		else if ("user".equals(from)){
-			User targetUser = userRepository.findById(id).orElseThrow(()-> new HttpException(404, "Target user not found"));
+			User targetUser = userRepository.findById(targetId).orElseThrow(()-> new EntityNotFoundException("Target user not found"));
 			if (!user.equals(targetUser) && !user.isAdmin()) {//return public activities
-				routes = this.findByCreatedByAndVisibilityTypeIn(user, List.of(VisibilityType.PUBLIC));
+				if (visibility!=null && !visibility.equals(VisibilityType.PUBLIC)) throw new VisibilityException("You can only request public activities of another user");
+				routes = routeRepository.findByCreatedByAndVisibilityTypeIn(targetUser, List.of(VisibilityType.PUBLIC));
 			} else if (user.equals(targetUser)) {
-				if (visibility==null) routes = this.findUsedOrCreatedBy(user);
-				else routes = this.findByOwnerAndVisibilityType(user, visibility);
+				if (visibility==null) routes = routeRepository.findUsedOrCreatedBy(targetUser);
+				else routes = routeRepository.findByCreatedByAndVisibilityTypeIn(targetUser, List.of(visibility));
 			} else if (user.isAdmin()) {
-				if (visibility==null) routes = this.findByCreatedByAndVisibilityTypeIn(targetUser, List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC));
-				else if ("PRIVATE".equals(visibility)) throw new HttpException(400, "No one can see private routes except for the user who created them.");
-				else routes = this.findByOwnerAndVisibilityType(user, visibility);
+				if (visibility==null) routes = routeRepository.findByCreatedByAndVisibilityTypeIn(targetUser, List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC));
+				else if (VisibilityType.PRIVATE.equals(visibility)) throw new VisibilityException("No one can see private routes except for the user who created them.");
+				else routes = routeRepository.findByCreatedByAndVisibilityTypeIn(targetUser, List.of(visibility));
 			}
-			else throw new HttpException(500, "How'd you even get here? I think you only go here when targetUser is null, but that can only happen if id is null, which has been checked."); //I think this only happens with targetUser==null
+			else throw new RuntimeException("How'd you even get here? I think you only go here when targetUser is null, but that can only happen if id is null, which has been checked."); //I think this only happens with targetUser==null
 		}
 		else if ("mural".equals(from)){
-			Mural mural = muralRepository.findById(id).orElseThrow(() -> new HttpException(404, "Requested mural doesn't exist"));
-			routes = this.findVisibleTo(mural);
-		} else throw new HttpException(400, "Specified value for 'from' ("+from+") is invalid. Valid values are: 'authUser', 'user', 'mural'");
+			if (visibility!=null) throw new IncorrectParametersException("When requesting a mural's routes you cannot specify a visibility");
+			Mural mural = muralRepository.findById(targetId).orElseThrow(() -> new EntityNotFoundException("Requested mural doesn't exist"));
+			if (!mural.getMembers().contains(user)) throw new VisibilityException("Authenticated user needs to be a member of the specified mural");
+			routes = routeRepository.findVisibleToMural(mural.getId());
+		} else throw new IncorrectParametersException("Specified value for 'from' ("+from+") is invalid. Valid values are: 'authUser', 'user', 'mural'");
 		return routes;
 	}
 
-	public Route createRoute(User user, Long activityId) {
+	public Route createRoute(User user, Long activityId, Route route) {
+		if (activityId == null) throw new IncorrectParametersException("Cannot create a route without providing an activity id to bas it off of");
 		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new EntityNotFoundException("Could not find the Activity specified."));
-		return this.newRoute(activity);
-
+		if (!user.equals(activity.getOwner())) throw new IncorrectParametersException("You can only create a Route from an activity you own");
+		return this.newRoute(activity, route);
 	}
 
 	public void addActivitiesToRoute(User user, Long routeId, List<Long> activityIds) {
-
+		if (routeId==null || activityIds==null || activityIds.isEmpty()) throw new IncorrectParametersException("Need to specify both a collection of activities and the route to add them to. One of those was null");
 		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
 		if (!AtraUtils.isRouteVisibleBy(route,user)) throw new VisibilityException("User has no visibility of this route"); //404 might be better, more secure, gives less info. (security)
 		List<Activity> activities = activityRepository.findAllById(activityIds);
 		if (activities.isEmpty()) throw new EntityNotFoundException("No activities found with specified ids.");
 
 		//Confirmed that route and activity exists, and that they're related
+		activities.forEach(act -> {
+			if (!user.equals(act.getOwner())) throw new PermissionException("You can only modify activities you own. You are not the owner of the activity with id: "+act.getId());
+		});
 		for (var act : activities) {
-			if (!user.equals(act.getUser())) continue;
 			act.setRoute(route);
 			activityRepository.save(act);
 		}
-		routeRepository.save(route);
 	}
 
 	public void deleteRoute(User user, Long id) {
@@ -205,16 +192,16 @@ public class RouteService implements ChangeVisibilityInterface{
 		if (route.getCreatedBy()!=user && !user.isAdmin()) throw new PermissionException("You cannot delete a route you are not the owner of. Public routes can only be deleted by administrators");
 
 		if (route.getVisibility().isPublic() && !user.isAdmin()) throw new PermissionException("Public routes can only be deleted by administrators"); //This is indirectly checked above by route.getOwner()!=user, since owner will be null for public routes
-		if (route.getVisibility().isMuralSpecific() &&
-				activityRepository.findByRoute(route).stream().anyMatch(a->a.getUser()!=user)) {
+		if (route.getVisibility().isMuralSpecific() && !user.isAdmin() &&
+				activityRepository.findByRoute(route).stream().anyMatch(a->a.getOwner()!=user)) {
 			throw new IncorrectParametersException("Cannot delete a route that other people are using");
 		}
 		for (var act : activityRepository.findByRoute(route)) {
-			act.setRoute(null);
+			act.removeRoute();
 			activityRepository.save(act);
 		}
 
-		this.deleteRouteConsequences(id);
+		routeRepository.delete(route);
 	}
 
 	public void changeVisibility(User user, Long id, Visibility newVisibility) {
@@ -249,15 +236,4 @@ public class RouteService implements ChangeVisibilityInterface{
 		return result;
 	}
 
-	private void deleteRouteConsequences(long id) {
-		Route route = routeRepository.findById(id).orElse(null);
-		if (route==null) return; //maybe throw an exception, maybe log a warning. repository.deleteById does nothing, so we do nothing for now
-
-		activityRepository.findByRoute(route).forEach(activity -> {
-			activity.removeRoute();
-			activityRepository.save(activity);
-		});
-
-		routeRepository.deleteById(id);
-	}
 }

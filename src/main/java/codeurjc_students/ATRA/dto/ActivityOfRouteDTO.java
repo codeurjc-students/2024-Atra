@@ -21,7 +21,7 @@ public class ActivityOfRouteDTO implements ActivityDtoInterface {
 	public ActivityOfRouteDTO(Activity activity) {
 		id = activity.getId();
 		name = activity.getName();
-		user = activity.getUser().getId();
+		user = activity.getOwner().getId();
 		summary = activity.getSummary();
 
 	}

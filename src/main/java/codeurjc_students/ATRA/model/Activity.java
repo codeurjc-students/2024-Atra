@@ -36,7 +36,7 @@ public class Activity implements NamedId {
 
 	@ToString.Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	private User user;
+	private User owner;
 
 	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)

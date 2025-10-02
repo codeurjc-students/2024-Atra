@@ -113,7 +113,7 @@ public class ActivityServiceTest {
         User user = mock(User.class);
         Route route = mock(Route.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setRoute(route);
         //when
         when(activityRepository.findById(1L)).thenReturn(Optional.of(activity));
@@ -136,7 +136,7 @@ public class ActivityServiceTest {
         User user = mock(User.class);
         Route route = mock(Route.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setRoute(route);
         //when
         when(activityRepository.findById(1L)).thenReturn(Optional.of(activity));
@@ -157,7 +157,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         //when
         lenient().when(activityRepository.findById(1L)).thenReturn(Optional.of(activity));
         when(routeRepository.findById(1L)).thenReturn(Optional.empty());
@@ -193,7 +193,7 @@ public class ActivityServiceTest {
         User user = mock(User.class);
         Route route = mock(Route.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setRoute(null);
         //when
         when(activityRepository.findById(1L)).thenReturn(Optional.of(activity));
@@ -217,7 +217,7 @@ public class ActivityServiceTest {
         pepe.setName("pepe");
         Route route = mock(Route.class);
         Activity activity = new Activity();
-        activity.setUser(pepe);
+        activity.setOwner(pepe);
         activity.setRoute(route);
         //when
         when(activityRepository.findById(1L)).thenReturn(Optional.of(activity));
@@ -240,7 +240,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(visibilityType));
 
         //when
@@ -257,7 +257,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(VisibilityType.PUBLIC));
 
         //when
@@ -295,7 +295,7 @@ public class ActivityServiceTest {
         mural.addMember(user);
         user.addMemberMural(mural);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(visibilityType));
 
         //when
@@ -318,7 +318,7 @@ public class ActivityServiceTest {
         mural.addMember(user);
         user.addMemberMural(mural);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(List.of(1L)));
 
         //when
@@ -341,7 +341,7 @@ public class ActivityServiceTest {
         mural.addMember(user);
         user.addMemberMural(mural);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(VisibilityType.PRIVATE));
 
         //when
@@ -363,7 +363,7 @@ public class ActivityServiceTest {
         mural.addMember(user);
         user.addMemberMural(mural);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(List.of(2L)));
 
         //when
@@ -384,7 +384,7 @@ public class ActivityServiceTest {
         mural.setId(1L);
         User user = new User();
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(List.of(2L)));
 
         //when
@@ -405,7 +405,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         Route route = new Route();
         route.setCreatedBy(user);
         route.setVisibility(new Visibility(visibilityType));
@@ -426,7 +426,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         Route route = new Route();
         route.setVisibility(new Visibility(VisibilityType.PUBLIC));
 
@@ -446,7 +446,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         Route route = new Route();
         route.setCreatedBy(user);
 
@@ -464,7 +464,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         Route route = new Route();
         route.setCreatedBy(user);
 
@@ -504,7 +504,7 @@ public class ActivityServiceTest {
         User routeOwner = new User();
         routeOwner.setName("pepe");
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         Route route = new Route();
         route.setCreatedBy(routeOwner);
         route.setVisibility(new Visibility(visibilityType));
@@ -527,7 +527,7 @@ public class ActivityServiceTest {
         //given
         User user = mock(User.class);
         Activity activity = new Activity();
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(visibilityType));
 
         //when
@@ -617,7 +617,7 @@ public class ActivityServiceTest {
         activity.setName("someOtherThing");
         activity.setType("Walking");
         activity.setId(1L);
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(visibilityType));
         ActivityEditDTO newAct = new ActivityEditDTO("actPepe", "Running");
 
@@ -632,7 +632,7 @@ public class ActivityServiceTest {
         assertEquals(newAct.getName(), actual.getName());
         assertEquals(newAct.getType(), actual.getType());
         assertEquals(1L, actual.getId());
-        assertEquals(user, actual.getUser());
+        assertEquals(user, actual.getOwner());
     }
 
     @ParameterizedTest
@@ -644,7 +644,7 @@ public class ActivityServiceTest {
         activity.setName("someOtherThing");
         activity.setType("Walking");
         activity.setId(1L);
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(visibilityType));
         ActivityEditDTO newAct = new ActivityEditDTO(null, null);
 
@@ -659,7 +659,7 @@ public class ActivityServiceTest {
         assertEquals("someOtherThing", actual.getName());
         assertEquals("Walking", actual.getType());
         assertEquals(1L, actual.getId());
-        assertEquals(user, actual.getUser());
+        assertEquals(user, actual.getOwner());
     }
 
     @ParameterizedTest
@@ -671,7 +671,7 @@ public class ActivityServiceTest {
         activity.setName("someOtherThing");
         activity.setType("Walking");
         activity.setId(1L);
-        activity.setUser(user);
+        activity.setOwner(user);
         activity.setVisibility(new Visibility(visibilityType));
         ActivityEditDTO newAct = new ActivityEditDTO("", "");
 
@@ -686,7 +686,7 @@ public class ActivityServiceTest {
         assertEquals("someOtherThing", actual.getName());
         assertEquals("Walking", actual.getType());
         assertEquals(1L, actual.getId());
-        assertEquals(user, actual.getUser());
+        assertEquals(user, actual.getOwner());
     }
 
     @Test
@@ -713,7 +713,7 @@ public class ActivityServiceTest {
         User otherUser = new User();
         otherUser.setName("juan");
         Activity activity = new Activity();
-        activity.setUser(otherUser);
+        activity.setOwner(otherUser);
         activity.setVisibility(new Visibility(visibilityType));
         ActivityEditDTO newAct = new ActivityEditDTO("asd", "asd");
 

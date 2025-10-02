@@ -69,7 +69,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		List<WayPoint> pts = track.getSegments().get(0).getPoints();
 
 		Activity activity = new Activity();
-		activity.setUser(user);
+		activity.setOwner(user);
 
 		//process the metadata
 		gpx.getMetadata().ifPresent(metadata -> activity.setStartTime(metadata.getTime().get()));
@@ -225,19 +225,19 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	public List<Activity> findByUser(User user) {
-		return activityRepository.findByUser(user);
+		return activityRepository.findByOwner(user);
 	}
 
 	public List<Activity> findByUser(User user, boolean shouldRouteBeNull) {
-		if (shouldRouteBeNull) return activityRepository.findByUserAndRouteIsNull(user);
-		return activityRepository.findByUser(user);
+		if (shouldRouteBeNull) return activityRepository.findByOwnerAndRouteIsNull(user);
+		return activityRepository.findByOwner(user);
 	}
 
 	public Page<Activity> findByUser(User user, int startPage, int pageSize, boolean shouldFetchRoutes) {
 		PageRequest pageRequest = PageRequest.of(startPage, pageSize, Sort.by("startTime").descending());
 
-		if (shouldFetchRoutes) return activityRepository.findByUserAndRouteIsNull(user, pageRequest);
-		return activityRepository.findByUser(user, pageRequest);
+		if (shouldFetchRoutes) return activityRepository.findByOwnerAndRouteIsNull(user, pageRequest);
+		return activityRepository.findByOwner(user, pageRequest);
 	}
 
 	public Collection<Activity> findByUserAndVisibilityType(User user, String visibility) {
@@ -248,21 +248,21 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	public Collection<Activity> findByUserAndVisibilityType(User user, VisibilityType visibility) {
-		return activityRepository.findByVisibilityTypeInAndUserIn(List.of(visibility), List.of(user));
+		return activityRepository.findByVisibilityTypeInAndOwnerIn(List.of(visibility), List.of(user));
 	}
 
 	public Collection<Activity> findByUserAndVisibilityNonPrivate(User targetUser) {
-		return activityRepository.findByVisibilityTypeInAndUserIn(
+		return activityRepository.findByVisibilityTypeInAndOwnerIn(
 				List.of(VisibilityType.PUBLIC, VisibilityType.MURAL_PUBLIC, VisibilityType.MURAL_SPECIFIC),
 				List.of(targetUser));
 	}
 
 	public List<Activity> findByRouteAndUser(Route route, User user) {
-		return activityRepository.findByRouteAndUser(route, user);
+		return activityRepository.findByRouteAndOwner(route, user);
 	}
 
 	public List<Activity> findByRouteAndUserAndVisibilityTypeIn(Route route, User user, List<VisibilityType> visibilityTypes) {
-		return activityRepository.findByRouteAndUserAndVisibilityTypeIn(route,user,visibilityTypes);
+		return activityRepository.findByRouteAndOwnerAndVisibilityTypeIn(route,user,visibilityTypes);
 	}
 
 	//</editor-fold>
@@ -279,7 +279,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 	public Activity changeVisibility(User user, Long id, Visibility newVisibility) {
 		Activity activity = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Could not find the activity with id " + id + " so the change visibility operation has been canceled"));
-		if (!user.equals(activity.getUser())) throw new PermissionException("Only the owner of an activity can change its visibility.");
+		if (!user.equals(activity.getOwner())) throw new PermissionException("Only the owner of an activity can change its visibility.");
 		this.changeVisibility(id, newVisibility);
 		return activity;
 	}
@@ -298,7 +298,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	}
 
 	private boolean isVisibleToUser(Activity activity, User user) {
-		return user.equals(activity.getUser()) || activity.getVisibility().isPublic() || (user.isAdmin() && !activity.getVisibility().isPrivate());
+		return user.equals(activity.getOwner()) || activity.getVisibility().isPublic() || (user.isAdmin() && !activity.getVisibility().isPrivate());
 	}
 
 	public List<List<Activity>> getActivitiesFromRoutes(List<Route> routes, User user, String from, Long targetId) {
@@ -329,7 +329,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 			Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
 			if (!route.equals(activity.getRoute())) throw new IncorrectParametersException("The requested activity is not a member of the specified route.");
 		}
-		if (!user.equals(activity.getUser()) && !user.isAdmin()) throw new PermissionException("You can only remove your own activities from a route");
+		if (!user.equals(activity.getOwner()) && !user.isAdmin()) throw new PermissionException("You can only remove your own activities from a route");
 
 		//Confirmed that route and activity exists, and that they're related
 		activity.setRoute(null);
@@ -361,7 +361,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		List<Activity> activities = activityRepository.findAllById(ids);
 		return activities.stream().filter(a->
 				(user.isAdmin()&&!a.getVisibility().isPrivate()) ||
-						user.equals(a.getUser()) ||
+						user.equals(a.getOwner()) ||
 						a.getVisibility().isPublic() ||
 						mural!=null && a.getVisibility().isVisibleByMural(muralId)
 			).toList();
@@ -457,7 +457,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 	public Activity addRoute(User user, Long activityId, Long routeId) {
 		Activity activity = activityRepository.findById(activityId).orElseThrow(()->new EntityNotFoundException("Activity not found"));
 		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
-		if (!user.equals(activity.getUser())) throw new PermissionException("You can only change the route of activities you own");
+		if (!user.equals(activity.getOwner())) throw new PermissionException("You can only change the route of activities you own");
 		if (!AtraUtils.isRouteVisibleBy(route, user)) throw new VisibilityException("User has no visibility of selected route. Can't use a non-visible route");
 
 		activity.setRoute(route);
@@ -467,8 +467,8 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 	public Activity deleteActivity(User user, Long id) {
 		Activity activity = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
-		if (!user.equals(activity.getUser()) && !user.isAdmin()) throw new PermissionException("You can only delete an activity if you're its creator or you're an admin");
-		if (!user.equals(activity.getUser()) && user.isAdmin()  && activity.getVisibility().isPrivate()) throw new PermissionException("Only the creator can delete private activities.");
+		if (!user.equals(activity.getOwner()) && !user.isAdmin()) throw new PermissionException("You can only delete an activity if you're its creator or you're an admin");
+		if (!user.equals(activity.getOwner()) && user.isAdmin()  && activity.getVisibility().isPrivate()) throw new PermissionException("Only the creator can delete private activities.");
 		activityRepository.deleteById(id);
 		return activity;
 	}
@@ -477,7 +477,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		Mural mural = muralRepository.findById(muralId).orElseThrow(()-> new EntityNotFoundException("Mural not found"));
 		List<Activity> activities = activityRepository.findAllById(selectedActivitiesIds);
 		activities.forEach(activity -> {
-			if (!user.equals(activity.getUser()) && !user.isAdmin()) return;
+			if (!user.equals(activity.getOwner()) && !user.isAdmin()) return;
 			if (activity.getVisibility().isPrivate()) return;
 			if (activity.getVisibility().isMuralSpecific()) {
 				activity.getVisibility().removeMural(muralId);
@@ -498,7 +498,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 	public Activity editActivity(User user, Long id, ActivityEditDTO activity) {
 		Activity act = activityRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Activity not found"));
-		if (!user.equals(act.getUser())) throw new PermissionException("User does not have access to specified activity");
+		if (!user.equals(act.getOwner())) throw new PermissionException("User does not have access to specified activity");
 		if (activity.getName()!=null && !activity.getName().isEmpty()) {
 			act.setName(activity.getName());
 		}

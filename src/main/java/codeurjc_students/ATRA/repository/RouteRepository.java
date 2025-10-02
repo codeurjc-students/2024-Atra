@@ -30,7 +30,7 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
     @Query("""
     SELECT DISTINCT r FROM Route r LEFT JOIN Activity a ON a.route = r
     WHERE r.createdBy = :user
-    OR a.user = :user
+    OR a.owner = :user
     
     """)
     List<Route> findUsedOrCreatedBy(@Param("user") User user);
