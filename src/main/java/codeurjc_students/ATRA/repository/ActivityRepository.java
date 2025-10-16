@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
-    Collection<Activity> findByVisibilityType(VisibilityType visibilityType);
+
     Collection<Activity> findByVisibilityTypeInAndOwnerIn(Collection<VisibilityType> visibility_types, Collection<User> user);
 
     @Query("""
@@ -43,6 +43,18 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query("""
         SELECT a FROM Activity a
+        WHERE (
+            a.visibility.type = 'PUBLIC'
+            OR a.visibility.type = 'MURAL_PUBLIC'
+            OR (a.visibility.type = 'MURAL_SPECIFIC' AND :muralId IN elements(a.visibility.allowedMurals))
+          )
+          AND (a.owner.id IN :memberIds)
+          AND (a.route IS NULL)
+    """)
+    Collection<Activity> findVisibleToMuralAndRouteIsNull(@Param("muralId") Long id, List<Long> memberIds);
+
+    @Query("""
+        SELECT a FROM Activity a
         LEFT JOIN a.visibility.allowedMurals m
         WHERE (
             a.visibility.type = 'PUBLIC'
@@ -50,6 +62,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             OR (a.visibility.type = 'MURAL_SPECIFIC' AND m = :muralId)
           )
           AND (a.owner.id IN :memberIds)
+          AND (a.route IS NULL)
     """)
     Page<Activity> findVisibleToMuralAndRouteIsNull(@Param("muralId") Long muralId, List<Long> memberIds, Pageable pageable);
 
@@ -62,18 +75,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Page<Activity> findByOwner(User user, Pageable pageable);
 
     Page<Activity> findByOwnerAndRouteIsNull(User user, Pageable pageable);
-
-    @Query("""
-        SELECT a FROM Activity a
-        WHERE (
-            a.visibility.type = 'PUBLIC'
-            OR a.visibility.type = 'MURAL_PUBLIC'
-            OR (a.visibility.type = 'MURAL_SPECIFIC' AND :muralId IN elements(a.visibility.allowedMurals))
-          )
-          AND (a.owner.id IN :memberIds)
-          AND (a.route IS NULL)
-    """)
-    Collection<Activity> findVisibleToMuralAndRouteIsNull(@Param("muralId") Long id, List<Long> memberIds);
 
     @Query("""
     SELECT a FROM Activity a
@@ -103,9 +104,4 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     """)
     Collection<Activity> findByRouteAndMural(Route route, Long muralId);
 
-    @Query("""
-    SELECT a FROM Activity a
-    WHERE a.route.id = :routeId
-    """)
-    List<Activity> findByRoute(@Param("routeId") Long routeId);
 }

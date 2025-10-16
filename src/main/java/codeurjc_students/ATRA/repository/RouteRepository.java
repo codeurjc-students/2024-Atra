@@ -11,11 +11,6 @@ import java.util.Collection;
 import java.util.List;
 
 public interface RouteRepository extends JpaRepository<Route, Long> {
-    boolean existsByName(String name);
-
-    List<Route> findByName(String s);
-
-    List<Route> findByVisibilityType(VisibilityType visibilityType);
 
     @Query("""
         SELECT r FROM Route r

@@ -47,7 +47,7 @@ public class User implements NamedId {
 	}
 
 	private void setDefaultRoles(){
-		this.roles = List.of("USER");
+		this.roles = new ArrayList<>(List.of("USER"));
 	}
 
 	public void removeMemberMural(Mural mural) {

@@ -11,6 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Service
+@Profile("!test")
 public class DatabaseInitializer {
 
     @Autowired
@@ -36,9 +38,6 @@ public class DatabaseInitializer {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
