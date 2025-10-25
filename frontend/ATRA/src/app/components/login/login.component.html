@@ -10,16 +10,16 @@
     <div class="form-floating mb-3 w-100">
       <input id="username" type="text" placeholder="Username" class="form-control" formControlName="username" required>
       <label for="username" class="mr-3 text-muted">Username</label>
-      <small class="text-danger d-block" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.value===''">Debes introducir un nombre de usuario</small>
+      <small class="text-danger d-block" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.value===''">You must input a username</small>
     </div>
     <div class="form-floating mb-3 w-100">
       <input id="password" type="password" placeholder="Password" class="form-control" formControlName="password" required>
       <label for="password" class="mr-3 text-muted">Password</label>
-      <small class="text-danger d-block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.value===''">Debes introducir una contraseña</small>
+      <small class="text-danger d-block" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.value===''">You must input a password</small>
     </div>
   </div>
   <div class="modal-footer">
-      <button type="button" class="btn btn-secondary mx-2" (click)="activeModal.close('Close click')">Cancelar</button>
-      <button type="button" class="btn btn-primary mx-2" (click)="onSubmit()">Iniciar sesión</button>
+      <button type="button" class="btn btn-secondary mx-2" (click)="activeModal.close('Close click')">Cancel</button>
+      <button type="button" class="btn btn-primary mx-2" (click)="onSubmit()" id="btn-login">Log in</button>
   </div>
 </form>

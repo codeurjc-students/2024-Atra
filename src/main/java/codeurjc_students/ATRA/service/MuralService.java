@@ -42,7 +42,7 @@ public class MuralService {
 	 * Generates the mural code, and adds the mural to the memberList of all its member users
 	 * @param mural
 	 */
-	protected void newMural(Mural mural) {
+	public void newMural(Mural mural) {
 		String code;
 		do {
 			String[] parts = UUID.randomUUID().toString().split("-");

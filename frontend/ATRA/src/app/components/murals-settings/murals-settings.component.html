@@ -8,22 +8,22 @@
       </div>
       <div class="mb-2">
         <h5 class="d-inline">Owner: </h5>
-        {{ owner.name }}
+        <span id="text-mural-owner">{{ owner.name }}</span>
       </div>
       <div class="mb-2">
         <h5 class="d-inline">Mural Name: </h5>
-        {{ name }}
+        <span id="text-mural-name">{{ name }}</span>
       </div>
       <div class="mb-2">
         <h5 class="d-inline">Description: </h5>
-        {{ description }}
+        <span id="text-mural-desc">{{ description }}</span>
       </div>
     </div>
     <div id="buttonsDiv" class="d-flex justify-content-center align-items-start mt-3 h-25">
       <button class="btn btn-danger mx-1" (click)="leave()">Leave</button>
       <button class="btn btn-warning mx-1" (click)="open(editModal, { centered:true, size:'sm'})" *ngIf="isOwner">Edit</button>
       <button class="btn btn-warning mx-1" (click)="manageMembers(membersModal)" *ngIf="isOwner">Manage Members</button>
-      <button class="btn btn-danger mx-1" (click)="deleteMural()" *ngIf="isOwner">Delete</button>
+      <button class="btn btn-danger mx-1" (click)="deleteMural()" *ngIf="isOwner" id="btn-mural-delete">Delete</button>
     </div>
   </div>
   <div class="divider"></div>

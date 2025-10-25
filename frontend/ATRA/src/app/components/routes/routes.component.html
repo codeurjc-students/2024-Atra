@@ -7,7 +7,7 @@
       <div>
         <button class="btn btn-warning mx-1" (click)="openCompareModal(compareModal, true)" *ngIf="selectedRoute!=null"><i class="fa-solid fa-code-compare"></i></button>
         <button class="btn btn-info mx-1" *ngIf="selectedRoute!=null && currentVis!='PUBLIC'" (click)="open(changeVisModal, true, false)"><i class="fa-solid fa-eye"></i></button>
-        <button class="btn btn-danger mx-1" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC'" (click)="deleteSelectedRoute()"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn btn-danger mx-1" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC'" (click)="deleteSelectedRoute()" id="btn-delete-route"><i class="fa-solid fa-trash"></i></button>
 
         <button class="btn btn-primary mx-1" (click)="open(filterModal, true)"><i class="fa-solid fa-filter"></i></button>
       </div>
@@ -52,7 +52,7 @@
   <div class="d-flex flex-column justify-content-center ms-3 me-5 w-75 h-100" *ngIf="selectedRoute" >
     <!--up (header)-->
     <div class="d-flex justify-content-between align-items-center  mx-2 mb-1 thin-border-bottom">
-      <h2 class="h5 mb-1 mx-2" *ngIf="selectedRoute">Selected Route: {{selectedRoute.name}}</h2>
+      <h2 class="h5 mb-1 mx-2" *ngIf="selectedRoute" id="header-route-name">Selected Route: {{selectedRoute.name}}</h2>
       <button class="btn btn-danger invisible-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <!--down (body)-->
@@ -61,10 +61,10 @@
       <div class="d-flex flex-column flex-grow-1 me-4 max-w-75">
         <!--up-->
         <div class="d-flex justify-content-between md-2">
-          <div class="mx-1 text-wrap">
+          <div class="mx-1 text-wrap" id="text-route-description">
             <span class="fw-bold">Desc:</span> {{ selectedRoute.description }}
           </div>
-          <div class="mx-1">
+          <div class="mx-1" id="text-route-distance">
             <span class="fw-bold text-nowrap">Total Distance:</span> {{formatDistance(selectedRoute.totalDistance)}}
           </div>
         </div>
@@ -198,7 +198,7 @@
 </ng-template>
 
 <ng-template #loadingTemplate>
-  <tbody>
+  <tbody id="loading">
     <tr>
       <td [attr.colspan]="columns.length + 1" class="text-center">
         <div class="spinner-border mt-4" role="status"></div>

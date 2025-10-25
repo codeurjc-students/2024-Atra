@@ -107,8 +107,8 @@ export class RouteService {
           return EMPTY;
         }),
         switchMap(() => {
-          this.alertService.toastSuccess("Route removed successfully")
-          console.log("Route removed successfully. Fetching updated route list");
+          this.alertService.toastSuccess("Route deleted")
+          console.log("Route deleted. Fetching updated route list");
           return this.getRoutes()
         })
       )

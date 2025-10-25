@@ -3,10 +3,10 @@
     <a class="navbar-brand mx-2" routerLink="/">{{title}}</a>
     <div class="navbar-icons d-flex justify-content-between w-100">
       <div class="  d-flex">
-        <a routerLink="/me/home" class="icon-link mx-1" [class.active]="this.isPrivateRoute()">
+        <a routerLink="/me/home" class="icon-link mx-1" [class.active]="this.isPrivateRoute()" id="nav-user">
           <img src="../assets/running.svg" class="v-75 w-75">
         </a>
-        <a routerLink="/murals/" class="icon-link mx-1" [class.active]="this.isMuralRoute()">
+        <a routerLink="/murals/" class="icon-link mx-1" [class.active]="this.isMuralRoute()" id="nav-mural">
           <i class="fa-regular fa-image fa-xl" [ngStyle]="{'font-size':fontSizeBig, 'color':'black'}"></i>
           <!-- <i class="fa-solid fa-people-group"></i> -->
         </a>
@@ -34,15 +34,15 @@
           <a [routerLink]="[urlStart, 'dashboard']" class="icon-link" [routerLinkActive]="'active'" *ngIf="this.isMuralRoute() && this.isMuralRouteSelected()">
             <i class="fa-solid fa-house" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
           </a>
-          <a [routerLink]="[urlStart, 'activities']"  [routerLinkActive]="'active'" style="color: black;" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
+          <a [routerLink]="[urlStart, 'activities']"  [routerLinkActive]="'active'" style="color: black;" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()" id="btn-activity-list">
             <i class="fa-solid fa-list" [ngStyle]="{'font-size':fontSizeBig, 'color':'black'}" *ngIf="!isRouteStudy() && !isRouteCompare()"></i>
             <img src="../assets/study.svg" class="v-75 w-75" *ngIf="isRouteStudy()">
             <img src="../assets/compare.svg" class="v-100 w-100" *ngIf="isRouteCompare()">
           </a>
-          <a [routerLink]="[urlStart, 'routes']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()">
+          <a [routerLink]="[urlStart, 'routes']" [routerLinkActive]="'active'" class="icon-link" *ngIf="!this.isMuralRoute() || this.isMuralRouteSelected()" id="btn-route-list">
             <img src="../assets/map.svg" class="h-60 w-60">
           </a>
-          <a [routerLink]="[urlStart, 'settings']" [routerLinkActive]="'active'" class="icon-link" *ngIf="this.isMuralRouteSelected()">
+          <a [routerLink]="[urlStart, 'settings']" [routerLinkActive]="'active'" class="icon-link" *ngIf="this.isMuralRouteSelected()" id="btn-mural-settings">
             <i class="fa-solid fa-gear" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
           </a>
           <a routerLink="/me" class="icon-link" [class.active]="this.isProfileRoute()" *ngIf="this.isPrivateRoute()">
@@ -52,10 +52,10 @@
       </ul>
       <ul class="nav flex-column mx-2">
         <li class="nav-item">
-          <a (click)="fileInput.click()" class="icon-link">
+          <a (click)="fileInput.click()" class="icon-link" id="btn-upload-activity">
             <i class="fa-solid fa-upload" [ngStyle]="{'font-size':fontSize, 'color':'black'}"></i>
           </a>
-          <input type="file" #fileInput style="display: none" (change)="uploadFile($event)">
+          <input type="file" #fileInput style="display: none" (change)="uploadFile($event)" id="input-upload-activity">
           <a (click)="linkWithStrava()" class="icon-link">
             <i class="fa-brands fa-strava" style="color: #000000;font-size: 35px;"></i>
           </a>

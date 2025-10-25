@@ -30,7 +30,7 @@ public class Activity implements NamedId {
 	private Instant startTime;
 	private Visibility visibility = new Visibility();
 
-	@ElementCollection // maybe should be (fetch = FetchType.EAGER) to avoid issues with lazy loading
+	@ElementCollection(fetch=FetchType.EAGER) // maybe should be (fetch = FetchType.EAGER) to avoid issues with lazy loading
 	@OrderColumn(name = "position")
 	private List<DataPoint> dataPoints = new ArrayList<>();
 

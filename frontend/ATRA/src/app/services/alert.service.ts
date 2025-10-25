@@ -66,6 +66,8 @@ export class AlertService {
     modalRef.componentInstance.title = title;
     modalRef.componentInstance.messages = messages;
     modalRef.componentInstance.accept = acceptText;
+    modalRef.componentInstance.otherOpenAlerts = this.alerts.length;
+
     modalRef.componentInstance.type = 'alert';
     this.alerts.push(modalRef)
 

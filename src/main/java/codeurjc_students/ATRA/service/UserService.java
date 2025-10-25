@@ -42,7 +42,7 @@ public class UserService {
 		return userRepository.findByUsername(username).isPresent();
 	}
 
-	protected void save(User user) {
+	public void save(User user) {
 		userRepository.save(user);
 	}
 

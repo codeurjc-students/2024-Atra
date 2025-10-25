@@ -82,7 +82,7 @@ export class ActivityComponent implements OnInit {
       if (accepted) {
         this.activityService.delete(this.id).subscribe({
           next: () => {
-            this.alertService.toastSuccess("Route deleted")
+            this.alertService.toastSuccess("Activity deleted")
             this.router.navigate(["/me/activities"])
           },
           error: (e) => {this.alertService.toastError("There was an error deleting the activity"); console.error("Error deleting activity with id " + this.id + ": "+e.error);}

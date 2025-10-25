@@ -21,7 +21,13 @@ export class UserDashboardComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.gridItemService.setEntity(null, this.authService.user.value)
+    console.log(this.authService.user.value);
+
+    this.authService.user.subscribe(user => {
+      if (user!=null) this.gridItemService.setEntity(null, user)
+    });
+
+
 
     setTimeout(() => {
       // Allows scrolling. On a timeout, to avoid ngOnDestroy of another component from overwriting it

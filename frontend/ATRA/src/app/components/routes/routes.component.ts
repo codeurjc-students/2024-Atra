@@ -106,7 +106,8 @@ export class RoutesComponent {
     switch(X.toLowerCase())  {
       case 'id': return Y.id
       case 'name': return Y.name
-      case 'desc': return Y.description.substring(0,26) + "..."
+      case 'desc': return Y.description.length>25 ? (Y.description.substring(0,26) + "..."):Y.description
+
       case 'ele': return Number(Y.elevationGain.toFixed(2)) + "m"
       case 'distance': return FormattingService.formatDistance(Y.totalDistance)
       default : throw new Error(`Property '${X}' does not exist on object ${typeof Y}}.`)

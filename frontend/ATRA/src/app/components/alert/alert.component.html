@@ -1,14 +1,14 @@
 <div class="custom-alert" *ngIf="type!='loading-light' && type!='loading-heavy'">
-  <div class="fw-bold mb-2">{{ title }} <span *ngIf="times>1"> (x{{ times }}) </span></div>
+  <div class="fw-bold mb-2" id="header-alert">{{ title }} <span *ngIf="times>1"> (x{{ times }}) </span></div>
   <div class="alert-body mb-5">
     <div *ngFor="let m of messages">{{ m }}</div>
-    <input type="text" [placeholder]="placeholder" *ngIf="type=='inputConfirm'" [(ngModel)]="text">
+    <input type="text" [placeholder]="placeholder" *ngIf="type=='inputConfirm'" [(ngModel)]="text" id="input-alert-text">
   </div>
   <div class="d-flex justify-content-end">
-    <button type="button" class="alert-button mx-1" (click)="confirm()" *ngIf="type=='confirm' || type=='inputConfirm'">{{ accept }}</button>
-    <button type="button" class="alert-cancel-button mx-1" (click)="dismiss()" *ngIf="type=='confirm' || type=='inputConfirm'">{{ cancel }}</button>
+    <button type="button" class="alert-button mx-1" (click)="confirm()" *ngIf="type=='confirm' || type=='inputConfirm'" id="btn-confirm">{{ accept }}</button>
+    <button type="button" class="alert-cancel-button mx-1" (click)="dismiss()" *ngIf="type=='confirm' || type=='inputConfirm'" id="btn-cancel">{{ cancel }}</button>
 
-    <button type="button" class="alert-button " (click)="dismiss()" *ngIf="type=='alert'">{{ accept }}</button>
+    <button type="button" class="alert-button " (click)="dismiss()" *ngIf="type=='alert'" [id]="btnDismissAlert">{{ accept }}</button>
   </div>
 </div>
 

@@ -40,7 +40,9 @@ export class MuralsNewComponent {
     this.form.get('thumbnail')?.statusChanges.subscribe(s => {
      console.log('thumbnail', 'status:', s, 'errors:', this.form.get('thumbnail')?.errors);
     });
-
+    this.form.valueChanges.subscribe(v => {
+      console.log('Form value changed:', v);
+    });
   }
 
   aspectRatioValidator(muralService: MuralService, type: "thumbnail" | "banner") {
@@ -59,6 +61,7 @@ export class MuralsNewComponent {
     const input = $event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      this.form.get(type)?.setValue(file, {emitEvent: true});
       if (type=="banner") {
         this.bannerImage = file;
       } else if (type=="thumbnail") {
@@ -78,6 +81,11 @@ export class MuralsNewComponent {
           this.form.get(type)?.setErrors({invalidFile:true})
           this.alertService.toastError("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
         }
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        console.log(this.form.get(type)?.value);
+
+
+        this.form.get(type)?.updateValueAndValidity(); // Trigger validation update, though we kinda did that manually...
       })
     }
   }

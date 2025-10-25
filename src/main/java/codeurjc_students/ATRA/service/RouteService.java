@@ -39,7 +39,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		routeRepository.save(user);
 	}
 
-	protected Route newRoute(Activity activity) {
+	public Route newRoute(Activity activity) {
 		return this.newRoute(activity, new Route());
 	}
 	protected Route newRoute(Activity activity, Route route) {

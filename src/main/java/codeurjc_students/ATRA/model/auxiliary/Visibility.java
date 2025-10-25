@@ -42,7 +42,7 @@ public class Visibility {
 
     @Transient
     public Collection<Long> getAllowedMuralsNonNull() {
-        return allowedMurals == null ? Set.of() : new HashSet<>(allowedMurals);
+        return allowedMurals == null ? Set.of() : allowedMurals;
     }
 
     public boolean isPublic() {

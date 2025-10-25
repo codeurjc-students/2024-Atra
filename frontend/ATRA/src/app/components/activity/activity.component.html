@@ -2,15 +2,15 @@
 
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0" *ngIf="activity">{{activity.name}}</h2>
+    <h2 class="h5 mb-0" *ngIf="activity" id="header-activity-name">{{activity.name}}</h2>
     <h2 class="h5 mb-0" *ngIf="!activity">Loading</h2>
     <div>
-      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute()" (click)="this.open(create_route)"><i class="fa-solid fa-plus"></i> Create Route</button>
+      <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute()" (click)="this.open(create_route)" id="btn-create-route"><i class="fa-solid fa-plus"></i> Create Route</button>
       <button class="btn btn-primary mx-1" *ngIf="activity && this.owned && !this.activity.hasRoute() && this.routes.length!=0" (click)="open(routeModal)"><i class="fa-regular fa-square-plus"></i> Add To Route</button>
       <button class="btn btn-warning mx-1" *ngIf="activity && this.owned && this.activity.hasRoute()" (click)="open(routeModal)"><i class="fa-solid fa-arrows-rotate"></i> Change Route</button>
       <button class="btn btn-warning mx-1"  *ngIf="activity && this.owned" (click)="open(editNameModal)"><i class="fa-solid fa-pencil"></i> Update name</button>
       <button class="btn btn-info mx-1"    *ngIf="activity && this.owned" (click)="open(visibilityModal)"><i class="fa-solid fa-eye"></i> Change Visibility</button>
-      <button class="btn btn-danger mx-1"  *ngIf="activity && this.owned" (click)="deleteActivity()"><i class="fa-solid fa-trash"></i> Delete</button>
+      <button class="btn btn-danger mx-1"  *ngIf="activity && this.owned" (click)="deleteActivity()" id="btn-delete-activity"><i class="fa-solid fa-trash"></i> Delete</button>
 
     </div>
   </div>
@@ -70,22 +70,22 @@
   <div class="modal-body">
     <div class="mb-3">
       <label for="routeName" class="form-label">Route Name:</label>
-      <input type="text" id="routeName" name="routeName" class="form-control" value="Route from Activity {{activity.id}}" #routeName>
+      <input type="text" id="routeName" name="routeName" class="form-control" value="Route from Activity {{activity.id}}" #routeName id="input-route-name">
     </div>
 
     <div class="mb-3">
       <label for="routeDesc" class="form-label">Route Description:</label>
-      <textarea id="routeDesc" name="routeDesc" class="form-control" #routeDesc></textarea>
+      <textarea id="routeDesc" name="routeDesc" class="form-control" #routeDesc id="input-route-desc"></textarea>
     </div>
 
     <div class="mb-3">
       <label for="routeDistance" class="form-label">Distance:</label>
-      <input type="number" id="routeDistance" name="routeDistance" class="form-control" [value]="activity.summary?.totalDistance?.toFixed(2)" #routeDistance>
+      <input type="number" id="routeDistance" name="routeDistance" class="form-control" [value]="activity.summary?.totalDistance?.toFixed(2)" #routeDistance id="input-route-dist">
     </div>
 
     <div class="mb-3">
       <label for="routeElevation" class="form-label">Elevation:</label>
-      <input type="number" id="routeElevation" name="routeElevation" class="form-control" [value]="activity.summary?.elevationGain?.toFixed(2)" #routeElevation>
+      <input type="number" id="routeElevation" name="routeElevation" class="form-control" [value]="activity.summary?.elevationGain?.toFixed(2)" #routeElevation id="input-route-ele">
     </div>
 
     <p>The route will be created with the same coordinates as this activity.</p><p>Check everything is correct, and click create when ready.</p>
@@ -95,7 +95,7 @@
   <div class="modal-footer">
 
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
-    <button type="button" class="btn btn-primary" (click)="createRoute(routeName.value, routeDesc.value, routeDistance.value, routeElevation.value)"><i class="fa-solid fa-plus mx-1"></i>Create</button>
+    <button type="button" class="btn btn-primary" (click)="createRoute(routeName.value, routeDesc.value, routeDistance.value, routeElevation.value)" id="btn-route-create"><i class="fa-solid fa-plus mx-1"></i>Create</button>
   </div>
 </ng-template>
 

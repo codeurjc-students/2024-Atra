@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -10,7 +10,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './alert.component.html',
   styleUrl: './alert.component.scss'
 })
-export class AlertComponent {
+export class AlertComponent implements OnInit {
   @Input() title!: string;
   @Input() messages!: string[];
   @Input() accept: string = "YES";
@@ -18,9 +18,21 @@ export class AlertComponent {
   @Input() type: 'alert' | 'confirm' | 'inputConfirm' |'loading-light' | 'loading-heavy' = 'alert';
   @Input() placeholder: string = 'delete';
   @Input() times: number = 1;
+  @Input() otherOpenAlerts: number = 0;
   text:string = "";
+  btnDismissAlert:string = "btn-dismiss-alert" + (this.otherOpenAlerts!=0?('-'+this.otherOpenAlerts):'');
 
-  constructor(public activeModal: NgbActiveModal) {}
+  constructor(public activeModal: NgbActiveModal) {
+    console.log("CCCCCCCCCCCCCCCCCCCCCCCCCC");
+    console.log(this.otherOpenAlerts);
+    console.log(this.btnDismissAlert);
+    console.log( (this.otherOpenAlerts!=0?('-'+this.otherOpenAlerts):'FUCK MY LIFE'));
+  }
+
+  ngOnInit() {
+    this.btnDismissAlert = "btn-dismiss-alert" + (this.otherOpenAlerts!=0?('-'+this.otherOpenAlerts):'');
+
+  }
 
   confirm() {
     this.activeModal.close(this.type=='inputConfirm'? {accept:true,text:this.text}:true); // Resolves the confirm() promise as true

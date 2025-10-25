@@ -1,36 +1,36 @@
 <div class="modal-content">
   <div class="modal-header">
-    <h1>New Mural</h1>
+    <h1 id="header-new-mural">New Mural</h1>
     <button type="button" class="btn-close" aria-label="Close" (click)="this.activeModal.dismiss('Cross click')"></button>
   </div>
   <div class="modal-body">
     <form [formGroup]="form">
       <div class="form-floating my-3">
-        <input type="text" name="name" id="name" placeholder="name" #name class="form-control" formControlName="name">
+        <input type="text" name="name" id="name" placeholder="name" #name class="form-control" formControlName="name" id="input-mural-name">
         <label for="name">Name</label>
         <small class="text-danger d-block" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">You must include a name for the Mural</small>
       </div>
       <div class="form-floating my-3">
-        <textarea type="text" name="description" id="description" placeholder="description" #description class="form-control" formControlName="description"></textarea>
+        <textarea type="text" name="description" id="description" placeholder="description" #description class="form-control" formControlName="description" id="input-mural-desc"></textarea>
         <label for="description">Description</label>
       </div>
       <div class="my-3">
         <label for="thumbnail" class="mb-1">Thumbnail Image</label>
-        <input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" formControlName="thumbnail" (change)="onFileSelected($event, 'thumbnail')">
+        <input type="file" accept="image/*" name="thumbnail" id="thumbnail" #thumbnail class="form-control" (change)="onFileSelected($event, 'thumbnail')" id="input-mural-thumbnail">
         <small class="text-danger d-block" *ngIf="form.get('thumbnail')?.touched && form.get('thumbnail')?.errors?.['required']">You must include a thumbnail for the Mural</small>
         <small class="text-danger d-block" *ngIf="form.get('thumbnail')?.touched && form.get('thumbnail')?.errors?.['invalidFile']">The file must be an image with a 3:2 aspect ratio</small>
         <!--onSelect="checkImageHasProperAspectRatio()"-->
       </div>
       <div class="my-3">
         <label for="banner" class="mb-1">Banner Image</label>
-        <input type="file" accept="image/*"  name="banner" id="banner" #banner class="form-control" formControlName="banner" (change)="onFileSelected($event, 'banner')">
+        <input type="file" accept="image/*"  name="banner" id="banner" #banner class="form-control" (change)="onFileSelected($event, 'banner')" id="input-mural-banner">
         <small class="text-danger d-block" *ngIf="form.get('banner')?.touched && form.get('banner')?.errors?.['required']">You must include a banner image for the Mural</small>
         <small class="text-danger d-block" *ngIf="form.get('banner')?.touched && form.get('banner')?.errors?.['invalidFile']">The file must be an image with a 5:1 aspect ratio</small>
         <!--onSelect="checkImageHasProperAspectRatio()"-->
       </div>
       <div>You cannot change visibility once set. Make sure you set it correctly. <span class="fw-bold">Public murals</span> can be joined by anyone. <span class="fw-bold">Private murals</span> can be joined with a code</div>
       <div class="form-floating my-3">
-        <select class="form-select" id="visibility" formControlName="visibility">
+        <select class="form-select" id="visibility" formControlName="visibility" id="select-mural-visibility">
           <option value="PRIVATE">Private</option>
           <option value="PUBLIC">Public</option>
         </select>
@@ -43,7 +43,7 @@
   </div>
   <div class="modal-footer d-flex justify-content-end">
     <button class="btn btn-danger" (click)="activeModal.dismiss()"><i class="fa-solid fa-xmark me-1"></i>Cancel</button>
-    <button class="btn btn-primary" [disabled]="!form.valid" (click)="submitForm()"><i class="fa-solid fa-floppy-disk me-1"></i>Create Mural</button>
+    <button class="btn btn-primary" [disabled]="!form.valid" (click)="submitForm()" id="btn-mural-create-final"><i class="fa-solid fa-floppy-disk me-1"></i>Create Mural</button>
 
   </div>
 </div>

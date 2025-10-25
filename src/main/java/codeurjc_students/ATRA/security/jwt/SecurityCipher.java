@@ -1,5 +1,6 @@
 package codeurjc_students.ATRA.security.jwt;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -60,7 +61,9 @@ public class SecurityCipher {
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
-		} catch (Exception e) {
+		//} catch (BadPaddingException e) {
+		//	decrypt(strToDecrypt);
+ 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;

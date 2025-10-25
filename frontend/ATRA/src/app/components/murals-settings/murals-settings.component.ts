@@ -11,7 +11,7 @@ import { MuralService } from '../../services/mural.service';
 import { RouteSelectComponent } from "../route-select/route-select.component";
 import { Route } from '../../models/route.model';
 import { RouteService } from '../../services/route.service';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Mural } from '../../models/mural.model';
 
 @Component({
