@@ -31,4 +31,4 @@ jobs:
         run: mvn test -Dtest=codeurjc_students.ATRA.integration.*Test
 
       - name: Run e2e tests
-        run: mvn test -Dsurefire.rerunFailingTestsCount=2 -Dtest=codeurjc_students.ATRA.e2e.*Test
+        run: mvn test -Dtest=codeurjc_students.ATRA.e2e.*Test
