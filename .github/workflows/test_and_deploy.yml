@@ -52,7 +52,7 @@ jobs:
           az container create \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name ATRA \
-            --image ${{ secrets.DOCKERHUB_USERNAME }}/ATRA:${{ needs.build.outputs.image_tag }} \
+            --image ${{ secrets.DOCKERHUB_USERNAME }}/atra:${{ needs.build.outputs.image_tag }} \
             --registry-login-server index.docker.io \
             --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
             --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
