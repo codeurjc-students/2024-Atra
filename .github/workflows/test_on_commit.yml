@@ -24,7 +24,7 @@ jobs:
           java-version: '17'
 
       - name: Run unit tests
-        run: mvn test -Dtest=codeurjc_students.ATRA.unit.*Test
+        run: mvn test -Dtest=codeurjc_students.atra.unit.*Test
 
       - name: Run integration tests
-        run: mvn test -Dtest=codeurjc_students.ATRA.integration.*Test
+        run: mvn test -Dtest=codeurjc_students.atra.integration.*Test
