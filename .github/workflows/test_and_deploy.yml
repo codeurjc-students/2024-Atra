@@ -60,7 +60,7 @@ jobs:
             --ports 8080 \
             --os-type Linux \
             --cpu 1 \
-            --memory 1.5 \
+            --memory 1.5
 
       - name: 'Wait for container to start'
         run: |
