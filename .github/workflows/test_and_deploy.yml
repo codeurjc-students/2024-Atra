@@ -51,7 +51,7 @@ jobs:
         run: |
           az container create \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ATRA \
+            --name atra \
             --image ${{ secrets.DOCKERHUB_USERNAME }}/atra:${{ needs.build.outputs.image_tag }} \
             --registry-login-server index.docker.io \
             --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
@@ -66,7 +66,7 @@ jobs:
         run: |
           az container start \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ATRA
+            --name atra
 
   #test:
   #  runs-on: ubuntu-latest
