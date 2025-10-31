@@ -1,4 +1,4 @@
-name: Build, Deploy and Smoke test
+name: Build and Deploy
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  build:
+  build-back:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.project.outputs.tag }}
@@ -32,14 +32,36 @@ jobs:
         run: echo "tag=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)" >> $GITHUB_OUTPUT
         id: project
       - name: Generate Docker image
-        run: mvn spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME }}/atra:${{ steps.project.outputs.tag }}
+        run: mvn spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME }}/atra-backend:${{ steps.project.outputs.tag }}
       - name: Login to DockerHub
         run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: Push image to DockerHub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/atra:${{ steps.project.outputs.tag }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/atra-backend:${{ steps.project.outputs.tag }}
+  build-front:
+    runs-on: ubuntu-latest
+    needs: build-back
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install and build Angular
+        working-directory: frontend/ATRA
+        run: |
+          npm ci
+          npm run build -- --configuration production
+      - name: Build Docker image
+        working-directory: frontend/ATRA
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ needs.build-back.outputs.image_tag }} .
+      - name: Login to DockerHub
+        run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+      - name: Push image to DockerHub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ needs.build-back.outputs.image_tag }}
+
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build-back, build-front]
     steps:
       - name: 'Az CLI login'
         uses: azure/login@v2
@@ -47,26 +69,50 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: 'Run az commands to deploy container'
+      - name: 'Run az commands to deploy backend container'
         run: |
           az container create \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name atra \
-            --image ${{ secrets.DOCKERHUB_USERNAME }}/atra:${{ needs.build.outputs.image_tag }} \
+            --name atra-backend \
+            --image ${{ secrets.DOCKERHUB_USERNAME }}/atra-backend:${{ needs.build-back.outputs.image_tag }} \
             --registry-login-server index.docker.io \
             --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
             --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
-            --dns-name-label posts-${{ secrets.DOCKERHUB_USERNAME }} \
+            --dns-name-label atra-backend-${{ secrets.DOCKERHUB_USERNAME }} \
             --ports 8080 \
             --os-type Linux \
             --cpu 1 \
-            --memory 1.5
+            --memory 1.5 \
+            --environment-variables \
+              SPRING_DATASOURCE_URL="jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?serverTimezone=UTC" \
+              SPRING_DATASOURCE_USERNAME="atrauser@atra-db" \
+              SPRING_DATASOURCE_PASSWORD="${{ secrets.MYSQL_PASSWORD }}"
 
-      - name: 'Wait for container to start'
+      - name: 'Run az commands to deploy frontend container'
+        run: |
+          az container create \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name atra-frontend \
+            --image ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ needs.build-back.outputs.image_tag }} \
+            --registry-login-server index.docker.io \
+            --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
+            --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
+            --dns-name-label atra-frontend-${{ secrets.DOCKERHUB_USERNAME }} \
+            --ports 80 \
+            --os-type Linux
+        
+
+      - name: 'Wait for back container to start'
         run: |
           az container start \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name atra
+            --name atra-backend
+            
+      - name: 'Wait for front container to start'
+        run: |
+          az container start \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name atra-frontend
 
   #test:
   #  runs-on: ubuntu-latest
