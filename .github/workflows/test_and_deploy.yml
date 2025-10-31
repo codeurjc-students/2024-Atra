@@ -99,7 +99,9 @@ jobs:
             --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
             --dns-name-label atra-frontend-${{ secrets.DOCKERHUB_USERNAME }} \
             --ports 80 \
-            --os-type Linux
+            --os-type Linux \
+            --cpu 1 \
+            --memory 1
         
 
       - name: 'Wait for back container to start'
