@@ -32,8 +32,9 @@ COPY --from=builder /project/target/*.jar /usr/app/AtraApplication.jar
 # Indicate the port that exposed by the container
 EXPOSE 8080
 
-COPY wait-for-it.sh /usr/app/wait-for-it.sh
-RUN chmod +x ./wait-for-it.sh
-
-# Command that is executed when running docker run
-CMD [ "/usr/app/wait-for-it.sh", "db:3306", "--", "java", "-jar", "/usr/app/AtraApplication.jar" ]
+#COPY wait-for-it.sh /usr/app/wait-for-it.sh
+#RUN chmod +x ./wait-for-it.sh
+#
+## Command that is executed when running docker run
+#use this for running in local CMD [ "/usr/app/wait-for-it.sh", "db:3306", "--", "java", "-jar", "/usr/app/AtraApplication.jar" ]
+CMD [ "java", "-jar", "/usr/app/AtraApplication.jar" ]
