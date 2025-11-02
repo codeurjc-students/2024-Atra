@@ -98,7 +98,7 @@ jobs:
             --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
             --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
             --dns-name-label atra-frontend-${{ secrets.DOCKERHUB_USERNAME }} \
-            --ports 8080 \
+            --ports 80 \
             --os-type Linux \
             --cpu 1 \
             --memory 1
