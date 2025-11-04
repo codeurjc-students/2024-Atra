@@ -29,6 +29,13 @@ WORKDIR /usr/app/
 # Copy the JAR from the build container
 COPY --from=builder /project/target/*.jar /usr/app/AtraApplication.jar
 
+# Download certificate in order to allow DB connection
+RUN apt-get update && apt-get install -y curl && \
+    curl -o DigiCertGlobalRootG2.crt.pem https://www.digicert.com/CACerts/DigiCertGlobalRootG2.crt.pem && \
+    curl -o MicrosoftRSA2017.crt.pem "https://www.microsoft.com/pkiops/certs/Microsoft%20RSA%20Root%20Certificate%20Authority%202017.pem" && \
+    cat DigiCertGlobalRootG2.crt.pem MicrosoftRSA2017.crt.pem > azure-mysql-ca.pem
+
+
 # Indicate the port that exposed by the container
 EXPOSE 8080
 
