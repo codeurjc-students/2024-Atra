@@ -59,7 +59,7 @@ jobs:
             --cpu 1 \
             --memory 1.5 \
             --environment-variables \
-              SPRING_DATASOURCE_URL="jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?serverTimezone=UTC&useSSL=true&requireSSL=true&sslMode=VERIFY_CA&sslCa=/usr/app/azure-mysql-ca.pem " \
+              SPRING_DATASOURCE_URL='jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?serverTimezone=UTC&useSSL=true&requireSSL=true&sslMode=VERIFY_CA&sslCa=/usr/app/azure-mysql-ca.pem' \
               SPRING_DATASOURCE_USERNAME="atrauser@atra-db" \
               SPRING_DATASOURCE_PASSWORD="${{ secrets.MYSQL_PASSWORD }}"
 
