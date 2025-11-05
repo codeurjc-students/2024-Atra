@@ -30,7 +30,7 @@ WORKDIR /usr/app/
 COPY --from=builder /project/target/*.jar /usr/app/AtraApplication.jar
 
 # Download certificate in order to allow DB connection
-COPY azure-mysql-ca.pem /usr/app/azure-mysql-ca.pem
+#COPY azure-mysql-ca.pem /usr/app/azure-mysql-ca.pem
 
 # Indicate the port that exposed by the container
 EXPOSE 8080
