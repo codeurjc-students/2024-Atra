@@ -1,0 +1,72 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - src/**
+      - pom.xml
+    branches:
+      - main
+
+
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.project.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Generate tag
+        run: echo "tag=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)" >> $GITHUB_OUTPUT
+        id: project
+      - name: Generate Docker image
+        run: mvn spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME }}/atra-backend:${{ steps.project.outputs.tag }}
+      - name: Login to DockerHub
+        run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+      - name: Push image to DockerHub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/atra-backend:${{ steps.project.outputs.tag }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: 'Az CLI login'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: 'Run az commands to deploy backend container'
+        run: |
+          az container create \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name atra-backend \
+            --image ${{ secrets.DOCKERHUB_USERNAME }}/atra-backend:${{ needs.build.outputs.image_tag }} \
+            --registry-login-server index.docker.io \
+            --registry-username ${{ secrets.DOCKERHUB_USERNAME }} \
+            --registry-password ${{ secrets.DOCKERHUB_READ_TOKEN }} \
+            --dns-name-label atra-backend-${{ secrets.DOCKERHUB_USERNAME }} \
+            --ports 8080 \
+            --os-type Linux \
+            --cpu 1 \
+            --memory 1.5 \
+            --environment-variables \
+              SPRING_DATASOURCE_URL="jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?jdbc:mysql://atra-db.mysql.database.azure.com:3306/atra?serverTimezone=UTC&useSSL=true&requireSSL=true&sslMode=VERIFY_CA&sslCa=/usr/app/azure-mysql-ca.pem " \
+              SPRING_DATASOURCE_USERNAME="atrauser@atra-db" \
+              SPRING_DATASOURCE_PASSWORD="${{ secrets.MYSQL_PASSWORD }}"
+
+      - name: 'Wait for back container to start'
+        run: |
+          az container start \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name atra-backend
+            
+

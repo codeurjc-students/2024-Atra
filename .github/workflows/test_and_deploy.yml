@@ -2,15 +2,15 @@ name: Build and Deploy
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - src/**
-      - pom.xml
-      - frontend/ATRA/src
-      - frontend/ATRA/package.json
-      - frontend/ATRA/angular.json
-    branches:
-      - main
+  #push:
+  #  paths:
+  #    - src/**
+  #    - pom.xml
+  #    - frontend/ATRA/src
+  #    - frontend/ATRA/package.json
+  #    - frontend/ATRA/angular.json
+  #  branches:
+  #    - main
 
 
 permissions:
