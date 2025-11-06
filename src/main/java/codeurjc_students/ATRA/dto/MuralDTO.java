@@ -1,8 +1,8 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
-import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.atra.model.Mural;
+import codeurjc_students.atra.model.auxiliary.BasicNamedId;
+import codeurjc_students.atra.model.auxiliary.NamedId;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -40,12 +40,12 @@ public class MuralDTO {
 		bannerUrl = "/api/murals/"+id+"/banner";
 
 		owner = new BasicNamedId(mural.getOwner().getId(), mural.getOwner().getName());
-		mural.getMembers().forEach(user -> {
-			this.members.add(new BasicNamedId(user.getId(), user.getName()));
-		});
-		mural.getBannedUsers().forEach(user -> {
-			this.bannedUsers.add(new BasicNamedId(user.getId(), user.getName()));
-		});
+		mural.getMembers().forEach(user ->
+			this.members.add(new BasicNamedId(user.getId(), user.getName()))
+		);
+		mural.getBannedUsers().forEach(user ->
+			this.bannedUsers.add(new BasicNamedId(user.getId(), user.getName()))
+		);
 	}
 
     public static List<MuralDTO> toDto(Collection<Mural> murals) {

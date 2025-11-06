@@ -1,16 +1,16 @@
-package codeurjc_students.ATRA.controller;
+package codeurjc_students.atra.controller;
 
-import codeurjc_students.ATRA.dto.ActivityDTO;
-import codeurjc_students.ATRA.dto.ActivityEditDTO;
-import codeurjc_students.ATRA.exception.*;
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.GetActivitiesParams;
-import codeurjc_students.ATRA.model.auxiliary.PagedActivities;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.service.*;
-import codeurjc_students.ATRA.service.auxiliary.AtraUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import codeurjc_students.atra.dto.ActivityDTO;
+import codeurjc_students.atra.dto.ActivityEditDTO;
+import codeurjc_students.atra.exception.*;
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.GetActivitiesParams;
+import codeurjc_students.atra.model.auxiliary.PagedActivities;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.service.*;
+import codeurjc_students.atra.service.auxiliary.AtraUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,12 @@ import java.security.Principal;
 import java.util.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/activities")
 public class ActivityController {
 
-	@Autowired
-	private ActivityService activityService;
-    @Autowired
-    private UserService userService;
+    private final ActivityService activityService;
+    private final UserService userService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ActivityDTO> getActivity(Principal principal, @PathVariable("id") Long id, @RequestParam(value="mural", required=false) Long muralId){

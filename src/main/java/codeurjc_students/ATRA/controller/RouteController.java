@@ -1,13 +1,13 @@
-package codeurjc_students.ATRA.controller;
+package codeurjc_students.atra.controller;
 
-import codeurjc_students.ATRA.dto.*;
-import codeurjc_students.ATRA.exception.*;
-import codeurjc_students.ATRA.model.*;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.service.*;
-import codeurjc_students.ATRA.service.auxiliary.AtraUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import codeurjc_students.atra.dto.*;
+import codeurjc_students.atra.exception.*;
+import codeurjc_students.atra.model.*;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.service.*;
+import codeurjc_students.atra.service.auxiliary.AtraUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +16,13 @@ import java.util.*;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/routes")
 public class RouteController {
 
-	@Autowired
-	private UserService userService;
-    @Autowired
-    private RouteService routeService;
-    @Autowired
-    private ActivityService activityService;
+	private final UserService userService;
+    private final RouteService routeService;
+    private final ActivityService activityService;
 
 
     @GetMapping("/{id}")

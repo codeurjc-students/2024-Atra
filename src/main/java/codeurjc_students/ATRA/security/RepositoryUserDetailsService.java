@@ -1,9 +1,9 @@
-package codeurjc_students.ATRA.security;
+package codeurjc_students.atra.security;
 
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.repository.UserRepository;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.repository.UserRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,10 +22,10 @@ import java.util.List;
  * This is the implementation of UserDetailsService used for this project.
  */
 @Service
+@RequiredArgsConstructor
 public class RepositoryUserDetailsService implements UserDetailsService {
 
-	@Autowired
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

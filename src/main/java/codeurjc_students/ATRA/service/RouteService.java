@@ -1,32 +1,31 @@
-package codeurjc_students.ATRA.service;
+package codeurjc_students.atra.service;
 
-import codeurjc_students.ATRA.exception.*;
-import codeurjc_students.ATRA.model.*;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.repository.ActivityRepository;
-import codeurjc_students.ATRA.repository.MuralRepository;
-import codeurjc_students.ATRA.repository.RouteRepository;
-import codeurjc_students.ATRA.repository.UserRepository;
-import codeurjc_students.ATRA.service.auxiliary.AtraUtils;
+import codeurjc_students.atra.exception.*;
+import codeurjc_students.atra.model.*;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.repository.ActivityRepository;
+import codeurjc_students.atra.repository.MuralRepository;
+import codeurjc_students.atra.repository.RouteRepository;
+import codeurjc_students.atra.repository.UserRepository;
+import codeurjc_students.atra.service.auxiliary.AtraUtils;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static codeurjc_students.atra.service.Constants.MURAL_NOT_FOUND;
+import static codeurjc_students.atra.service.Constants.ROUTE_NOT_FOUND;
+
 @Service
+@RequiredArgsConstructor
 public class RouteService implements ChangeVisibilityInterface{
 
-	@Autowired
-	private RouteRepository routeRepository;
-	@Autowired
-	private ActivityRepository activityRepository;
-	@Autowired
-	private MuralRepository muralRepository;
-	@Autowired
-	private UserRepository userRepository;
-
+	private final RouteRepository routeRepository;
+	private final ActivityRepository activityRepository;
+	private final MuralRepository muralRepository;
+	private final UserRepository userRepository;
 	public Optional<Route> findById(long id) {
 		return routeRepository.findById(id);
 	}
@@ -120,7 +119,7 @@ public class RouteService implements ChangeVisibilityInterface{
 		if (!AtraUtils.isRouteVisibleByUserOrOwnedMurals(route, user)) throw new VisibilityException("Authenticated user has no visibility of specified route"); //technically 404 would be safer, gives less info
 		if (muralId==null) return activityRepository.findByRouteAndOwner(route, user);
 
-		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!mural.getMembers().contains(user)) throw new PermissionException("User is not a member of specified mural. You need to be a member of a mural in order to view data bound to it.");
 		return activityRepository.findByRouteAndMural(route, mural.getId());
 	}
@@ -172,7 +171,7 @@ public class RouteService implements ChangeVisibilityInterface{
 
 	public void addActivitiesToRoute(User user, Long routeId, List<Long> activityIds) {
 		if (routeId==null || activityIds==null || activityIds.isEmpty()) throw new IncorrectParametersException("Need to specify both a collection of activities and the route to add them to. One of those was null");
-		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException("Route not found"));
+		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException(ROUTE_NOT_FOUND));
 		if (!AtraUtils.isRouteVisibleBy(route,user)) throw new VisibilityException("User has no visibility of this route"); //404 might be better, more secure, gives less info. (security)
 		List<Activity> activities = activityRepository.findAllById(activityIds);
 		if (activities.isEmpty()) throw new EntityNotFoundException("No activities found with specified ids.");
@@ -188,7 +187,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public void deleteRoute(User user, Long id) {
-		Route route = routeRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Route not found"));
+		Route route = routeRepository.findById(id).orElseThrow(()->new EntityNotFoundException(ROUTE_NOT_FOUND));
 		if (route.getCreatedBy()!=user && !user.isAdmin()) throw new PermissionException("You cannot delete a route you are not the owner of. Public routes can only be deleted by administrators");
 
 		if (route.getVisibility().isPublic() && !user.isAdmin()) throw new PermissionException("Public routes can only be deleted by administrators"); //This is indirectly checked above by route.getOwner()!=user, since owner will be null for public routes
@@ -205,7 +204,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public void changeVisibility(User user, Long id, Visibility newVisibility) {
-		Route route = routeRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Route not found"));
+		Route route = routeRepository.findById(id).orElseThrow(()->new EntityNotFoundException(ROUTE_NOT_FOUND));
 		if (route.getVisibility().isPublic()) throw new IncorrectParametersException("The visibility of a public route cannot be changed");
 		if (!user.getId().equals(route.getCreatedBy().getId())) throw new PermissionException("You don't have the necessary permissions to change the visibility of this route.");
 
@@ -213,7 +212,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public void makeRoutesNotVisibleToMural(User user, Long muralId, List<Long> selectedRoutesIds) {
-		if (!muralRepository.existsById(muralId)) throw new EntityNotFoundException("Mural not found");
+		if (!muralRepository.existsById(muralId)) throw new EntityNotFoundException(MURAL_NOT_FOUND);
 
 		List<Route> routes = routeRepository.findAllById(selectedRoutesIds);
 		routes.forEach(route -> {
@@ -226,7 +225,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	}
 
 	public Collection<Route> getOwnedRoutesInMural(User user, Long muralId) {
-		Mural mural = muralRepository.findById(muralId).orElseThrow(() -> new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(muralId).orElseThrow(() -> new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!mural.getMembers().contains(user)) throw new PermissionException("Only mural members can access this data.");
 
 		Collection<Route> result = new ArrayList<>();

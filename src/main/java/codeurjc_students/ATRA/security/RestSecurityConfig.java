@@ -1,13 +1,12 @@
-package codeurjc_students.ATRA.security;
+package codeurjc_students.atra.security;
 
-import codeurjc_students.ATRA.security.jwt.JwtRequestFilter;
+import codeurjc_students.atra.security.jwt.JwtRequestFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,13 +15,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.security.SecureRandom;
 
 /**
  * Configures security elements. Mainly:
@@ -30,19 +25,15 @@ import java.security.SecureRandom;
  * 	2. Configures access permissions as well as security settings inside securityFilterChain, such as disabling CSRF and session management.
  */
 @Configuration
+@RequiredArgsConstructor
 public class RestSecurityConfig {
 
-	private final String ADMIN_ROLE = "ADMIN";
-	private final String USER_ROLE = "USER";
+	private static final String ADMIN_ROLE = "ADMIN";
+	private static final String USER_ROLE = "USER";
 
-	@Autowired
-	private UserDetailsService userDetailsService;
-
-	@Autowired
-	private JwtRequestFilter jwtRequestFilter;
-
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private final UserDetailsService userDetailsService;
+	private final JwtRequestFilter jwtRequestFilter;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

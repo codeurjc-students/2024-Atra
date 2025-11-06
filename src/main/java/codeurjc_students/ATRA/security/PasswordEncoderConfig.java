@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.security;
+package codeurjc_students.atra.security;
 
 
 import org.springframework.context.annotation.Bean;

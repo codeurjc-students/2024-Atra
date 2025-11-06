@@ -1,12 +1,12 @@
-package codeurjc_students.ATRA.controller;
+package codeurjc_students.atra.controller;
 
-import codeurjc_students.ATRA.dto.NewUserDTO;
-import codeurjc_students.ATRA.dto.UserDTO;
-import codeurjc_students.ATRA.exception.HttpException;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.service.*;
+import codeurjc_students.atra.dto.NewUserDTO;
+import codeurjc_students.atra.dto.UserDTO;
+import codeurjc_students.atra.exception.HttpException;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.service.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +15,11 @@ import java.security.Principal;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
 
-	@Autowired
-	private UserService userService;
+	private final UserService userService;
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id){

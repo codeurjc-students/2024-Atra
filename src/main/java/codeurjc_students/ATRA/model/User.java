@@ -1,6 +1,6 @@
-package codeurjc_students.ATRA.model;
+package codeurjc_students.atra.model;
 
-import codeurjc_students.ATRA.model.auxiliary.NamedId;
+import codeurjc_students.atra.model.auxiliary.NamedId;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +34,7 @@ public class User implements NamedId {
 	@Column(name = "role")
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-	private List<String> roles = new ArrayList<>();;
+	private List<String> roles = new ArrayList<>();
 	//</editor-fold>
 
 	public User(){

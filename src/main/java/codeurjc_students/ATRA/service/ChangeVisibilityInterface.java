@@ -1,6 +1,6 @@
-package codeurjc_students.ATRA.service;
+package codeurjc_students.atra.service;
 
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
 
 import java.util.Collection;
 

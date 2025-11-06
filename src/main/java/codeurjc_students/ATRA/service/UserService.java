@@ -1,38 +1,34 @@
-package codeurjc_students.ATRA.service;
+package codeurjc_students.atra.service;
 
-import codeurjc_students.ATRA.dto.NewUserDTO;
-import codeurjc_students.ATRA.dto.UserDTO;
-import codeurjc_students.ATRA.exception.EntityNotFoundException;
-import codeurjc_students.ATRA.exception.IncorrectParametersException;
-import codeurjc_students.ATRA.exception.PermissionException;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.repository.ActivityRepository;
-import codeurjc_students.ATRA.repository.MuralRepository;
-import codeurjc_students.ATRA.repository.RouteRepository;
-import codeurjc_students.ATRA.repository.UserRepository;
+import codeurjc_students.atra.dto.NewUserDTO;
+import codeurjc_students.atra.dto.UserDTO;
+import codeurjc_students.atra.exception.EntityNotFoundException;
+import codeurjc_students.atra.exception.IncorrectParametersException;
+import codeurjc_students.atra.exception.PermissionException;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.repository.ActivityRepository;
+import codeurjc_students.atra.repository.MuralRepository;
+import codeurjc_students.atra.repository.RouteRepository;
+import codeurjc_students.atra.repository.UserRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private RouteRepository routeRepository;
-	@Autowired
-	private MuralRepository muralRepository;
-	@Autowired
-	private ActivityRepository activityRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private final UserRepository userRepository;
+	private final RouteRepository routeRepository;
+	private final MuralRepository muralRepository;
+	private final ActivityRepository activityRepository;
+	private final PasswordEncoder passwordEncoder;
 
 
 	public Optional<User> findByUserName(String name) {

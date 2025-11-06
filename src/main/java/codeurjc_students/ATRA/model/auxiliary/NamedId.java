@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.model.auxiliary;
+package codeurjc_students.atra.model.auxiliary;
 
 import jakarta.persistence.Embeddable;
 

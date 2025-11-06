@@ -1,6 +1,6 @@
-package codeurjc_students.ATRA.security.jwt;
+package codeurjc_students.atra.security.jwt;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -25,33 +25,30 @@ import jakarta.servlet.http.HttpSession;
  */
 @Service
 @Lazy
+@RequiredArgsConstructor
 public class UserLoginService {
 
 	/**
 	 * It is used to authenticate the user. It makes use of our UserDetailsService implementation to do so.
 	 */
-	@Autowired
-	private AuthenticationManager authenticationManager;
+	private final AuthenticationManager authenticationManager;
 
 	/**
 	 * Used to fetch the user's data (as a UserDetails) from their username
 	 */
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
 	/**
 	 * Used to validate and create Access and Refresh tokens.
 	 * This is a custom class not native to Spring.
 	 */
-	@Autowired
-	private JwtTokenProvider jwtTokenProvider;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	/**
 	 * It is used to create cookies to hold the Access and Refresh tokens.
 	 * This is a custom class not native to Spring.
 	 */
-	@Autowired
-	private JwtCookieManager cookieUtil;
+	private final JwtCookieManager cookieUtil;
 
 	/**
 	 * Attempts to log the user in with their username and password. If authentication fails, an exception is thrown.

@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.security.jwt;
+package codeurjc_students.atra.security.jwt;
 
 /**
  * Custom class holding the username and password involved in a request.

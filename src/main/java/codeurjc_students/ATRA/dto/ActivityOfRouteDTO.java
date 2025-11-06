@@ -1,7 +1,7 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.ActivitySummary;
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.ActivitySummary;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

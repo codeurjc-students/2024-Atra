@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.model;
+package codeurjc_students.atra.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -22,8 +22,8 @@ public class Coordinates {
     public static List<Coordinates> fromActivity(Activity activity) {
         List<Coordinates> coords = new ArrayList<>();
         for (var dp : activity.getDataPoints()) {
-            Double lat = dp.get_lat();
-            Double lon = dp.get_long();
+            Double lat = dp.getLat();
+            Double lon = dp.getLon();
             coords.add(new Coordinates(lat, lon));
         }
         return coords;

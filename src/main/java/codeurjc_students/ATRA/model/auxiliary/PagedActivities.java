@@ -1,6 +1,6 @@
-package codeurjc_students.ATRA.model.auxiliary;
+package codeurjc_students.atra.model.auxiliary;
 
-import codeurjc_students.ATRA.model.Activity;
+import codeurjc_students.atra.model.Activity;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,6 +1,6 @@
-package codeurjc_students.ATRA.model.auxiliary;
+package codeurjc_students.atra.model.auxiliary;
 
-import codeurjc_students.ATRA.service.MapToStringConverter;
+import codeurjc_students.atra.service.MapToStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,11 +18,11 @@ import java.util.Map;
 @AllArgsConstructor
 @Embeddable
 public class DataPoint {
-	private Instant _time;
+	private Instant time;
 
-	private Double _lat;
-	private Double _long;
-	private Double _ele;
+	private Double lat;
+	private Double lon;
+	private Double ele;
 
 	private int hr;
 	private int cad;
@@ -31,17 +31,17 @@ public class DataPoint {
 	private Map<String, String> other = new HashMap<>();
 
 	public DataPoint(Double lat, Double lon){
-		_lat=lat;
-		_long=lon;
+		this.lat =lat;
+		this.lon =lon;
 	}
 
 	public void put(String key, String value){
 		switch (key) {
-			case "lat" : _lat  = Double.valueOf(value);  break;
-			case "long": _long = Double.valueOf(value);  break;
-			case "ele" : _ele  = Double.valueOf(value);  break;
+			case "lat" : lat = Double.valueOf(value);  break;
+			case "long": lon = Double.valueOf(value);  break;
+			case "ele" : ele = Double.valueOf(value);  break;
 
-			case "time" : _time  = Instant.parse(value);  break;
+			case "time" : time = Instant.parse(value);  break;
 
 			case "hr"  : hr  = Integer.parseInt(value); break;
 			case "cad" : cad = Integer.parseInt(value); break;

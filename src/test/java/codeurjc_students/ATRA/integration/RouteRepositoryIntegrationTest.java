@@ -1,13 +1,13 @@
-package codeurjc_students.ATRA.integration;
+package codeurjc_students.atra.integration;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.repository.ActivityRepository;
-import codeurjc_students.ATRA.repository.RouteRepository;
-import codeurjc_students.ATRA.repository.UserRepository;
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.repository.ActivityRepository;
+import codeurjc_students.atra.repository.RouteRepository;
+import codeurjc_students.atra.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

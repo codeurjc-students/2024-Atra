@@ -1,15 +1,12 @@
-package codeurjc_students.ATRA.service;
+package codeurjc_students.atra.service;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import jakarta.annotation.PreDestroy;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.Mural;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
@@ -22,126 +19,22 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 @Profile("!test")
 public class DatabaseInitializer {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ActivityService activityService;
-
-    @Autowired
-    private MuralService muralService;
-    @Autowired
-    private RouteService routeService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final ActivityService activityService;
+    private final MuralService muralService;
+    private final RouteService routeService;
+    private final PasswordEncoder passwordEncoder;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() throws IOException {
-        //emptyDB();
-        //smolInit(); //currently broken
         beegInit();
     }
 
-    @PreDestroy
-    public void emptyDB() {
-/*
-        System.out.println("\n\n\n\n\n\n\n\nEmptying db\n\n\n\n\n\n\n\n");
-        entityManager.flush();
-
-        // Disable FK checks
-        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
-
-        // Truncate all tables JPA manages
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS activities").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS activity_allowed_murals").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS activity_data_points").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS activity_mural").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS banned_user_mural").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS murals").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS route_allowed_murals").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS route_coordinates").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS route_mural").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS routes").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS user_mural").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS user_roles").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS users").executeUpdate();
-        // Add more tables as needed
-
-        // Re-enable FK checks
-        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
-*/
-        System.out.println("\n\n\n\n\n\n\n\ndb emptied\n\n\n\n\n\n\n\n");
-    }
-    private void smolInit() throws IOException {
-        //<editor-fold desc="users">
-        User user = new User("asd", passwordEncoder.encode("asd"));
-        user.setName("pepito");
-        userService.save(user);
-
-        User user2 = new User("qwe", passwordEncoder.encode("qwe"));
-        user2.setName("juanito");
-        userService.save(user2);
-
-        User muralGuy = new User("zxc", passwordEncoder.encode("zxc"));
-        muralGuy.setName("muralGuy");
-        userService.save(muralGuy);
-
-        List<User> users = Arrays.asList(user,user2,muralGuy);
-        //</editor-fold>
-        //<editor-fold desc="activities">
-        Map<String, Activity> activityMap = new HashMap<>();
-        for (int i=0;i<20;i++) {
-            Activity createdAct = activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), users.get(i%users.size()));
-            if (i%3==0) createdAct.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
-            activityMap.put(createdAct.getName(),createdAct);
-            muralService.newMural(new Mural(Integer.toString(i), muralGuy, List.of(user2)));
-        }
-        //</editor-fold>
-        //<editor-fold desc="routes">
-        boolean a = true;
-        boolean b = true;
-        Route routeA = null;
-        Route routeB = null;
-        for (var entry : activityMap.entrySet()) {
-            Activity activity = entry.getValue();
-            if (entry.getKey().contains("Morning Run")) {
-                if (a) {
-                    a=false;
-                    routeA=routeService.newRoute(activity);
-                    routeA.setCreatedBy(user);
-                    routeService.save(routeA);
-                }
-                routeService.addRouteToActivity(routeA, activity, activityService);
-            }
-            if (entry.getKey().contains("vuelta")) {
-                if (b) {
-                    b = false;
-                    routeB = routeService.newRoute(activity);
-                    routeB.setCreatedBy(user);
-                    routeService.save(routeB);
-                }
-                routeService.addRouteToActivity(routeB, activity, activityService);
-            }
-
-        }
-        //</editor-fold>
-        //<editor-fold desc="murals">
-        for (int i = 0; i < 3; i++) {
-            createMural("mural"+i, muralGuy, List.of(user2));
-        }
-
-        createMural(null, user, List.of(user2));
-        createMural(null, user2, List.of(user));
-
-        userService.save(user);
-        userService.save(user2);
-        //</editor-fold>
-    }
     @Transactional
     public void beegInit() throws IOException {
 
@@ -342,12 +235,6 @@ public class DatabaseInitializer {
 
         System.out.println("Routes initialized");
         System.out.println("Initialization complete");
-    }
-
-    private void createMural(String name, User owner, Collection<User> members) throws IOException {
-        Mural mural = name!=null ? new Mural(name, owner, members): new Mural(owner, members);
-        setThumbnailAndBanner(mural);
-        muralService.newMural(mural);
     }
 
     private void setThumbnailAndBanner(Mural mural) throws IOException {

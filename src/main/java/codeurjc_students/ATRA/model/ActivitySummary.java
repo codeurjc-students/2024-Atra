@@ -1,9 +1,8 @@
-package codeurjc_students.ATRA.model;
+package codeurjc_students.atra.model;
 
-import codeurjc_students.ATRA.dto.ActivityDTO;
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.service.ActivityService;
+import codeurjc_students.atra.dto.ActivityDTO;
+import codeurjc_students.atra.model.auxiliary.DataPoint;
+import codeurjc_students.atra.service.ActivityService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -204,7 +203,7 @@ public class ActivitySummary {
     }
 
     private long calcTotalTime(Instant start, List<DataPoint> dataPoints) {
-        Instant end = dataPoints.get(dataPoints.size()-1).get_time();
+        Instant end = dataPoints.get(dataPoints.size()-1).getTime();
         Duration duration = Duration.between(start, end);
         return duration.toSeconds();
     }

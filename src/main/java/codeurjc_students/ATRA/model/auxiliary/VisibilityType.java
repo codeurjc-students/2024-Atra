@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.model.auxiliary;
+package codeurjc_students.atra.model.auxiliary;
 
 public enum VisibilityType {
     PRIVATE(0), //only you can see it

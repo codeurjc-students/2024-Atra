@@ -1,12 +1,12 @@
-package codeurjc_students.ATRA.security.jwt;
+package codeurjc_students.atra.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -31,6 +30,7 @@ import java.util.stream.Collectors;
  * Allows creation and validation of tokens, as well as methods to extract a token from a HttpServletRequest, and to extract user data from a token (username/Authentication)
  */
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(JwtRequestFilter.class);
@@ -40,11 +40,10 @@ public class JwtTokenProvider {
 
 	private SecretKey secretKey;
 	
-	private static long JWT_EXPIRATION_IN_MS = 5400000; //90 minutes
-	private static Long REFRESH_TOKEN_EXPIRATION_MSEC = 10800000l; // 180 minutes
+	private static final long JWT_EXPIRATION_IN_MS = 5400000; //90 minutes
+	private static final Long REFRESH_TOKEN_EXPIRATION_MSEC = 10800000L; // 180 minutes
 	
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
 	/**
 	 * Generate a HMAC key and store it in an attribute. This is necessary for Jwts to work properly.

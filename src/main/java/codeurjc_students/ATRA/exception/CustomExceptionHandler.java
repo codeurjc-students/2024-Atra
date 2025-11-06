@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.exception;
+package codeurjc_students.atra.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,10 +9,10 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
-    final Integer entityNotFoundExceptionCode = 404;
-    final Integer incorrectParametersExceptionCode = 400;
-    final Integer permissionExceptionCode = 403;
-    final Integer visibilityExceptionCode = 403;
+    static final Integer entityNotFoundExceptionCode = 404;
+    static final Integer incorrectParametersExceptionCode = 400;
+    static final Integer permissionExceptionCode = 403;
+    static final Integer visibilityExceptionCode = 403;
     @ExceptionHandler(HttpException.class)
     public ResponseEntity<Map<String, String>> handleHttpException(HttpException e) {
         return helper(e, e.getStatus(), e.getMessage());

@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.security.jwt;
+package codeurjc_students.atra.security.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

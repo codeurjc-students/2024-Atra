@@ -1,17 +1,17 @@
-package codeurjc_students.ATRA.controller.auth;
+package codeurjc_students.atra.controller.auth;
 
 
-import codeurjc_students.ATRA.security.jwt.AuthResponse;
-import codeurjc_students.ATRA.security.jwt.AuthResponse.Status;
-import codeurjc_students.ATRA.security.jwt.LoginRequest;
-import codeurjc_students.ATRA.security.jwt.UserLoginService;
-import codeurjc_students.ATRA.service.UserService;
+import codeurjc_students.atra.security.jwt.AuthResponse;
+import codeurjc_students.atra.security.jwt.AuthResponse.Status;
+import codeurjc_students.atra.security.jwt.LoginRequest;
+import codeurjc_students.atra.security.jwt.UserLoginService;
+import codeurjc_students.atra.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +21,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class LoginController {
 
-	@Autowired
-	private UserLoginService userLoginService;
-	@Autowired
-	private UserService userService;
+	private final UserLoginService userLoginService;
+	private final UserService userService;
 
 	@PostMapping("/login")
 	@Operation(summary = "User login", description = "Authenticates a user with username and password.")
@@ -59,7 +58,6 @@ public class LoginController {
 
 	@GetMapping("/IsLoggedIn")
 	public ResponseEntity<Boolean> isLoggedIn(Principal principal) {
-		if (principal==null || !userService.existsByUsername(principal.getName())) return ResponseEntity.ok(false);
-		return ResponseEntity.ok(true);
+		return ResponseEntity.ok(!(principal==null || !userService.existsByUsername(principal.getName())));
 	}
 }

@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.security.jwt;
+package codeurjc_students.atra.security.jwt;
 
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;

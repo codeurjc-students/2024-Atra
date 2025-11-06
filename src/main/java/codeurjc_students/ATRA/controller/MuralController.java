@@ -1,15 +1,14 @@
-package codeurjc_students.ATRA.controller;
+package codeurjc_students.atra.controller;
 
-import codeurjc_students.ATRA.dto.*;
-import codeurjc_students.ATRA.exception.EntityNotFoundException;
-import codeurjc_students.ATRA.exception.HttpException;
-import codeurjc_students.ATRA.exception.IncorrectParametersException;
-import codeurjc_students.ATRA.model.*;
-import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
-import codeurjc_students.ATRA.model.auxiliary.NamedId;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import codeurjc_students.atra.dto.*;
+import codeurjc_students.atra.exception.HttpException;
+import codeurjc_students.atra.exception.IncorrectParametersException;
+import codeurjc_students.atra.model.*;
+import codeurjc_students.atra.model.auxiliary.BasicNamedId;
+import codeurjc_students.atra.model.auxiliary.NamedId;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.service.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +20,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/murals")
 public class MuralController {
 
-	@Autowired
-	private UserService userService;
-    @Autowired
-    private MuralService muralService;
+	private final UserService userService;
+    private final MuralService muralService;
 
 
 
@@ -163,7 +160,8 @@ public class MuralController {
 
     private byte[] parseImage(MultipartFile body) {
         try (InputStream is = body.getInputStream()) {
-            if (body.getContentType()==null || !body.getContentType().startsWith("image/")) throw new IncorrectParametersException("Received file is not an image.");
+            String contentType = body.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) throw new IncorrectParametersException("Received file is not an image.");
             BufferedImage image = ImageIO.read(is);
             if (image == null) throw new IncorrectParametersException("File is not a valid image");
             return body.getBytes();

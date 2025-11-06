@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.exception;
+package codeurjc_students.atra.exception;
 
 import lombok.Getter;
 

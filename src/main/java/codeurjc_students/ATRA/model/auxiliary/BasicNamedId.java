@@ -1,6 +1,5 @@
-package codeurjc_students.ATRA.model.auxiliary;
+package codeurjc_students.atra.model.auxiliary;
 
-import com.fasterxml.jackson.databind.util.Named;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
 import lombok.Getter;

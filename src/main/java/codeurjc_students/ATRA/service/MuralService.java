@@ -1,37 +1,36 @@
-package codeurjc_students.ATRA.service;
+package codeurjc_students.atra.service;
 
-import codeurjc_students.ATRA.dto.MuralEditDTO;
-import codeurjc_students.ATRA.exception.EntityNotFoundException;
-import codeurjc_students.ATRA.exception.IncorrectParametersException;
-import codeurjc_students.ATRA.exception.PermissionException;
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.repository.ActivityRepository;
-import codeurjc_students.ATRA.repository.MuralRepository;
-import codeurjc_students.ATRA.repository.RouteRepository;
-import codeurjc_students.ATRA.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import codeurjc_students.atra.dto.MuralEditDTO;
+import codeurjc_students.atra.exception.EntityNotFoundException;
+import codeurjc_students.atra.exception.IncorrectParametersException;
+import codeurjc_students.atra.exception.PermissionException;
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.Mural;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.repository.ActivityRepository;
+import codeurjc_students.atra.repository.MuralRepository;
+import codeurjc_students.atra.repository.RouteRepository;
+import codeurjc_students.atra.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
+import static codeurjc_students.atra.service.Constants.MURAL_NOT_FOUND;
+
 @Service
+@RequiredArgsConstructor
 public class MuralService {
 
-	@Autowired
-	private MuralRepository muralRepository;
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private RouteRepository routeRepository;
-	@Autowired
-	private ActivityRepository activityRepository;
+	private final MuralRepository muralRepository;
+	private final UserRepository userRepository;
+	private final RouteRepository routeRepository;
+	private final ActivityRepository activityRepository;
 
 	public boolean exists(long id) {
 		return muralRepository.existsById(id);
@@ -104,20 +103,20 @@ public class MuralService {
     }
 
 	public Mural getMural(User user, Long id) {
-		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!mural.getMembers().contains(user) || user.isAdmin()) throw new PermissionException("User is not a member of specified mural. Only members or admin can fetch a mural");
 		return mural;
 	}
 
 	public byte[] getThumbnail(Long id) {
-		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		byte[] bytes = mural.getThumbnail();
 		if (bytes==null) bytes = MuralService.getDefaultThumbnailBytes();
 		return bytes;
 	}
 
 	public byte[] getBanner(Long id) {
-		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		byte[] bytes = mural.getBanner();
 		if (bytes==null) bytes = MuralService.getDefaultBannerBytes();
 		return bytes;
@@ -141,7 +140,7 @@ public class MuralService {
 	public Integer joinMural(User user, String muralCode, Long muralId) {
 		if (muralCode==null && muralId==null) throw new IncorrectParametersException("Tried to join mural without giving its id or code");
 		if (muralCode!=null && muralId!=null) throw new IncorrectParametersException("When joining a mural you need to specify its code or its id, but not both."); //this never happens
-		Mural mural = (muralCode!=null? muralRepository.findByCode(muralCode):muralRepository.findById(muralId)).orElseThrow(()->new EntityNotFoundException("Mural not found")) ;
+		Mural mural = (muralCode!=null? muralRepository.findByCode(muralCode):muralRepository.findById(muralId)).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND)) ;
 
 		if (mural.getMembers().contains(user)) return 1; //1 for user already in mural
 		if (mural.getBannedUsers().contains(user)) return 2; //2 for user banned from mural
@@ -201,7 +200,7 @@ public class MuralService {
 	}
 
 	public List<User> removeUserFromMural(User ppal, Long targetUserId, Long muralId, Long inheritorId) {
-		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		User targetUser = userRepository.findById(targetUserId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 		if (!ppal.equals(targetUser) && !ppal.isAdmin() && !ppal.equals(mural.getOwner())) throw new PermissionException("Only admins and the mural owner can remove users from murals");
 
@@ -210,7 +209,7 @@ public class MuralService {
 
 	public List<User> banUser(User user, Long muralId, Long userId) {
 		if (muralId==null || userId==null) throw new IncorrectParametersException("You need to specify a user id and mural id");
-		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		User targetUser = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User to ban not found"));
 
 		if (!user.equals(mural.getOwner())) throw new PermissionException("Only admins and the mural owner can remove users from murals");
@@ -224,7 +223,7 @@ public class MuralService {
 	}
 
 	public List<User> unbanUser(User ppal, Long targetUserId, Long muralId) {
-		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!ppal.equals(mural.getOwner()) && !ppal.isAdmin()) throw new PermissionException("Only admin or mural owner can unban users");
 		User targetUser = userRepository.findById(targetUserId).orElseThrow(() -> new EntityNotFoundException("User to unban not found"));
 		mural.unbanUser(targetUser);
@@ -233,26 +232,26 @@ public class MuralService {
 	}
 
 	public void deleteMural(User user, Long id) {
-		Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!user.equals(mural.getOwner()) && !user.isAdmin()) throw new PermissionException("User is not authorized to delete this mural");
 		//checks made, now to actually delete it
 		this.deleteMuralConsequences(id);
 	}
 
 	public Mural editMural(User user, Long muralId, MuralEditDTO changes) {
-		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!user.equals(mural.getOwner())) throw new PermissionException("User is not authorized to edit this mural");
 		this.patch(mural, changes);
 		return mural;
 	}
 
 	public Boolean isVisibleByUser(User user, Long id) {
-		Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(MURAL_NOT_FOUND));
 		return user.getMemberMurals().contains(mural);
 	}
 
 	public void changeThumbnailOrBanner(boolean shouldChangeThumbnail, User user, Long id, byte[] image) {
-		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!user.equals(mural.getOwner()) && !user.isAdmin()) throw new PermissionException("User is not authorized to edit this mural");
 		//ImageIO is used to prevent injection
 
@@ -262,7 +261,7 @@ public class MuralService {
 	}
 
 	private void deleteMuralConsequences(long id) {
-		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException("Mural not found"));
+		Mural mural = muralRepository.findById(id).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 
 		List<User> members = mural.getMembers();
 		members.forEach(user -> {

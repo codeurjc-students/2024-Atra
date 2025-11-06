@@ -1,12 +1,12 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.ActivitySummary;
-import codeurjc_students.ATRA.model.auxiliary.BasicNamedId;
-import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.model.auxiliary.NamedId;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.service.ActivityService; //consider substituting this for a DistanceUtils or similar utility class, consisting of static methods, and independent of spring
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.ActivitySummary;
+import codeurjc_students.atra.model.auxiliary.BasicNamedId;
+import codeurjc_students.atra.model.auxiliary.DataPoint;
+import codeurjc_students.atra.model.auxiliary.NamedId;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.service.ActivityService; //consider substituting this for a DistanceUtils or similar utility class, consisting of static methods, and independent of spring
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -79,25 +79,25 @@ public class ActivityDTO implements ActivityDtoInterface {
 		for (int i=0; i<dataPoints.size();i++) {
 			DataPoint dP = dataPoints.get(i);
 
-			if (prevLat == null) prevLat = dP.get_lat();
-			if (prevLon == null) prevLon = dP.get_long();
-			if (prevEle == null) prevEle = dP.get_ele();
+			if (prevLat == null) prevLat = dP.getLat();
+			if (prevLon == null) prevLon = dP.getLon();
+			if (prevEle == null) prevEle = dP.getEle();
 
 			Double dist = ActivityService.totalDistance(prevLat, prevLon, dP);
-			Double eleGain = dP.get_ele()-prevEle;
+			Double eleGain = dP.getEle()-prevEle;
 
-			streams.get("time").add(dP.get_time().toString());
+			streams.get("time").add(dP.getTime().toString());
 			streams.get("distance").add(Double.toString(dist+distance));
-			streams.get("position").add(dP.get_lat().toString() + ";" + dP.get_long().toString());
-			streams.get("altitude").add(dP.get_ele().toString());
+			streams.get("position").add(dP.getLat().toString() + ";" + dP.getLon().toString());
+			streams.get("altitude").add(dP.getEle().toString());
 			streams.get("elevation_gain").add(eleGain.toString());
 			streams.get("heartrate").add(Integer.toString(dP.getHr()));
 			streams.get("cadence").add(Integer.toString(dP.getCad()));
 			streams.get("pace").add(getPace(i, dataPoints));
 			distance += dist;
-			prevLat = dP.get_lat();
-			prevLon = dP.get_long();
-			prevEle = dP.get_ele();
+			prevLat = dP.getLat();
+			prevLon = dP.getLon();
+			prevEle = dP.getEle();
 		}
 		return streams;
 	}
@@ -110,12 +110,12 @@ public class ActivityDTO implements ActivityDtoInterface {
 		Double prevDistance = ActivityService.totalDistance(prevDP, currentDP);
 		Double nextDistance = ActivityService.totalDistance(nextDP, currentDP);
 		double totalDistance = prevDistance+nextDistance;
-		long totalTime = Duration.between(prevDP.get_time(), nextDP.get_time()).toSeconds();
-		long paceSecs = Math.round((double) totalTime / totalDistance);
+		long totalTime = Duration.between(prevDP.getTime(), nextDP.getTime()).toSeconds();
+		long paceSecs = Math.round(totalTime / totalDistance);
 		if (paceSecs==Long.MAX_VALUE) {
 			return "0";
 		}
-		return String.valueOf(Math.round((double) totalTime / totalDistance)); //seconds / kilometer
+		return String.valueOf(Math.round(totalTime / totalDistance)); //seconds / kilometer
 	}
 
     public static List<ActivityDTO> toDto(Collection<Activity> activities) {

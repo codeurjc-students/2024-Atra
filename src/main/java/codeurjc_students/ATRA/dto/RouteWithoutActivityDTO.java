@@ -1,8 +1,8 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
-import codeurjc_students.ATRA.model.Coordinates;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.Coordinates;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.auxiliary.Visibility;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;

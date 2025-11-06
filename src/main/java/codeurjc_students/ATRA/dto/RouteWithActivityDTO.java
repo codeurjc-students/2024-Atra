@@ -1,15 +1,12 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
-import codeurjc_students.ATRA.model.Coordinates;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import jakarta.annotation.Nullable;
-import jakarta.persistence.*;
+import codeurjc_students.atra.model.Coordinates;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.auxiliary.Visibility;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Setter

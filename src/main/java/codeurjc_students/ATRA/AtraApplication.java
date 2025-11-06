@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA;
+package codeurjc_students.atra;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

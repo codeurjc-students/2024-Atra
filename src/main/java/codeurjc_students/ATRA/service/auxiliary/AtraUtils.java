@@ -1,10 +1,10 @@
-package codeurjc_students.ATRA.service.auxiliary;
+package codeurjc_students.atra.service.auxiliary;
 
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.model.Mural;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
 
 import java.util.Arrays;
 import java.util.List;

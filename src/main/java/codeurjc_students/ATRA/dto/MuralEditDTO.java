@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,9 +1,9 @@
-package codeurjc_students.ATRA.repository;
+package codeurjc_students.atra.repository;
 
-import codeurjc_students.ATRA.model.Activity;
-import codeurjc_students.ATRA.model.Route;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.model.Activity;
+import codeurjc_students.atra.model.Route;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
-    Collection<Activity> findByVisibilityTypeInAndOwnerIn(Collection<VisibilityType> visibility_types, Collection<User> user);
+    Collection<Activity> findByVisibilityTypeInAndOwnerIn(Collection<VisibilityType> visibilityTypes, Collection<User> user);
 
     @Query("""
         SELECT a FROM Activity a

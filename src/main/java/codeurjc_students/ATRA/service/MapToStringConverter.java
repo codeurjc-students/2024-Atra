@@ -1,4 +1,4 @@
-package codeurjc_students.ATRA.service;
+package codeurjc_students.atra.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

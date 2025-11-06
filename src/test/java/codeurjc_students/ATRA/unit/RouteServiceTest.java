@@ -1,18 +1,18 @@
-package codeurjc_students.ATRA.unit;
+package codeurjc_students.atra.unit;
 
-import codeurjc_students.ATRA.exception.EntityNotFoundException;
-import codeurjc_students.ATRA.exception.IncorrectParametersException;
-import codeurjc_students.ATRA.exception.PermissionException;
-import codeurjc_students.ATRA.exception.VisibilityException;
-import codeurjc_students.ATRA.model.*;
-import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
-import codeurjc_students.ATRA.repository.ActivityRepository;
-import codeurjc_students.ATRA.repository.MuralRepository;
-import codeurjc_students.ATRA.repository.RouteRepository;
-import codeurjc_students.ATRA.repository.UserRepository;
-import codeurjc_students.ATRA.service.RouteService;
+import codeurjc_students.atra.exception.EntityNotFoundException;
+import codeurjc_students.atra.exception.IncorrectParametersException;
+import codeurjc_students.atra.exception.PermissionException;
+import codeurjc_students.atra.exception.VisibilityException;
+import codeurjc_students.atra.model.*;
+import codeurjc_students.atra.model.auxiliary.DataPoint;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.repository.ActivityRepository;
+import codeurjc_students.atra.repository.MuralRepository;
+import codeurjc_students.atra.repository.RouteRepository;
+import codeurjc_students.atra.repository.UserRepository;
+import codeurjc_students.atra.service.RouteService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.parameters.P;
 
 
 import java.util.ArrayList;

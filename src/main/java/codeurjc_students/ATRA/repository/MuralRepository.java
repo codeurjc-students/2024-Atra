@@ -1,8 +1,8 @@
-package codeurjc_students.ATRA.repository;
+package codeurjc_students.atra.repository;
 
-import codeurjc_students.ATRA.model.Mural;
-import codeurjc_students.ATRA.model.User;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.model.Mural;
+import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

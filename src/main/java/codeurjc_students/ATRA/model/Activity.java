@@ -1,9 +1,9 @@
-package codeurjc_students.ATRA.model;
+package codeurjc_students.atra.model;
 
-import codeurjc_students.ATRA.model.auxiliary.DataPoint;
-import codeurjc_students.ATRA.model.auxiliary.NamedId;
-import codeurjc_students.ATRA.model.auxiliary.Visibility;
-import codeurjc_students.ATRA.model.auxiliary.VisibilityType;
+import codeurjc_students.atra.model.auxiliary.DataPoint;
+import codeurjc_students.atra.model.auxiliary.NamedId;
+import codeurjc_students.atra.model.auxiliary.Visibility;
+import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

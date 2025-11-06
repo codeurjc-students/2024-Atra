@@ -1,6 +1,6 @@
-package codeurjc_students.ATRA.dto;
+package codeurjc_students.atra.dto;
 
-import codeurjc_students.ATRA.model.User;
+import codeurjc_students.atra.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +18,6 @@ public class UserDTO {
 
     private String name;
     private String email;
-    //private List<Long> routes;
-    //private List<Long> murals;
 
     private List<String> roles;
 
