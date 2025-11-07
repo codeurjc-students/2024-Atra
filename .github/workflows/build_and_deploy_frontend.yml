@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - frontend/ATRA/src
+      - frontend/ATRA/src/**
       - frontend/ATRA/package.json
       - frontend/ATRA/angular.json
+      - frontend/ATRA/Dockerfile
     branches:
       - main
 

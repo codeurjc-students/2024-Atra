@@ -6,7 +6,7 @@ on:
     paths:
       - src/**
       - pom.xml
-      - frontend/ATRA/src
+      - frontend/ATRA/src/**
       - frontend/ATRA/package.json
       - frontend/ATRA/angular.json
     branches-ignore:
