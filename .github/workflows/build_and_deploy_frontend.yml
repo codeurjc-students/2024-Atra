@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 20
       - name: Generate tag
+        working-directory: frontend/ATRA
         run: echo "tag=$(npm pkg get version | tr -d '\"')" >> $GITHUB_OUTPUT
         id: project
       - name: Install and build Angular
