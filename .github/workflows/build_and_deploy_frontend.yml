@@ -37,11 +37,11 @@ jobs:
           npm run build -- --configuration production
       - name: Build Docker image
         working-directory: frontend/ATRA
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ needs.build.outputs.image_tag }} .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ steps.project.outputs.tag }} .
       - name: Login to DockerHub
         run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
       - name: Push image to DockerHub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ needs.build.outputs.image_tag }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/atra-frontend:${{ steps.project.outputs.tag }}
 
   deploy:
     runs-on: ubuntu-latest
