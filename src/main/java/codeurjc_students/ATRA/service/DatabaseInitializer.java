@@ -235,6 +235,8 @@ public class DatabaseInitializer {
 
         System.out.println("Routes initialized");
         System.out.println("Initialization complete");
+        System.out.println("App is ready");
+
     }
 
     private void setThumbnailAndBanner(Mural mural) throws IOException {

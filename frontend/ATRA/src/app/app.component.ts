@@ -80,6 +80,7 @@ export class AppComponent implements OnInit{
   }
 
   linkWithStrava() {
+    console.log("User attempted to link with Strava. This function is yet to be implemented.");
     this.alertService.alert("This function is yet to be implemented")
   }
 
