@@ -70,12 +70,12 @@ jobs:
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name atra-backend
       - name: 'Restart frontend container'
-          run:|
-                if az container show --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name atra-frontend > /dev/null 2>&1; then
-                  az container restart --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name atra-frontend
-                  echo "Frontend container restarted."
-                else
-                  echo "Frontend container not found. Skipping restart."
-                fi
+        run: |
+          if az container show --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name atra-frontend > /dev/null 2>&1; then
+            az container restart --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name atra-frontend
+            echo "Frontend container restarted."
+          else
+            echo "Frontend container not found. Skipping restart."
+          fi
             
 
