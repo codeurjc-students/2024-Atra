@@ -67,15 +67,16 @@ export class RoutesComponent {
       this.mural = this.activatedRoute.snapshot.params['id'];
       this.routeService.mural = this.mural;
     }
+    console.log("(RoutesComponent) Fetching routes");
     this.routeService.getRoutes().subscribe({
       next: (value:Route[]) => {
         this.loading=false;
         if (value.length!=0) {
           this.allRoutes = new Map(value.map(x => [x.id, x]))
           this.shownRoutes = new Map(Array.from(this.allRoutes.entries()).filter(x=> this.visibilitiesToDisplay.includes(x[1].visibility.type)))
-          console.log("routes", this.allRoutes);
-          console.log("shownRoutes", this.shownRoutes);
-
+          console.log("(RoutesComponent) routes fetched successfully.");
+          console.log("(RoutesComponent) route list:", this.allRoutes);
+          console.log("(RoutesComponent) routes being shown: ", this.shownRoutes);
 
           this.activatedRoute.queryParamMap.subscribe(params => {
             const selectedId = params.get('selected');
@@ -87,7 +88,7 @@ export class RoutesComponent {
           this.allRoutes = new Map()
         }
       },
-      error: (err) => {this.loading=false;this.alertService.toastError("Try reloading the page", "Error fetching routes"); console.log("There was an error fetching the Routes", err)}
+      error: (err) => {this.loading=false;this.alertService.toastError("Try reloading the page", "Error fetching routes"); console.error("(RoutesComponent) There was an error fetching the Routes", err)}
     })
 
     this.fetchActivitiesWithNoRoute()
@@ -148,7 +149,7 @@ export class RoutesComponent {
 
     setTimeout(() => {
       if (this.map==null) {
-        console.log("creating map");
+        console.log("(RoutesComponent) Creating map");
 
         this.map = MapService.mapSetup("map")
       }
@@ -163,10 +164,10 @@ export class RoutesComponent {
   }
 
   removeActivity(id: number) {
-    if (!this.selectedRoute) throw new Error("Cannot remove activity as there's no selected route")
+    if (!this.selectedRoute) throw new Error("Cannot remove activity from route as no route has been selected")
     this.routeService.removeActivity(this.selectedRoute.id, id).subscribe({
         next: ([route, activities]: [Route, Activity[]]) => {
-          console.log("(RoutesComponent) Updated route fetched successfully");
+          console.log("(RoutesComponent) Activity removed successfully. The updated route and activity list have been fetched.");
           route.activities = activities
           this.allRoutes.set(route.id, route)
           this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that
@@ -201,8 +202,6 @@ export class RoutesComponent {
   modalSelected: Set<number> = new Set();
 
   open(content: TemplateRef<any>, openSmall: boolean = false, enableBackdrop:boolean = true) {
-    console.log(this.errorLoadingActivities);
-
     if (this.errorLoadingActivities) return this.alertService.toastInfo("There seem to be no activities with no route assigned.")
     var options: NgbModalOptions = {centered:true}
     options.size = openSmall ? undefined:'lg'
@@ -219,7 +218,7 @@ export class RoutesComponent {
     if (this.selectedRoute==null || this.currentVis==null) throw new Error("changeVis called with null selectedRoute or currentVis")
       this.routeService.changeVisibility(this.selectedRoute.id, this.currentVis, this.allowedMuralsList).subscribe({
         next: ([route, activities]: [Route, Activity[]]) => {
-          console.log("(RoutesComponent) Updated route fetched successfully");
+          console.log("(RoutesComponent) Route visibility changed successfully. Updated route and activity list have been fetched");
           route.activities = activities
           this.allRoutes.set(route.id, route)
           this.allRoutes = new Map(this.allRoutes.entries()) //to trigger change detection. should be careful with that

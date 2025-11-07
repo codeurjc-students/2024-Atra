@@ -42,7 +42,7 @@ export class MuralsListComponent implements OnChanges, OnInit {
   }
 
   loadOwned(){
-    console.log("(MuralsListComponent) ------------------------------- updating owned murals cache");
+    console.log("(MuralsListComponent) updating owned murals cache");
     this.muralService.unloadData({owned:true})
     this.muralService.getOwned().subscribe((murals) => {
         if (murals==null) return
@@ -53,7 +53,7 @@ export class MuralsListComponent implements OnChanges, OnInit {
     );
   }
   loadMember(){
-    console.log("(MuralsListComponent) ------------------------------- updating member murals cache");
+    console.log("(MuralsListComponent) updating member murals cache");
     this.muralService.unloadData({member:true})
     this.muralService.getMember().subscribe((murals) => {
         if (murals==null) return
@@ -64,7 +64,7 @@ export class MuralsListComponent implements OnChanges, OnInit {
     );
   }
   loadOther(){
-    console.log("(MuralsListComponent) ------------------------------- updating other murals cache");
+    console.log("(MuralsListComponent) updating other murals cache");
     this.muralService.unloadData({other:true})
     this.muralService.getOther().subscribe((murals) => {
         if (murals==null) return

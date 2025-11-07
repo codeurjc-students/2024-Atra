@@ -57,9 +57,7 @@ export class RegisterComponent implements OnInit{
   }
 
   requiredArePresentAndValid(): boolean {
-     const arePresent = this.registerForm?.get("username")?.value && this.registerForm?.get("password")?.value && this.registerForm?.get("confirm")?.value;
-     console.log("Are Present: " + arePresent)
-     console.log("Are Valid: " + this.registerForm.valid)
+    const arePresent = this.registerForm?.get("username")?.value && this.registerForm?.get("password")?.value && this.registerForm?.get("confirm")?.value;
     return arePresent && this.registerForm.valid;
   }
 

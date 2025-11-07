@@ -20,12 +20,13 @@ export class MuralsDashboardComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    console.log(id);
+    console.log("(MuralsDashboardComponent) Loading mural with id ", id);
 
     this.muralService.getMural(id).subscribe({
-      next:(mural:Mural)=> {console.log("MURAL: " + mural);
-       this.mural=mural
-       this.gridItemService.setEntity(mural, null)
+      next:(mural:Mural)=> {
+        console.log("(MuralsDashboardComponent) Received mural: " + mural);
+        this.mural=mural
+        this.gridItemService.setEntity(mural, null)
       },
       error:(err)=>this.alertService.alert("Something went wrong fetching the Mural. Try reloading the page. If the error persists, try again later", "Something went wrong!") //could reload the page on dismiss
     })

@@ -57,19 +57,19 @@ export class ProfileComponent implements OnInit {
   ineditableInfo:Map<string, string> = new Map<string, string>()
   loadingActs:boolean = false;
   fetchActivities(){
-    console.log("Fetching activities for profile component");
+    console.log("(ProfileComponent) Fetching activities");
 
     this.loadingActs=true
     this.activityService.getAuthenticatedUserActivities(true).subscribe({
       next:(response:any)=>{
-        console.log("Activities fetched for profile component: ", response.body);
+        console.log("(ProfileComponent) Activities fetched: ", response.body);
 
         this.loadingActs=false
         this.calcIneditableInfo(this.activityService.process(response.body));
       },
       error:(e)=>{
         this.loadingActs=false
-        console.error("There's been an error. User activities could not be loaded: ", e);
+        console.error("(ProfileComponent) There's been an error while fetching activities. User activities could not be loaded: ", e);
       }
     })
   }
@@ -165,8 +165,6 @@ export class ProfileComponent implements OnInit {
     const oldPassword = this.passwordForm.get('oldPassword')?.value;
     this.userService.confirmPassword(oldPassword).subscribe({
       next: (isSame:boolean) => {
-        console.log("isSame: " + isSame);
-
         if (isSame) {
           //apparently the user is not automatically logged out when changing password.
           //We can manually log them out with servletRequest.getSession().invalidate(); or maybe SecurityContextHolder.clearContext();

@@ -60,7 +60,6 @@ export class RouteSelectComponent implements OnInit, AfterViewInit{
   }
 
   selectAll() {
-    console.log(this.routes)
     if (this.shouldSelectAll) {
       this.routes.forEach(route => this.selected.add(route.id));
     } else {

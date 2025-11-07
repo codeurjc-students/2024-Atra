@@ -61,7 +61,6 @@ export class ComparisonComponent implements OnInit {
         const activities = this.activityService.process(reply.body)
         this.recordsFits=activities.length<10
         this.activities = activities;
-        console.log({activities:activities});
 
         this.initMapCrap();
         this.compareActivities();
@@ -207,8 +206,6 @@ export class ComparisonComponent implements OnInit {
   }
 
   summaryClicked() {
-    console.log("Summary clicked");
-
     if (this.overviewMap!=null) {this.overviewMap.remove();this.overviewMap=null}
     setTimeout(()=>{
         this.overviewMap = MapService.mapSetup("map-overview")
@@ -286,7 +283,7 @@ export class ComparisonComponent implements OnInit {
   yAxisTickFormat: (value: number) => string = (value) => value.toString()
 
   updateChart() {
-    console.log("updating chart");
+    console.log("(ComparisonComponent) Updating chart");
 
     this.loadingChart = true
     this.yAxisTickFormat = this.selectedMetric==="pace" ? FormattingService.formatPace:(value) => value.toString()
@@ -294,12 +291,12 @@ export class ComparisonComponent implements OnInit {
     this.dataset = this.graphService.getGraphDataMultiple(this.selectedMetric, shownActivities, this.xAxisRepresents, this.partitionNum1, this.useAvgs)
     this.displayData = this.graphService.getDisplayDataMultiple(this.dataset, this.selectedMetric, this.selectedChart, shownActivities.map(a=>a.name))
     this.loadingChart = false
-    console.log("chart updated");
+    console.log("(ComparisonComponent) Chart updated");
 
   }
   changeChart() {
     //should manage variables that change depending on if we display histogram or line graph
-    console.log("selectedChart",this.selectedChart);
+    console.log("(ComparisonComponent) selectedChart is ",this.selectedChart);
     if (this.selectedChart=='histogram') {
       this.xAxisRepresents='distribution'
       this.hiddenActs.clear()
@@ -315,7 +312,6 @@ export class ComparisonComponent implements OnInit {
   toggleAct(id:number){
     if (this.hiddenActs.has(id)) this.hiddenActs.delete(id)
     else this.hiddenActs.add(id)
-    console.log({shownActs:this.hiddenActs});
 
     this.updateChart();
   }
@@ -353,11 +349,10 @@ export class ComparisonComponent implements OnInit {
   }
 
   calcPercentForCalculator(){
-    console.log("CalcPercent", {low:this.lowerCalcBound, high:this.higherCalcBound});
     if (!this.lowerCalcBound || !this.higherCalcBound) return
     const low = this.lowerCalcBound<this.higherCalcBound?this.lowerCalcBound:this.higherCalcBound
     const high = this.higherCalcBound>this.lowerCalcBound?this.higherCalcBound:this.lowerCalcBound
-    console.log("calculating...");
+
     this.activities.forEach(act=>{
       const stream = act.streams[this.selectedMetric as keyof ActivityStreams]
       const filteredStream = stream.filter(v=>parseFloat(v)>=low! && parseFloat(v)<=high!)
@@ -365,7 +360,6 @@ export class ComparisonComponent implements OnInit {
     })
   }
   clearPercents(){
-    console.log("Clearing percents");
     this.lowerCalcBound=undefined
     this.higherCalcBound=undefined
     this.calculatorPercentages = []

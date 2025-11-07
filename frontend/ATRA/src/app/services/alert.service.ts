@@ -78,8 +78,8 @@ export class AlertService {
       from(modalRef.dismissed).subscribe({
         next:onDismiss,
         error:(e)=>{
-          console.log("Something somehow went wrong.")
-          console.log(e.error);
+          console.error("(AlertService) Something somehow went wrong.")
+          console.error(e.error);
         }
       })
   }

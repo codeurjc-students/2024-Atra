@@ -23,10 +23,6 @@ export class AlertComponent implements OnInit {
   btnDismissAlert:string = "btn-dismiss-alert" + (this.otherOpenAlerts!=0?('-'+this.otherOpenAlerts):'');
 
   constructor(public activeModal: NgbActiveModal) {
-    console.log("CCCCCCCCCCCCCCCCCCCCCCCCCC");
-    console.log(this.otherOpenAlerts);
-    console.log(this.btnDismissAlert);
-    console.log( (this.otherOpenAlerts!=0?('-'+this.otherOpenAlerts):'FUCK MY LIFE'));
   }
 
   ngOnInit() {

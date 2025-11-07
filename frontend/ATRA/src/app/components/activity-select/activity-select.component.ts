@@ -63,7 +63,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
     if (this.loadFrom=='authUser')
       this.activityService.getAuthenticatedUserActivities(fetchAll, startPage, pagesToFetch, this.pageSize).subscribe({
         next: (response:HttpResponse<any[]>) => {this.activitiesReceived(response)},
-        error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+        error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.error("There was an error fetching the user's activities", err)}
       })
     else if (this.loadFrom=='mural') {
       const id = this.urlRoute.snapshot.paramMap.get('id');
@@ -76,7 +76,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
       this.urlStart = "murals/"+id
       this.activityService.getMuralActivities(id, fetchAll, startPage, pagesToFetch, this.pageSize).subscribe({
         next: (response:HttpResponse<any[]>) => {this.activitiesReceived(response)},
-        error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.log("There was an error fetching the user's activities", err)}
+        error: (err) => {this.loading=false;this.alertService.toastError("There was an error fetching your activities"); console.error("There was an error fetching the user's activities", err)}
       })
     } else if (this.loadFrom=='user') {
       this.loading=false;
@@ -262,12 +262,7 @@ export class ActivitySelectComponent implements OnInit, AfterViewInit{
   }
 
   loadNextPage() {
-    console.log({lastLoadedPage:this.lastLoadedPage, lastPage:this.lastPage,currentPage:this.currentPage});
-    console.log({cond1:this.lastLoadedPage<this.lastPage,cond2:this.currentPage+2<this.lastLoadedPage});
-
-
     if (this.lastLoadedPage<this.lastPage && this.currentPage+1>this.lastLoadedPage) {
-      console.log("A")
       this.loadActivities(false, this.lastLoadedPage+1, 1)
     }
   }

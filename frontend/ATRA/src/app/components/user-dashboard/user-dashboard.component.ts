@@ -21,7 +21,6 @@ export class UserDashboardComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    console.log(this.authService.user.value);
 
     this.authService.user.subscribe(user => {
       if (user!=null) this.gridItemService.setEntity(null, user)

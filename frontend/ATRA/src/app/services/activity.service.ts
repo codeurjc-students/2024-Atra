@@ -29,15 +29,13 @@ export class ActivityService {
   validMetrics: string[] = ["timeElapsed", "timeOfDay", "totalDistance"]
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService, private alertService:AlertService) {
-    this.currentActivity.subscribe((a)=>console.log("(ActivityService) ------------------------------- Cached activity updated: ", a));
+    this.currentActivity.subscribe((a)=>console.log("(ActivityService) Cached activity updated: ", a));
   }
 
   uploadActivity(event: Event) {
     const input = event.target as HTMLInputElement;
-    console.log("# of files: " + input.files?.length);
     if (input.files?.length) {
       const file = input.files[0]; // Access the first selected file
-      console.log("file name: " + file.name); // Example: Print file name
 
       if (!file.name.toLowerCase().endsWith(".gpx")){
         this.alertService.toastError("File upload failed. The file must be a gpx file!")
@@ -47,7 +45,7 @@ export class ActivityService {
         (isLoggedIn:boolean) => {
           if (isLoggedIn) this.uploadGPX(file)
           else {
-            console.log('Attempted to upload a file without logging in');
+            console.log('(ActivityService) Attempted to upload a file without logging in');
             this.alertService.alert("Couldn't verify if you are logged in. You need to be logged in to access this functionality. We are working to make it available without login. Try again later.", "An unexpected error ocurred")
           }
       });
@@ -199,7 +197,7 @@ export class ActivityService {
         return this.process(reply)
       }),
       catchError(error => {
-        console.log("Couldn't fetch activities. Error: "+error);
+        console.error("(ActivityService) Couldn't fetch activities. Error: "+error);
         return []
       })
     );

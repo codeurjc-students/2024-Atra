@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
     this.activeModal.close();
     this.authService.login(this.loginForm.get("username")?.value, this.loginForm.get("password")?.value).subscribe({
       next: (response) => {
-        console.log('Login successful', response);
+        console.log('(LoginComponent) Login successful', response);
         const redirect = this.authService.getRedirectUrl();
         if (redirect) {
           this.router.navigate([redirect]);

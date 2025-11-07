@@ -84,7 +84,7 @@ export class RouteService {
       }),
       switchMap(() => {
         this.alertService.toastSuccess("Activities added to route successfully")
-        console.log("Activities added to route successfully. Fetching updated route");
+        console.log("(RouteService) Activities added to route successfully. Fetching updated route");
         modal.dismiss();
         return forkJoin([this.getRoute(route), this.getRouteActivities(route)])
       })
@@ -108,7 +108,7 @@ export class RouteService {
         }),
         switchMap(() => {
           this.alertService.toastSuccess("Route deleted")
-          console.log("Route deleted. Fetching updated route list");
+          console.log("(RouteService) Route deleted. Fetching updated route list");
           return this.getRoutes()
         })
       )

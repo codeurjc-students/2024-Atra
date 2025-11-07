@@ -34,15 +34,6 @@ export class MuralsNewComponent {
     }, {
       updateOn: 'blur'
     });
-    this.form.get('banner')?.statusChanges.subscribe(s => {
-      console.log('banner', 'status:', s, 'errors:', this.form.get('banner')?.errors);
-    });
-    this.form.get('thumbnail')?.statusChanges.subscribe(s => {
-     console.log('thumbnail', 'status:', s, 'errors:', this.form.get('thumbnail')?.errors);
-    });
-    this.form.valueChanges.subscribe(v => {
-      console.log('Form value changed:', v);
-    });
   }
 
   aspectRatioValidator(muralService: MuralService, type: "thumbnail" | "banner") {
@@ -81,9 +72,6 @@ export class MuralsNewComponent {
           this.form.get(type)?.setErrors({invalidFile:true})
           this.alertService.toastError("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
         }
-        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        console.log(this.form.get(type)?.value);
-
 
         this.form.get(type)?.updateValueAndValidity(); // Trigger validation update, though we kinda did that manually...
       })
@@ -126,34 +114,3 @@ export class MuralsNewComponent {
     });
   }
 }
-
-
-
-
-/*
-  onFileSelected($event: Event, type: "thumbnail" | "banner") {
-    const input = $event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      //validate it
-      //disable form submission until done
-      this.muralService.checkAspectRatio(file, type=="banner"? 5/1 : 3/2).subscribe((isGood)=>{
-        if (isGood) {
-          if (type=="banner") {
-            this.bannerImage = file;
-          } else if (type=="thumbnail") {
-            this.thumbnailImage = file;
-          }
-          this.form.get(type)?.setErrors(null)
-        }
-        else { //maybe should return them to null
-          setTimeout(()=>
-            this.form.get(type)?.setErrors({invalidFile:true})
-          );
-          this.alertService.toastError("File must be an image with an aspect ratio of " + (type=="banner"? "5:1" : "3:2"), "File upload failed")
-        }
-        //re-enable form submission
-      })
-    }
-  }
-*/
