@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 20
       - name: Generate tag
-        run: echo "tag=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)" >> $GITHUB_OUTPUT
+        run: echo "tag=$(npm pkg get version | tr -d '\"')" >> $GITHUB_OUTPUT
         id: project
       - name: Install and build Angular
         working-directory: frontend/ATRA
