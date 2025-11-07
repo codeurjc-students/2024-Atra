@@ -43,11 +43,8 @@ export class ActivityComponent implements OnInit {
 
     if (this.map==null) this.map = MapService.mapSetup("map")
 
-      console.log(this.route.snapshot.url[0].toString());
-
     this.muralId = this.route.snapshot.paramMap.get("muralId");
     const stringId = this.route.snapshot.paramMap.get("activityId");
-    console.log("(ActivityComponent) stringId: "+stringId);
 
     if (stringId===null) {
       this.router.navigate(["/error?code=400&reason=missingParameter"]);
@@ -132,7 +129,7 @@ export class ActivityComponent implements OnInit {
       },
       error: (e) => {
         this.alertService.loaded()
-        console.log(e);
+        console.error(e);
       }
     });
   }
@@ -143,7 +140,7 @@ export class ActivityComponent implements OnInit {
         this.routes = receivedRoutes;
       },
       error: (e) => {
-        console.log(e);
+        console.error(e);
         this.alertService.toastError("You may be unable to change the activity's route. Try refreshing the page.", "Error fetching routes")
       }
     })
@@ -180,7 +177,7 @@ export class ActivityComponent implements OnInit {
     if (this.routeMap==null || this.routeMap == undefined) {
       setTimeout(() => {
         if (this.routeMap==null) {
-          console.log("creating map");
+          console.log("(ActivityComponent) Creating map instance");
           this.routeMap = MapService.mapSetup("routeMap")
         }
         this.updateMap()
@@ -195,8 +192,6 @@ export class ActivityComponent implements OnInit {
     //all of this is used for the change route functionality
     this.displayRoute = null;
     for (var r of this.routes) {
-      console.log("routeId: "+r.id);
-
       if (r.id==this.selectedRoute) {
         this.displayRoute = r
         break
@@ -247,7 +242,7 @@ export class ActivityComponent implements OnInit {
     if ("MURAL_SPECIFIC" !== newVis) this.allowedMuralsList = [];
     this.activityService.changeVisibility(this.id, newVis as "PRIVATE" | "MURAL_SPECIFIC" | "MURAL_PUBLIC" | "PUBLIC", this.allowedMuralsList).subscribe({
       next:() => {
-        console.log("Visibility changed");
+        this.alertService.toastSuccess("Visibility changed successfully");
         this.alertService.loaded();
         this.modal.close()
 

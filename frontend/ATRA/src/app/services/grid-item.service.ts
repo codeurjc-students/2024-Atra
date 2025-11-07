@@ -38,7 +38,6 @@ export class GridItemService {
   setEntity(mural: Mural | null, user: User | null) {
     this.mural = mural;
     this.user = user;
-    //console.log("Setting entity in GridItemService:", mural, user);
     if (mural==null && user==null) throw new Error("GridItemService.setEntity called with both mural and user as null. At least one must be provided.");
     const entity = (mural || user)!; //use entity.X instead of mural.X or user.X Make sure User has .activities and .routes (it doesn't now). This way we avoid repeating the fetching and setting code.
     if (mural) {
@@ -194,7 +193,6 @@ export class GridItemService {
       this.rowLinks.get('records')?.next(recordValues.map(record => `/me/activities/${record.at(-1)}`));
     }
     if (ignoreIds) return recordValues.map(v=>v.slice(0,-1))
-    //console.log(recordValues);
 
     //now to set recordValues into rowValues
     return recordValues;
@@ -239,7 +237,6 @@ export class GridItemService {
     this.activityList.subscribe({
       next: (activities) => {
         if (activities == null) throw new Error("GridItemService.populateActivities called with null activities.");
-        //console.log("GridItemService.populateActivities received activities: " + activities);
         const activityValues: string[][] = [];
         const columnNames = this.getColNames("activities");
         for (const activity of activities) {
@@ -253,15 +250,10 @@ export class GridItemService {
           currentRow[columnNames.indexOf("Time")] = FormattingService.formatTime(activity.summary.totalTime);
           activityValues.push(currentRow);
         }
-        //console.log("Activity values: " + activityValues);
 
         this.rowValues.get('activities')?.next(activityValues);
-        console.log(this.mural);
 
         if (this.mural){
-          console.log("GridItemService.populateActivities setting rowLinks for mural activities");
-          console.log(this.rowLinks.get('activities'));
-
           this.rowLinks.get('activities')?.next(activities.map(activity => `/murals/${this.mural!.id}/activities/${activity.id}`));
         } else if (this.user) {
           this.rowLinks.get('activities')?.next(activities.map(activity => `/me/activities/${activity.id}`));
@@ -272,11 +264,9 @@ export class GridItemService {
   }
   private populateRoutes() {
     //['Name', 'Efforts', 'Distance', 'Best Time | By'] //consider in the future avg pace and time
-    //console.log("GridItemService.populateRoutes waiting for activities and routes to be fetched.");
 
     combineLatest([this.activityList, this.routes]).subscribe({
       next: ([activities, routes]) => {
-        //console.log("GridItemService.populateRoutes received activities and routes.");
         if (routes == null || activities == null) throw new Error("GridItemService.populateRoutes called with null activities and/or null routes.");
         const routeValues: string[][] = [];
         const columnNames = this.getColNames("routes");
@@ -300,11 +290,8 @@ export class GridItemService {
           routeValues.push(currentRow);
         }
         this.rowValues.get('routes')?.next(routeValues);
-        console.log(this.mural);
 
         if (this.mural) {
-          console.log("GridItemService.populateRoutes setting rowLinks for mural routes");
-
           this.rowLinks.get('routes')?.next(routes.map(route => `/murals/${this.mural!.id}/routes?selected=${route.id}`));
         } else if (this.user) {
           this.rowLinks.get('routes')?.next(routes.map(route => `/me/routes?selected=${route.id}`)); //not sure if selected will be honored. Another option is to create /routes/id/details
@@ -344,43 +331,18 @@ export class GridItemService {
       ['routes',     ['Name', 'Efforts', 'Distance', 'Best Time | By']]
     ])
     return colNames.get(type)!
-    if (type === 'members') return ['Name', 'Total Time', 'Total Distance', '# of Activities'];
-    if (type === 'records') return ['Category', 'Best', 'User'];
-    if (type === 'info') return ['Name', 'Best', 'By' ]; //By equates to 'User'
-    if (type === 'activities') return ['Name', 'Date', 'Avg Pace', 'Distance', 'Time'];
-    if (type === 'routes') return ['Name', 'Efforts', 'Distance', 'Best Time | By']; //consider in the future avg pace and time
-
-    //console.log('Invalid ComponentType for getColNames:', type);
-    throw new Error('Invalid ComponentType for getColNames: ' + type);
   }
 
   getRowValues(type:ComponentType): BehaviorSubject<string[][] | null> {
     const value = this.rowValues.get(type);
     if (!value) throw new Error(`No data found for type: ${type}`);
     return value;
-
-    //if (type === 'members') return [['John Doe', '1:23:45', '10 km', '5']];
-    //if (type === 'records') return [['10 km', '1:23:45', 'John Doe']];
-    //if (type === 'info') return [['John Doe', '1:23:45', 'John Doe']];
-    //if (type === 'activities') return [['Run 1', '2023-01-01', '5:00 min/km', '10 km', '50:00']];
-    //if (type === 'routes') return [['Route 1', '5', '5:00 min/km', '10 km', '50:00', '1:23:45 | John Doe']];
-
-    //console.log('Invalid ComponentType for getRowValues:', type);
-    throw new Error('Invalid ComponentType for getRowValues: ' + type);
   }
 
   getRowLinks(type:ComponentType): BehaviorSubject<string[] | null> {
-    //esto toca ahora
     const value = this.rowLinks.get(type);
-    if (value) return value; //getValue() returns the current value of the BehaviorSubject
+    if (value) return value;
 
-    //if (type === 'members') return null;
-    //if (type === 'records') return null;
-    //if (type === 'info') return [];
-    //if (type === 'activities') return [];
-    //if (type === 'routes') return [];
-
-    //console.log('Invalid ComponentType for getRowLinks:', type);
     throw new Error('Invalid ComponentType for getRowLinks: ' + type);
   }
 
@@ -403,18 +365,4 @@ export type ComponentType = 'members'
                           | 'info'
                           | 'activities'
                           | 'routes';
-
-
-
-
-//[colNames]="['Name', 'Date', 'Route', 'Distance', 'Time', 'Elevation']"
-//[rowValues]="[['activities', '2023-10-01', 'Route 1', '10 km', '1 hr', '100 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m']]"
-//[rowLink]="'/murals/' + mural.id + '/activities/'"
-//[rowIds]="[1,2,3,4,5,6,7,8,9,10]"
-
-//[colNames]="['Name', 'Date', 'Route', 'Distance', 'Time', 'Elevation']"
-//[rowValues]="[['activities', '2023-10-01', 'Route 1', '10 km', '1 hr', '100 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m'], ['activities', '2023-10-02', 'Route 2', '20 km', '2 hr', '200 m']]"
-//[rowLink]="'/murals/' + mural.id + '/activities/'"
-//[rowIds]="[1,2,3]"
-
 

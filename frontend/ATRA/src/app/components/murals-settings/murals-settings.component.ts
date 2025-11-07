@@ -193,7 +193,6 @@ export class MuralsSettingsComponent implements OnInit {
       "Are you sure you want to make these activities not visible to this mural?\nMURAL_SPECIFIC activities will remove the mural from their list.\nMURAL_PUBLIC activities will turn MURAL_SPECIFIC, allowing any mural you're part of, except this one, to see them.",
       "Changing visibility of "+this.selectedActivities.size+" activit"+ (this.selectedActivities.size > 1 ? "ies" : "y")
     ).subscribe(accepted => {
-      console.log("(MuralSettingsComponent) accepted: ", accepted);
 
       if (accepted) this.activityService.makeActivitiesNotVisibleToMural(this.id, this.selectedActivities).subscribe({
         next: () => {
@@ -202,7 +201,7 @@ export class MuralsSettingsComponent implements OnInit {
           //activityselect component should load until activities are reloaded, to prevent intermediate calls
         },
         error: (err) => {
-          console.error("Error changing activities visibility:", err);
+          console.error("(MuralSettingsComponent) Error changing activities visibility:", err);
           this.alertService.toastError("There was an error changing the visibility of the selected activities");
         }
       })
@@ -225,8 +224,6 @@ export class MuralsSettingsComponent implements OnInit {
       "Are you sure you want to make these activities not visible to this mural?\nMURAL_SPECIFIC activities will remove the mural from their list.\nMURAL_PUBLIC activities will turn MURAL_SPECIFIC, allowing any mural you're part of, except this one, to see them.",
       "Changing visibility of "+this.selectedRoutes.size+" route"+ (this.selectedRoutes.size > 1 ? "s" : "")
     ).subscribe(accepted => {
-      console.log("(MuralSettingsComponent) accepted: ", accepted);
-
       if (accepted) this.routeService.makeRoutesNotVisibleToMural(this.id, this.selectedRoutes).subscribe({
         next: () => {
           this.alertService.toastSuccess("Visibility of selected activities changed successfully");
@@ -235,7 +232,7 @@ export class MuralsSettingsComponent implements OnInit {
           //activityselect component should load until activities are reloaded, to prevent intermediate calls
         },
         error: (err) => {
-          console.error("Error changing activities visibility:", err);
+          console.error("(MuralsSettingsComponent) Error changing activities visibility:", err);
           this.alertService.toastError("There was an error changing the visibility of the selected activities");
         }
       })
@@ -244,34 +241,38 @@ export class MuralsSettingsComponent implements OnInit {
   };
 
   reloadActivities() {
+    console.log("(MuralsSettingsComponent) Updating activity list");
+
     this.loadingActivities = true
     this.userService.getActivitiesInMural(this.id).subscribe({
       next: (data:any[]) => {
         // Process the data received from the service
         this.loadingActivities = false
         this.activityList = this.activityService.process(data)
-        console.log("Activities in mural:", this.activityList);
-
+        console.log("(MuralsSettingsComponent) Activitiy list updated to: ", this.activityList);
       },
       error: (err) => {
         this.loadingActivities = false
-        console.error("Error fetching activities in mural:", err);
+        console.error("(MuralsSettingsComponent) Error fetching activities in mural:", err);
       }
     })
   }
 
   reloadRoutes() {
+    console.log("(MuralsSettingsComponent) Updating route list");
+
+
     this.loadingRoutes = true
     this.userService.getRoutesInMural(this.id).subscribe({
       next: (data:Route[]) => {
         // Process the data received from the service
         this.loadingRoutes = false
-        console.log("Routes in mural:", data);
+        console.log("(MuralsSettingsComponent) Route list updated to:", data);
         this.routeList = data
       },
       error: (err) => {
         this.loadingRoutes = false
-        console.error("Error fetching routes in mural:", err);
+        console.error("(MuralsSettingsComponent) Error fetching routes in mural:", err);
       }
     })
   }
@@ -324,7 +325,7 @@ export class MuralsSettingsComponent implements OnInit {
                     this.router.navigate(['/murals'])
                   },
                   error: (err) => {
-                    console.error("Error leaving the mural:", err);
+                    console.error("(MuralsSettingsComponent) Error leaving the mural:", err);
                     this.alertService.toastError("There was an error leaving the mural");
                   }
                 })
@@ -352,7 +353,7 @@ export class MuralsSettingsComponent implements OnInit {
             this.alertService.alert("You will be redirected to the mural list", "Mural deleted successfully",()=>this.router.navigate(['/murals']));
           },
           error: (err) => {
-            console.error("Error deleting the mural:", err);
+            console.error("(MuralsSettingsComponent) Error deleting the mural:", err);
             this.alertService.alert("There was an error deleting the mural. It has not been properly deleted", "Something went wrong");
           }
         })
@@ -373,7 +374,7 @@ export class MuralsSettingsComponent implements OnInit {
         this.userList = this.userList.filter(user => user.id !== mural.owner.id);
       },
       error: (err) => {
-        console.error("Error changing mural owner:", err);
+        console.error("(MuralsSettingsComponent) Error changing mural owner:", err);
         this.alertService.toastError("There was an error changing the mural owner");
       }
     })
@@ -388,7 +389,7 @@ export class MuralsSettingsComponent implements OnInit {
               this.router.navigate(['/murals'])
             },
             error: (err) => {
-              console.error("Error leaving the mural:", err);
+              console.error("(MuralsSettingsComponent) Error leaving the mural:", err);
               this.alertService.toastError("There was an error leaving the mural");
             }
           })

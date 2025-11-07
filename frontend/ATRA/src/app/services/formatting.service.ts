@@ -11,7 +11,6 @@ export class FormattingService {
   static formatPace(value: number): string {
       const minutes = Math.floor(value / 60);
       const seconds = value % 60;
-      console.log(value);
 
       return FormattingService.formatTime(value)//`${minutes}:${seconds.toFixed(0).padStart(2, '0')}`; // Format as mm:ss 1500 100 500
     }

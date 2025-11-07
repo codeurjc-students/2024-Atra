@@ -32,8 +32,6 @@ export class GridTableComponent implements OnInit{
       this.loading = false
     })
     this.gridItemService.getRowLinks(this.type).subscribe((links)=>{
-      console.log(`GridTableComponent ${this.type} received row links:`, links);
-
       if (links == null) return;
       this.rowLinks = links;
     })

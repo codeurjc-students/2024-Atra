@@ -41,17 +41,6 @@ export class UserService {
   update(user: User) { //prev user: {id: number, name: string; email: string; username: string}
     return this.http.patch("/api/users/"+user.id, user);
   }
-//
-  //delete(id: number) {
-  //  return this.http.delete("/api/users/"+id);
-  //}
-//
-  //logout(){
-  //  this.http.post("/api/auth/logout",{}).subscribe({
-  //    next: value => {console.log(value)},
-  //    error: err => {console.log(err)}
-  //  });
-  //}
 
   confirmPassword(password:string): Observable<boolean> {
     return this.http.post<boolean>("/api/users/verify-password", password)

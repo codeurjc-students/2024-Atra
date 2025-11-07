@@ -114,7 +114,7 @@ export class GraphService {
         case "timeOfDay": processedData.push({name:currentTime.getHours().toString()+":"+currentTime.getMinutes().toString()+":"+currentTime.getSeconds().toString(),value:metricData[i]}); break;
         case "totalDistance": processedData.push({name:parseFloat(distance[i]).toFixed(2),value:metricData[i]}); break;
         default: {
-          console.log("(GraphService) xAxisRepresents has a bad value. Defaulting to timeElapsed")
+          console.log("(GraphService) Variable xAxisRepresents holds an invalid value. Defaulting to timeElapsed")
           processedData.push({name:this.activityService.getTime(currentTime, startTime),value:metricData[i]})
         }
       }
@@ -123,7 +123,6 @@ export class GraphService {
   }
 
   getGraphDataMultiple(metric: string, activities: Activity[], xAxis: string, partitions:number=-1, useAvgs:boolean=false): NameValue[][] {
-    console.log("getting this many partitions: ", partitions);
 
     const result:NameValue[][] = [];
     for (const activity of activities) {
@@ -243,10 +242,13 @@ export class GraphService {
     const partSize = diff/partitions
     const arrays: number[][]= Array.from({ length: partitions }, () => []); // n empty arrays
     const processedData: {name: string; value: number;}[] = []
+    var exceptionsCount = 0;
+
+    console.log(`(GraphService) Calculating distribution with lowest=${lowest}, highest=${highest}, diff=${diff}, partSize=${partSize}`);
 
     for (const n of metricData){
       if (Math.floor((n-lowest)/partSize)>=partitions){
-        console.log("exception")
+        exceptionsCount++;
         arrays[partitions-1].push(n)
       }
       else {
@@ -256,6 +258,8 @@ export class GraphService {
     for (let i = 0; i < partitions; i++) {
       processedData.push({name: (lowest+(i*partSize)).toFixed(1)+"-"+(lowest+(i+1)*partSize).toFixed(1), value: Math.floor(arrays[i].length/metricData.length*100)})
     }
+    console.log("(GraphService) Distribution data calculated. Number of exceptions found: ", exceptionsCount);
+
     return processedData
   }
 
@@ -273,7 +277,6 @@ export class GraphService {
   }
 
   calcSplits(act: Activity, currentSplitDistance: number, currentSplitUnit: 'km'|'mi'):number[] {
-    console.log("Calculating splits");
     const goal = currentSplitUnit=='km'?currentSplitDistance:milesToKm(currentSplitDistance)
     let prevDp:DataPoint|undefined;
     let acc = 0;
