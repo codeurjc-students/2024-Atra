@@ -69,7 +69,7 @@ jobs:
           az container start \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name atra-backend
-      - name: Restart frontend container
+      - name: 'Restart frontend container'
           run:|
                 if az container show --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name atra-frontend > /dev/null 2>&1; then
                   az container restart --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name atra-frontend
