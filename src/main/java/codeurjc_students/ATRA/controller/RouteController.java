@@ -36,6 +36,7 @@ public class RouteController {
         User user = principalVerification(principal);
         return ResponseEntity.ok(ActivityOfRouteDTO.toDto(routeService.getActivitiesAssignedToRoute(id, user, muralId)));
     }
+
     @GetMapping
     public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(
             Principal principal,
