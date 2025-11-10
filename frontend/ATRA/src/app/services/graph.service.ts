@@ -129,6 +129,7 @@ export class GraphService {
       const a = this.getGraphData(metric, activity, xAxis, partitions)
       result.push(a.sort((a,b)=>this.xValueToNumber(a.name)-this.xValueToNumber(b.name)));
     }
+    if (xAxis=="distribution") return result;
     return this.interpolateAndTruncate(result, useAvgs);
   }
 
