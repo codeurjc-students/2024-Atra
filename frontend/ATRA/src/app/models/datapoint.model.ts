@@ -1,8 +1,8 @@
 export interface DataPoint {
-  _time: Date;
+  time: Date;
 
-  _lat: number;
-  _long: number;
+  lat: number;
+  lon: number;
   _ele: number;
 
   hr: number;

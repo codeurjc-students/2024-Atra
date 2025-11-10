@@ -280,23 +280,23 @@ export class GraphService {
     const goal = currentSplitUnit=='km'?currentSplitDistance:milesToKm(currentSplitDistance)
     let prevDp:DataPoint|undefined;
     let acc = 0;
-    let accStart=new Date(act.dataPoints[0]._time)
+    let accStart=new Date(act.dataPoints[0].time)
     const splits = []
     for (let dp of act.dataPoints) {
       if (prevDp==undefined){prevDp=dp;continue}
       acc+=totalDistance(prevDp, dp)
       if (acc>=goal) {
-        const time = (new Date(dp._time).getTime()-accStart.getTime())/1000 //seconds
+        const time = (new Date(dp.time).getTime()-accStart.getTime())/1000 //seconds
         const pace = Math.round(time/goal)
         splits.push(pace)
         acc=0;
-        accStart=new Date(dp._time);
+        accStart=new Date(dp.time);
 
       }
       prevDp = dp
     }
     if (acc!=0) {
-      const time = (new Date(act.dataPoints.at(-1)!._time).getTime()-accStart.getTime())/1000 //seconds
+      const time = (new Date(act.dataPoints.at(-1)!.time).getTime()-accStart.getTime())/1000 //seconds
       const pace = Math.round(time/goal)
       splits.push(pace)
     }
@@ -308,7 +308,7 @@ export type NameValue = {name: string; value: number}
 export type NamedSeries = {name: string; series: NameValue[]}
 
 function totalDistance(dp1:DataPoint, dp2:DataPoint) {
-  return totalDistanceLong(dp1._lat,dp1._long,dp2._lat,dp2._long);
+  return totalDistanceLong(dp1.lat,dp1.lon,dp2.lat,dp2.lon);
 }
 function totalDistanceLong(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Radius of the Earth in km
