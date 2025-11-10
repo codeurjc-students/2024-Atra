@@ -194,6 +194,11 @@ export class RoutesComponent {
     })})
   }
 
+  openAddActivity(_t84: TemplateRef<any>) {
+    if (this.errorLoadingActivities) return this.alertService.toastInfo("There seem to be no activities with no route assigned.")
+    this.open(_t84)
+  }
+
 
   //#region modal crap
 
@@ -202,7 +207,6 @@ export class RoutesComponent {
   modalSelected: Set<number> = new Set();
 
   open(content: TemplateRef<any>, openSmall: boolean = false, enableBackdrop:boolean = true) {
-    if (this.errorLoadingActivities) return this.alertService.toastInfo("There seem to be no activities with no route assigned.")
     var options: NgbModalOptions = {centered:true}
     options.size = openSmall ? undefined:'lg'
     options.backdrop = enableBackdrop ? true : 'static'
