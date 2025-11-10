@@ -366,6 +366,7 @@ export class ComparisonComponent implements OnInit {
   }
 
   updateSplits(v?:string){
+    console.log("(ComparisonComponent) Updating splits with value:",v);
     this.splits.clear()
     if (v=="-1") {this.customSplits=true;this.currentSplitDistance=1}
     else if (v) {this.customSplits=false; this.currentSplitDistance=parseInt(v)}
@@ -373,9 +374,11 @@ export class ComparisonComponent implements OnInit {
     var longestSplitCount = -1;
     this.activities.forEach(act=>{
       const actSplits = this.graphService.calcSplits(act, this.currentSplitDistance, this.currentSplitUnit)
+      console.log("(ComparisonComponent) Calculated splits for activity",act.id,":",actSplits);
       if (actSplits.length>longestSplitCount) longestSplitCount=actSplits.length
       localSplits.push(actSplits)
     })
+    console.log("(ComparisonComponent) Local splits calculated:",localSplits);
     for (let i=0;i<longestSplitCount;i++) {
       const currentSplit = [];
       for (let actSplit of localSplits) {
