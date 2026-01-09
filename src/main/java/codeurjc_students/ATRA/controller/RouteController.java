@@ -7,6 +7,11 @@ import codeurjc_students.atra.model.auxiliary.Visibility;
 import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import codeurjc_students.atra.service.*;
 import codeurjc_students.atra.service.auxiliary.AtraUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +23,7 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/routes")
+@Tag(name = "Routes", description = "Route management endpoints")
 public class RouteController {
 
 	private final UserService userService;
@@ -26,26 +32,47 @@ public class RouteController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<RouteWithoutActivityDTO> getRoute(Principal principal, @PathVariable Long id){
+    @Operation(summary = "Get route by ID", description = "Retrieve a route's information by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route found"),
+        @ApiResponse(responseCode = "404", description = "Route not found")
+    })
+    public ResponseEntity<RouteWithoutActivityDTO> getRoute(
+        Principal principal, 
+        @Parameter(description = "Route ID") @PathVariable Long id){
         User user = principal==null ? null:principalVerification(principal);
         return ResponseEntity.ok(new RouteWithoutActivityDTO(routeService.getRoute(user, id)));
     }
 
     @GetMapping("/{id}/activities")
-    public ResponseEntity<List<ActivityOfRouteDTO>> getActivitiesAssignedToRoute(Principal principal, @PathVariable Long id, @RequestParam("mural") Long muralId){
+    @Operation(summary = "Get activities in route", description = "Retrieve all activities assigned to a specific route")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activities retrieved"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Route not found")
+    })
+    public ResponseEntity<List<ActivityOfRouteDTO>> getActivitiesAssignedToRoute(
+        Principal principal, 
+        @Parameter(description = "Route ID") @PathVariable Long id, 
+        @Parameter(description = "Mural ID") @RequestParam("mural") Long muralId){
         User user = principalVerification(principal);
         return ResponseEntity.ok(ActivityOfRouteDTO.toDto(routeService.getActivitiesAssignedToRoute(id, user, muralId)));
     }
 
     @GetMapping
+    @Operation(summary = "Get all routes", description = "Retrieve routes with optional filtering by type, visibility, and source")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Routes retrieved"),
+        @ApiResponse(responseCode = "400", description = "Invalid visibility type"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(
             Principal principal,
-            @RequestParam(name="type", required = false) String type,
-            @RequestParam(name="from", required = false) String from,
-            @RequestParam(name="id", required = false) Long id,
-            @RequestParam(name="visibility", required = false) String visibility
+            @Parameter(description = "Type of routes: noActivities, withActivities") @RequestParam(name="type", required = false) String type,
+            @Parameter(description = "Filter by source (user, mural, etc)") @RequestParam(name="from", required = false) String from,
+            @Parameter(description = "Filter by source ID") @RequestParam(name="id", required = false) Long id,
+            @Parameter(description = "Filter by visibility: PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC") @RequestParam(name="visibility", required = false) String visibility
     ){
-        //probably could/should add some authentication, but for now this works
         User user = principalVerification(principal);
 
         VisibilityType visibilityType;
@@ -53,15 +80,22 @@ public class RouteController {
         catch (IllegalArgumentException e) {throw new IncorrectParametersException("Visibility was either not specified or not a valid VisibilityType. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. \"");		}
 
         List<Route> routes = routeService.getAllRoutes(user, type, from, id, visibilityType);
-        if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes)); //ideally we'd just return Routes, but we kinda can't
+        if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes));
         List<List<Activity>> activityList = activityService.getActivitiesFromRoutes(routes, user, from, id);
 
         return ResponseEntity.ok(RouteWithActivityDTO.toDto(routes, activityList.stream().map(ActivityOfRouteDTO::toDto).toList()));
     }
 
     @PostMapping
-    public ResponseEntity<RouteWithActivityDTO> createRoute(Principal principal, @RequestBody Route route){
-        //Route should have in its id field the id of the route from which it is to be created
+    @Operation(summary = "Create new route", description = "Create a new route from an existing activity. Pass the activity ID in the route object's id field; it will be cleared and the route will be persisted with a new ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route created successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity not found")
+    })
+    public ResponseEntity<RouteWithActivityDTO> createRoute(
+        Principal principal, 
+        @Parameter(description = "The route object must hold the target activity ID in its id field.") @RequestBody Route route){
         User user = principalVerification(principal);
         Long activityId = route.getId();
         route.setId(null);
@@ -74,14 +108,32 @@ public class RouteController {
     }
 
     @DeleteMapping("/{routeId}/activities/{activityId}")
-    public ResponseEntity<Boolean> removeActivityFromRoute(Principal principal, @PathVariable Long routeId, @PathVariable Long activityId) {
+    @Operation(summary = "Remove activity from route", description = "Remove an activity from a route")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Activity removed successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Route or activity not found")
+    })
+    public ResponseEntity<Boolean> removeActivityFromRoute(
+        Principal principal, 
+        @Parameter(description = "Route ID") @PathVariable Long routeId, 
+        @Parameter(description = "Activity ID") @PathVariable Long activityId) {
         User user = principalVerification(principal);
         activityService.removeActivityFromRoute(user, routeId, activityId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{routeId}/activities/")
-    public ResponseEntity<Boolean> addActivitiesToRoute(Principal principal, @PathVariable Long routeId, @RequestBody List<Long> activityIds) {
+    @Operation(summary = "Add activities to route", description = "Add multiple activities to a route")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Activities added successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Route not found")
+    })
+    public ResponseEntity<Boolean> addActivitiesToRoute(
+        Principal principal, 
+        @Parameter(description = "Route ID") @PathVariable Long routeId, 
+        @RequestBody List<Long> activityIds) {
         User user = principalVerification(principal);
         routeService.addActivitiesToRoute(user, routeId, activityIds);
         return ResponseEntity.noContent().build();
@@ -89,7 +141,15 @@ public class RouteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteRoute(Principal principal, @PathVariable Long id) {
+    @Operation(summary = "Delete route", description = "Delete a route by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Route deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Route not found")
+    })
+    public ResponseEntity<Boolean> deleteRoute(
+        Principal principal, 
+        @Parameter(description = "Route ID") @PathVariable Long id) {
         User user = principalVerification(principal);
 
         routeService.deleteRoute(user, id);
@@ -97,22 +157,48 @@ public class RouteController {
     }
 
     @PatchMapping("/{id}/visibility")
-    public ResponseEntity<Boolean> changeVisibility(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
+    @Operation(summary = "Change route visibility", description = "Update the visibility settings of a route. Request body should contain 'visibility' (PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC) and optionally 'allowedMuralsList' as a comma-separated string in brackets for MURAL_SPECIFIC visibility")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Visibility changed successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Route not found")
+    })
+    public ResponseEntity<Boolean> changeVisibility(
+        Principal principal, 
+        @Parameter(description = "Route ID") @PathVariable Long id, 
+        @RequestBody Map<String, String> body) {
         User user = principalVerification(principal);
         Visibility requestedVisibility = AtraUtils.parseVisibility(body);
         routeService.changeVisibility(user, id, requestedVisibility);
         return ResponseEntity.noContent().build();
     }
-
+    
     @PatchMapping("/visibility/mural")
-    public ResponseEntity<String> makeRoutesNotVisibleToMural(Principal principal, @RequestParam("id") Long muralId, @RequestBody List<Long> selectedRoutesIds) {
+    @Operation(summary = "Hide routes from mural", description = "Make routes not visible to a specific mural")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Routes visibility updated"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Mural not found")
+    })
+    public ResponseEntity<String> makeRoutesNotVisibleToMural(
+        Principal principal, 
+        @Parameter(description = "Mural ID") @RequestParam("id") Long muralId, 
+        @RequestBody List<Long> selectedRoutesIds) {
         User user = principalVerification(principal);
         routeService.makeRoutesNotVisibleToMural(user, muralId, selectedRoutesIds);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/OwnedInMural")
-    public ResponseEntity<Collection<RouteWithoutActivityDTO>> getOwnedRoutesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
+    @Operation(summary = "Get owned routes in mural", description = "Retrieve routes owned by the current user in a specific mural")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Routes retrieved"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Mural not found")
+    })
+    public ResponseEntity<Collection<RouteWithoutActivityDTO>> getOwnedRoutesInMural(
+        Principal principal, 
+        @Parameter(description = "Mural ID") @RequestParam("muralId") Long muralId) {
         User user = principalVerification(principal);
         Collection<Route> result = routeService.getOwnedRoutesInMural(user, muralId);
         return ResponseEntity.ok(result.stream().map(RouteWithoutActivityDTO::new).toList());

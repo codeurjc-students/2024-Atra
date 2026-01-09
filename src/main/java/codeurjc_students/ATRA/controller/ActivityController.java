@@ -10,6 +10,11 @@ import codeurjc_students.atra.model.auxiliary.PagedActivities;
 import codeurjc_students.atra.model.auxiliary.Visibility;
 import codeurjc_students.atra.service.*;
 import codeurjc_students.atra.service.auxiliary.AtraUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,20 +28,38 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/activities")
+@Tag(name = "Activities", description = "Activity management endpoints")
 public class ActivityController {
 
     private final ActivityService activityService;
     private final UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ActivityDTO> getActivity(Principal principal, @PathVariable("id") Long id, @RequestParam(value="mural", required=false) Long muralId){
+    @Operation(summary = "Get activity by ID", description = "Retrieve an activity's information by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activity found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity not found")
+    })
+    public ResponseEntity<ActivityDTO> getActivity(
+        Principal principal, 
+        @Parameter(description = "Activity ID") @PathVariable("id") Long id, 
+        @Parameter(description = "Optional mural ID") @RequestParam(value="mural", required=false) Long muralId){
         User user = principalVerification(principal);
         Activity activity = activityService.getActivity(user, id, muralId);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @GetMapping("/byIds")
-    public ResponseEntity<List<ActivityDTO>> getActivitiesByIds(Principal principal, @RequestParam List<Long> ids, @RequestParam(required=false) Long muralId) {
+    @Operation(summary = "Get multiple activities by IDs", description = "Retrieve multiple activities by their IDs. Returns only activities the user has access to; check ATRA-requested-forbidden header to see if any requested activities were filtered")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activities retrieved"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public ResponseEntity<List<ActivityDTO>> getActivitiesByIds(
+        Principal principal, 
+        @Parameter(description = "List of activity IDs") @RequestParam List<Long> ids, 
+        @Parameter(description = "Optional mural ID") @RequestParam(required=false) Long muralId) {
         User user = principalVerification(principal);
         List<Activity> activities = activityService.getActivitiesByIds(user, ids, muralId);
 
@@ -46,16 +69,21 @@ public class ActivityController {
     }
 
     @GetMapping
+    @Operation(summary = "Get activities with pagination", description = "Retrieve activities with optional filtering and pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activities retrieved"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<List<ActivityDTO>> getActivitiesPaged(
             Principal principal,
-            @RequestParam boolean fetchAll,
-            @RequestParam(required=false) String from,
-            @RequestParam(required=false) Long id,
-            @RequestParam(defaultValue = "0", name = "startPage") Integer startPage,
-            @RequestParam(defaultValue = "1", name = "pagesToFetch") Integer pagesToFetch,
-            @RequestParam(required = false, name = "pageSize") Integer pageSize,
-            @RequestParam(required = false, name = "cond") String cond,
-            @RequestParam(required = false, name = "visibility") String visibility
+            @Parameter(description = "Fetch all activities without pagination") @RequestParam boolean fetchAll,
+            @Parameter(description = "Filter by source (user, mural, etc)") @RequestParam(required=false) String from,
+            @Parameter(description = "Filter by source ID") @RequestParam(required=false) Long id,
+            @Parameter(description = "Starting page number") @RequestParam(defaultValue = "0", name = "startPage") Integer startPage,
+            @Parameter(description = "Number of pages to fetch") @RequestParam(defaultValue = "1", name = "pagesToFetch") Integer pagesToFetch,
+            @Parameter(description = "Number of entries per page") @RequestParam(required = false, name = "pageSize") Integer pageSize,
+            @Parameter(description = "Filter condition") @RequestParam(required = false, name = "cond") String cond,
+            @Parameter(description = "Filter by visibility") @RequestParam(required = false, name = "visibility") String visibility
     ) {
         User user = principalVerification(principal);
 
@@ -85,7 +113,15 @@ public class ActivityController {
     }
 
     @PostMapping
-    public ResponseEntity<ActivityDTO> createActivity(Principal principal, @RequestParam("file") MultipartFile file){
+    @Operation(summary = "Create new activity", description = "Create a new activity from an uploaded GPX file")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activity created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid file format"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public ResponseEntity<ActivityDTO> createActivity(
+        Principal principal, 
+        @Parameter(description = "GPX file to upload") @RequestParam("file") MultipartFile file){
         User user = principalVerification(principal);
 
         Activity activity = activityService.newActivity(file, user);
@@ -94,14 +130,31 @@ public class ActivityController {
 
 
     @DeleteMapping("/{id}/route")
-    public ResponseEntity<ActivityDTO> removeRoute(Principal principal, @PathVariable Long id) {
+    @Operation(summary = "Remove route from activity", description = "Remove an associated route from an activity")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route removed successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity not found")
+    })
+    public ResponseEntity<ActivityDTO> removeRoute(
+        Principal principal, 
+        @Parameter(description = "Activity ID") @PathVariable Long id) {
         User user = principalVerification(principal);
         Activity activity = activityService.removeRoute(user, id);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @PostMapping("/{activityId}/route")
-    public ResponseEntity<ActivityDTO> addRoute(Principal principal, @PathVariable Long activityId, @RequestBody Long routeId) {
+    @Operation(summary = "Add route to activity", description = "Associate a route with an activity")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route added successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity or route not found")
+    })
+    public ResponseEntity<ActivityDTO> addRoute(
+        Principal principal, 
+        @Parameter(description = "Activity ID") @PathVariable Long activityId, 
+        @RequestBody Long routeId) {
         User user = principalVerification(principal);
 
         Activity activity = activityService.addRoute(user, activityId, routeId);
@@ -109,14 +162,31 @@ public class ActivityController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ActivityDTO> deleteActivity(Principal principal, @PathVariable Long id) {
+    @Operation(summary = "Delete activity", description = "Delete an activity by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activity deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity not found")
+    })
+    public ResponseEntity<ActivityDTO> deleteActivity(
+        Principal principal, 
+        @Parameter(description = "Activity ID") @PathVariable Long id) {
         User user = principalVerification(principal);
         Activity activity = activityService.deleteActivity(user, id);
         return ResponseEntity.ok(new ActivityDTO(activity));
     }
 
     @PatchMapping("/{id}/visibility")
-    public ResponseEntity<ActivityDTO> changeVisibility(Principal principal, @PathVariable Long id, @RequestBody Map<String, String> body) {
+    @Operation(summary = "Change activity visibility", description = "Update the visibility settings of an activity. Request body should contain 'visibility' (PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC) and optionally 'allowedMuralsList' as a comma-separated string in brackets for MURAL_SPECIFIC visibility")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Visibility changed successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity not found")
+    })
+    public ResponseEntity<ActivityDTO> changeVisibility(
+        Principal principal, 
+        @Parameter(description = "Activity ID") @PathVariable Long id, 
+        @RequestBody Map<String, String> body) {
         User user = principalVerification(principal);
         Visibility requestedVisibility = AtraUtils.parseVisibility(body);
         Activity updatedAct = activityService.changeVisibility(user, id, requestedVisibility);
@@ -124,21 +194,47 @@ public class ActivityController {
     }
 
     @PatchMapping("/visibility/mural")
-    public ResponseEntity<String> makeActivitiesNotVisibleToMural(Principal principal, @RequestParam("id") Long muralId, @RequestBody List<Long> selectedActivitiesIds) {
+    @Operation(summary = "Hide activities from mural", description = "Make selected activities not visible to a specific mural")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Activities visibility updated"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Mural not found")
+    })
+    public ResponseEntity<String> makeActivitiesNotVisibleToMural(
+        Principal principal, 
+        @Parameter(description = "Mural ID") @RequestParam("id") Long muralId, 
+        @RequestBody List<Long> selectedActivitiesIds) {
         User user = principalVerification(principal);
         activityService.makeActivitiesNotVisibleToMural(user, muralId, selectedActivitiesIds);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/OwnedInMural")
-    public ResponseEntity<Collection<ActivityDTO>> getOwnedActivitiesInMural(Principal principal, @RequestParam("muralId") Long muralId) {
+    @Operation(summary = "Get owned activities in mural", description = "Retrieve activities owned by the current user in a specific mural")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activities retrieved"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Mural not found")
+    })
+    public ResponseEntity<Collection<ActivityDTO>> getOwnedActivitiesInMural(
+        Principal principal, 
+        @Parameter(description = "Mural ID") @RequestParam("muralId") Long muralId) {
         User user = principalVerification(principal);
         List<Activity> activities = activityService.getOwnedActivitiesInMural(user, muralId);
         return ResponseEntity.ok(ActivityDTO.toDto(activities));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ActivityDTO> editActivity(Principal principal, @PathVariable Long id, @RequestBody ActivityEditDTO activity) {
+    @Operation(summary = "Edit activity", description = "Update activity details")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Activity updated successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Activity not found")
+    })
+    public ResponseEntity<ActivityDTO> editActivity(
+        Principal principal, 
+        @Parameter(description = "Activity ID") @PathVariable Long id, 
+        @RequestBody ActivityEditDTO activity) {
         User user = principalVerification(principal);
         Activity act = activityService.editActivity(user, id, activity);
         return ResponseEntity.ok(new ActivityDTO(act));
