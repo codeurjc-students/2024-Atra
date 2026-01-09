@@ -14,4 +14,6 @@ export interface Route {
 
     activities: Activity[];
 
+    createdBy: number;
+
 }

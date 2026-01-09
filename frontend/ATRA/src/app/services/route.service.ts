@@ -27,7 +27,7 @@ export class RouteService {
         }),
         switchMap(() => {
           this.alertService.toastSuccess("Visibility changed successfully")
-          console.log("(RoutesComponent) Visibility changed successfully. Fetching updated route");
+          console.log("(RoutesComponent) Visibility changed successfully. Fetching updated route with id "+id);
           return forkJoin([this.getRoute(id), this.getRouteActivities(id)])
         })
       )

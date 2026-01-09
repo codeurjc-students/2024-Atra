@@ -6,6 +6,7 @@ import codeurjc_students.atra.model.User;
 import codeurjc_students.atra.model.auxiliary.Visibility;
 import codeurjc_students.atra.model.auxiliary.VisibilityType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public final class AtraUtils {
     public static Visibility parseVisibility(Map<String, String> body) {
         String visibilityString = body.get("visibility");
         VisibilityType visibilityType = VisibilityType.valueOf(visibilityString);
-        List<Long> allowedMuralsIds = null;
+        List<Long> allowedMuralsIds = new ArrayList<>();
         if (visibilityType.equals(VisibilityType.MURAL_SPECIFIC)) {
             String allowedMuralsList = body.get("allowedMuralsList");
             String csvMuralIds = (allowedMuralsList==null||allowedMuralsList.isEmpty()) ? "":allowedMuralsList.substring(1, allowedMuralsList.length()-1);

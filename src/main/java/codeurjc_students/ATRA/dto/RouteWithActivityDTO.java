@@ -20,11 +20,14 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 	private Double elevationGain;
 	private Visibility visibility;
 
-	private List<Coordinates> coordinates = new ArrayList<>();
+	private List<Coordinates> coordinates;
 	private String name;
 	private String description;
 
-	private List<ActivityOfRouteDTO> activities = new ArrayList<>();
+	private List<ActivityOfRouteDTO> activities;
+
+	private Long createdBy;
+
 
 	public RouteWithActivityDTO(Route route, List<ActivityOfRouteDTO> activities) {
 		this.id = route.getId();
@@ -35,6 +38,7 @@ public class RouteWithActivityDTO implements RouteDtoInterface {
 		this.description = route.getDescription();
 		this.activities = activities;
 		this.visibility = route.getVisibility();
+		this.createdBy = route.getCreatedBy().getId();
 	}
 
 	public static List<RouteWithActivityDTO> toDto(List<Route> routes, List<List<ActivityOfRouteDTO>> activityList) {

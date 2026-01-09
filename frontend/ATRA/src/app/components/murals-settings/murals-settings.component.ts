@@ -182,7 +182,7 @@ export class MuralsSettingsComponent implements OnInit {
   }
 
   @ViewChild('changeVisibilityOfSelected') changeVisibilityOfSelected!: TemplateRef<any>;
-  @ViewChild('selectInheritor') selectInheritor!: TemplateRef<any>;
+  @ViewChild('selectInheritorModal') selectInheritorModal!: TemplateRef<any>;
 
   submitAct = () => {
     if (this.selectedActivities==null || this.selectedActivities.size===0) {
@@ -305,11 +305,17 @@ export class MuralsSettingsComponent implements OnInit {
             }
           })
         } else {
-          if (this.userList.length>1)
+          console.log("userlistlength = ", this.userList.length);
+          console.log("userlist = ", this.userList);
+
+          if (this.userList.length>0)
             this.alertService.alert("You are the owner of the mural, you need to select an inheritor before leaving", "Before you leave",
               () => {
                 this.changingOwner = false;
-                this.open(this.selectInheritor, { centered:true, backdrop: 'static' })
+                console.log("opening select inheritor modal");
+                this.open(this.selectInheritorModal, { centered:true, backdrop: 'static' })
+                console.log("select inheritor modal opened");
+
               }
             );
           else
@@ -379,7 +385,9 @@ export class MuralsSettingsComponent implements OnInit {
       }
     })
 
-    else
+    else{
+      console.log("setting inheritor");
+
     this.alertService.confirm("You are leaving the mural. The user '" +this.selectedInheritor!.name+ "' will receive ownership. If this is correct, click on leave." , "One last check", {accept:"Leave", cancel:"Cancel"}).subscribe(
       accepted => {
         if (!accepted) return this.alertService.toastInfo("Operation cancelled", "No changes were made");
@@ -394,7 +402,7 @@ export class MuralsSettingsComponent implements OnInit {
             }
           })
       }
-    )
+    )}
   }
 
   editName() {

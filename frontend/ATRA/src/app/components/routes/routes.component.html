@@ -6,8 +6,8 @@
       <h2 class="h5 mb-0">Routes</h2>
       <div>
         <button class="btn btn-warning mx-1" (click)="openCompareModal(compareModal, true)" *ngIf="selectedRoute!=null"><i class="fa-solid fa-code-compare"></i></button>
-        <button class="btn btn-info mx-1" *ngIf="selectedRoute!=null && currentVis!='PUBLIC'" (click)="open(changeVisModal, true, false)"><i class="fa-solid fa-eye"></i></button>
-        <button class="btn btn-danger mx-1" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC'" (click)="deleteSelectedRoute()" id="btn-delete-route"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn btn-info mx-1" *ngIf="selectedRoute!=null && currentVis!='PUBLIC' && this.selectedRoute.createdBy == this.authUser?.id" (click)="open(changeVisModal, true, false)"><i class="fa-solid fa-eye"></i></button>
+        <button class="btn btn-danger mx-1" *ngIf="this.selectedRoute!=null && currentVis!='PUBLIC' && this.selectedRoute.createdBy == this.authUser?.id" (click)="deleteSelectedRoute()" id="btn-delete-route"><i class="fa-solid fa-trash"></i></button>
 
         <button class="btn btn-primary mx-1" (click)="open(filterModal, true)"><i class="fa-solid fa-filter"></i></button>
       </div>

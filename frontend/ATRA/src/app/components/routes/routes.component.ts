@@ -51,6 +51,8 @@ export class RoutesComponent {
   allActivities !: Activity[];
   errorLoadingActivities : boolean = false;
 
+  authUser = JSON.parse(localStorage.getItem("user")||"null");
+
   constructor(private routeService:RouteService,
     private activityService:ActivityService,
     private modalService: NgbModal,

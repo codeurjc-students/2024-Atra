@@ -25,10 +25,12 @@ public class RouteWithoutActivityDTO implements RouteDtoInterface {
 	private Visibility visibility;
 	@ElementCollection
 	@OrderColumn(name = "position")
-	private List<Coordinates> coordinates = new ArrayList<>();
+	private List<Coordinates> coordinates;
 	private String name;
 	@Nullable
 	private String description;
+
+	private Long createdBy;
 
 	public RouteWithoutActivityDTO(Route route) {
 		this.id = route.getId();
@@ -38,6 +40,7 @@ public class RouteWithoutActivityDTO implements RouteDtoInterface {
 		this.name = route.getName();
 		this.description = route.getDescription();
 		this.visibility = route.getVisibility();
+		this.createdBy = route.getCreatedBy().getId();
 
 	}
 

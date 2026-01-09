@@ -52,7 +52,7 @@ public class RouteService implements ChangeVisibilityInterface{
 			route.setName("Route from Activity " + activity.getId());
 		}
 		if (route.getDescription()==null || route.getDescription().isEmpty()){
-			route.setDescription("This route has no description. Feel free to add one!");
+			route.setDescription("This route has no description.");
 		}
 		if (summary!=null && (route.getTotalDistance()==null || route.getTotalDistance()<=0)) {
 			route.setTotalDistance(summary.getTotalDistance());
@@ -117,7 +117,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	public Collection<Activity> getActivitiesAssignedToRoute(Long routeId, User user, Long muralId) {
 		Route route = routeRepository.findById(routeId).orElseThrow(() -> new EntityNotFoundException("No route with id " + routeId));
 		if (!AtraUtils.isRouteVisibleByUserOrOwnedMurals(route, user)) throw new VisibilityException("Authenticated user has no visibility of specified route"); //technically 404 would be safer, gives less info
-		if (muralId==null) return activityRepository.findByRouteAndOwner(route, user);
+		if (muralId==null || muralId==-1) return activityRepository.findByRouteAndOwner(route, user);
 
 		Mural mural = muralRepository.findById(muralId).orElseThrow(()->new EntityNotFoundException(MURAL_NOT_FOUND));
 		if (!mural.getMembers().contains(user)) throw new PermissionException("User is not a member of specified mural. You need to be a member of a mural in order to view data bound to it.");
@@ -172,7 +172,7 @@ public class RouteService implements ChangeVisibilityInterface{
 	public void addActivitiesToRoute(User user, Long routeId, List<Long> activityIds) {
 		if (routeId==null || activityIds==null || activityIds.isEmpty()) throw new IncorrectParametersException("Need to specify both a collection of activities and the route to add them to. One of those was null");
 		Route route = routeRepository.findById(routeId).orElseThrow(()->new EntityNotFoundException(ROUTE_NOT_FOUND));
-		if (!AtraUtils.isRouteVisibleBy(route,user)) throw new VisibilityException("User has no visibility of this route"); //404 might be better, more secure, gives less info. (security)
+		if (!AtraUtils.isRouteVisibleByUserOrOwnedMurals(route,user)) throw new VisibilityException("User has no visibility of this route"); //404 might be better, more secure, gives less info. (security)
 		List<Activity> activities = activityRepository.findAllById(activityIds);
 		if (activities.isEmpty()) throw new EntityNotFoundException("No activities found with specified ids.");
 
