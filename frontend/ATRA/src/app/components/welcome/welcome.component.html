@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-around align-items-center  w-50">
       <div></div> <!--for spacing-->
       <div></div> <!--for spacing-->
-      <div class="card w-40">
+      <div class="card min-w-40">
         <div class="card-header"><h4 class="card-title">Start by uploading a GPX file</h4></div>
         <div class="card-body">
           <div class="d-flex flex-column gap-2 align-items-center">
@@ -32,14 +32,14 @@
     </div>
     <!-- Right Column -->
     <div class="d-flex justify-content-around align-items-center w-50">
-      <div class="card w-40">
+      <div class="card min-w-40">
         <div class="card-header"><h4 class="card-title">Alternatively, you can:</h4></div>
         <div class="card-body">
           <div class="d-flex flex-column gap-2 align-items-center">
-            <button type="button" class="btn btn-primary w-35" (click)="openLoginModal()" id="btn-login-modal"> <i class="fa-solid fa-right-to-bracket me-2"></i> Log in</button>
-            <button type="button" class="btn btn-primary w-35" (click)="openRegisterModal()"><i class="fa-solid fa-user-plus me-2"></i> Sign up</button>
+            <button type="button" class="btn btn-primary min-w-35" (click)="openLoginModal()" id="btn-login-modal"> <i class="fa-solid fa-right-to-bracket me-2"></i> Log in</button>
+            <button type="button" class="btn btn-primary min-w-35" (click)="openRegisterModal()"><i class="fa-solid fa-user-plus me-2"></i> Sign up</button>
             <p style="font-weight: 500;font-size: 20px;">or</p>
-            <span ngbPopover="This feature is not available yet. We're working on it" triggers="hover" placement="top" class="w-70">
+            <span ngbPopover="This feature is not available yet. We're working on it" triggers="hover" placement="top" class="min-w-70">
               <button type="button" class="btn btn-primary w-100" onclick="this.alertService.alert('Sorry, this function is not yet supported.')" disabled><i class="fa-solid fa-file-import me-2"></i>Import    a previous session</button>
             </span>
           </div>

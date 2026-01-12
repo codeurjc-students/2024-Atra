@@ -10,8 +10,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70px;
-  height: 70px;
+  width: 7.2vh; /*70px;*/
+  height: 7.2vh; /*70px;*/
   color: var(--navbar-text-color);
 }
 
@@ -19,8 +19,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70px;
-  height: 70px;
+  width: 7.2vh; /*70px;*/
+  height: 7.2vh; /*70px;*/
   background-color: var(--navbar-icon-bg-color);
   color: var(--navbar-text-color);
   border-radius: 5px;
@@ -35,14 +35,14 @@
 }
 
 .icon-link i {
-  font-size: 20px;
+  font-size: 1.25rem /*20px;*/
 }
 
 
 .sidebar {
-  height: calc(100vh - 96px);
+  height: 90vh; /*calc(100vh - 96px);*/
   position: sticky;
-  top:96px;
+  top:10vh; /*96px;*/
 }
 
 .navbar {

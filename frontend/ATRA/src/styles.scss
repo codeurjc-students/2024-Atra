@@ -178,3 +178,7 @@ label {
   text-decoration: line-through;
   cursor: pointer;
 }
+
+html {
+  font-size: clamp(10px, 0.825vw, 16px);
+}

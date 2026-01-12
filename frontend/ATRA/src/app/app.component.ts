@@ -19,8 +19,8 @@ export class AppComponent implements OnInit{
   showSideBar: boolean = true;
   urlStart: string = '/me';
   showLogout: boolean = false;
-  fontSize: string = '30px'
-  fontSizeBig: string = '40px'
+  fontSize: string = '1.875rem'//'30px'
+  fontSizeBig: string = '2.5rem'//'40px'
 
   constructor(private location:Location, private router: Router, private activityService: ActivityService, private alertService: AlertService, private authService:AuthService){}
 
