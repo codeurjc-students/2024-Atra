@@ -68,6 +68,9 @@ jobs:
             --os-type Linux \
             --cpu 1 \
             --memory 1
+            --environment-variables \
+              BACKEND_URL atra-backend-angelmarquesgarcia.spaincentral.azurecontainer.io\
+              BACKEND_PORT 8080
 
       - name: 'Wait for front container to start'
         run: |

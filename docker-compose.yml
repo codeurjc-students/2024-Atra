@@ -1,9 +1,14 @@
 
 services:
   frontend:
-    build:
-      context: ./frontend/ATRA   # folder with Angular Dockerfile
-      dockerfile: Dockerfile
+    image:
+      angelmarquesgarcia/atra-frontend:0.0.0
+    environment:
+      BACKEND_URL: "backend"
+      BACKEND_PORT: "8080"
+    #build:
+    #  context: ./frontend/ATRA   # folder with Angular Dockerfile
+    #  dockerfile: Dockerfile
     ports:
       - "4200:8080"           # expose frontend on localhost:4200
     depends_on:
@@ -14,9 +19,11 @@ services:
       - appnet
 
   backend:
-    build:
-      context: ./    # folder with Spring Boot Dockerfile
-      dockerfile: Dockerfile
+    image:
+      angelmarquesgarcia/atra-backend:0.0.0
+    #build:
+    #  context: ./    # folder with Spring Boot Dockerfile
+    #  dockerfile: Dockerfile
     ports:
       - "8080:8080"         # expose backend on localhost:8080
     environment:
