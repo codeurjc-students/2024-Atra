@@ -92,6 +92,26 @@ export class GraphService {
     return Math.sqrt(total/(data.length-1))
   }
 
+  removeOutliers(data: NameValue[]): NameValue[] {
+    const outliers = this.calcOutliers(data.map(x=>x.value))
+    return data.filter(dp=>dp.value>=outliers.lower && dp.value<=outliers.higher);
+  }
+
+  smoothData(data: NameValue[], windowSize:number): NameValue[] {
+    const smoothedData: NameValue[] = [];
+    for (let i = 0; i < data.length; i++) {
+
+      let start = Math.max(0, i - Math.ceil(windowSize / 2));
+      let sum = 0;
+      for (let j = start; j < Math.min(start + windowSize, data.length); j++) {
+        sum += data[j].value;
+      }
+      const mean = sum / (Math.min(start + windowSize, data.length) - start);
+      smoothedData.push({name: data[i].name, value: mean});
+    }
+    return smoothedData;
+  }
+
   getGraphData(metric: string, activity: Activity, xAxis: string, partitions:number=-1): NameValue[] {
     var metricData:number[];
     const time = activity.streams.time;

@@ -133,6 +133,24 @@
           <option value="totalDistance">Total distance</option>
         </select>
       </div>
+            <div>
+          Hide Outliers for a more compact graph:
+          <select [(ngModel)]="hideOutliers" (change)="updateChart('toggleOutliers')" class="form-select w-auto d-inline-block">
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
+          </select>
+      </div>
+      <div>
+          Smooth Data to reduce noise:
+          <select [(ngModel)]="smoothData" (change)="updateChart('toggleSmooth')" class="form-select w-auto d-inline-block">
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
+          </select>
+      </div>
+      <div *ngIf="smoothData">
+        Smoothing window size:
+        <input type="number" class="form-control w-auto d-inline-block" [(ngModel)]="smoothWindowSize" (change)="updateChart('changeSmoothWindowSize')">
+      </div>
       <div>
         Show
         <ul>

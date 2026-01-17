@@ -42,6 +42,9 @@ export class ActivityStudyComponent implements OnInit {
   dataset : NameValue[] = [];
   displayData: NamedSeries[] | NameValue[] = [];
   partitionNum: number= 5
+  hideOutliers: boolean = false;
+  smoothData: boolean = false;
+  smoothWindowSize: number = 25;
 
   //Metrics
   metrics: string[] = ActivityStreams.getGraphableKeys();
@@ -119,6 +122,8 @@ export class ActivityStudyComponent implements OnInit {
     this.yAxisTickFormat = this.selectedMetric==="pace" ? FormattingService.formatPace:(value) => value.toString()
     this.displayData = []
     this.dataset = this.graphService.getGraphData(this.selectedMetric, this.activity, this.xAxisRepresents, this.partitionNum)
+    if (this.hideOutliers) this.dataset = this.graphService.removeOutliers(this.dataset);
+    if (this.smoothData) this.dataset = this.graphService.smoothData(this.dataset, this.smoothWindowSize);
     this.displayData = this.graphService.getDisplayData(this.dataset, this.selectedMetric, this.selectedChart)
     if (event!=="changeChart")
       this.updateRatings()
@@ -178,6 +183,14 @@ export class ActivityStudyComponent implements OnInit {
     this.goals.lowerLimit = parseFloat(lowerLimit.toFixed(2))
     this.goals.upperLimit = parseFloat(upperLimit.toFixed(2))
     this.pushExtras()
+  }
+  toggleOutliers() {
+    this.hideOutliers = !this.hideOutliers;
+    this.updateChart("toggleOutliers");
+  }
+  toggleSmooth() {
+    this.smoothData = !this.smoothData;
+    this.updateChart("toggleSmooth");
   }
   //#endregion
 
