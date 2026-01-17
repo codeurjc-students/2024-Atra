@@ -32,22 +32,23 @@ export class AuthInterceptorService {
         if (err.status === 400) {
           this.alertService.alert("Something is wrong with your request, we can't process it.", '400 Bad Request'); //Should be toast
         } else if (err.status === 401) {
+          this.alertService.toastError("Your session might have expired. If the error persists, please log in again.", "Something went wrong");
           //check that the user is actually logged out and it's not an error
 
-          this.alertService.confirm(
-            "You are not logged in, or your credentials have expired. \n If you think this is a mistake, you can reload the page. If it was a mistake you'll be allowed to continue.\n Otherwise, click 'ok', and you'll be redirected to the login page.",
-            "Not logged in",
-            {accept:'Log out', cancel:'Refresh page'}
-          ).subscribe((accepted:boolean)=>{
-            if (accepted) {
-              this.authService.logout();
-              this.authService.logoutFront();
-              this.router.navigate(['/'])
-            } else {
-              window.location.reload();
-            }
+          //this.alertService.confirm(
+          //  "You are not logged in, or your credentials have expired. \n If you think this is a mistake, you can reload the page. If it was a mistake you'll be allowed to continue.\n Otherwise, click 'ok', and you'll be redirected to the login page.",
+          //  "Not logged in",
+          //  {accept:'Log out', cancel:'Refresh page'}
+          //).subscribe((accepted:boolean)=>{
+          //  if (accepted) {
+          //    this.authService.logout();
+          //    this.authService.logoutFront();
+          //    this.router.navigate(['/'])
+          //  } else {
+          //    window.location.reload();
+          //  }
 
-          });
+          //});
         } else if (err.status === 403) {
           this.alertService.alert('You do not have permission to access this resource.', '403 Forbidden'); //Should be toast
         } else if (err.status === 404) {
