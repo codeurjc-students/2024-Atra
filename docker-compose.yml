@@ -30,6 +30,7 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      INIT_DB: "demo2"
     #restart: on-failure
     #entrypoint: ["tail", "-f", "/dev/null"]
     depends_on:

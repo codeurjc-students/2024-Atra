@@ -228,6 +228,10 @@ public class ActivityService implements ChangeVisibilityInterface{
 		return activityRepository.findVisibleToMural(mural.getId(), mural.getMembers().stream().map(User::getId).toList(), pageRequest);
 	}
 
+	public List<Activity> findByNameContains(String name) {
+		return activityRepository.findByNameContains(name);
+	}
+
 	public List<Activity> findByUser(User user) {
 		return activityRepository.findByOwner(user);
 	}

@@ -4,12 +4,16 @@ import codeurjc_students.atra.model.Activity;
 import codeurjc_students.atra.model.Mural;
 import codeurjc_students.atra.model.Route;
 import codeurjc_students.atra.model.User;
+import codeurjc_students.atra.model.auxiliary.Visibility;
 import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.context.event.EventListener;
@@ -29,10 +33,144 @@ public class DatabaseInitializer {
     private final RouteService routeService;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${initialize-database:off}")
+    private String initializationType;
+    private static final Random RANDOM = new Random();
+    private Long muralId = 1L;
+
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() throws IOException {
-        beegInit();
+        System.out.println("Initializing database with the following configuration: "+ initializationType);
+        User admin = new User("admin", passwordEncoder.encode("admin"));
+        admin.setName("admin");
+        admin.setRoles(List.of("ADMIN"));
+        userService.save(admin);
+        switch (initializationType) {
+            case "demo1" -> emptyDemoInit();
+            case "demo2" -> demoInit();
+            case "demo3" -> beegInit();
+            case "off"   -> {} // do nothing
+        }
+        System.out.println("App is ready");
+    }
+
+    @Transactional
+    public void emptyDemoInit() throws IOException {
+        User qwe = new User("qwe", passwordEncoder.encode("qwe"));
+        qwe.setName("qwe");
+        userService.save(qwe);
+
+        //<editor-fold desc="Activities">
+        List<Activity> activities = new ArrayList<>();
+        for (int i=0;i<=16;i++) {
+            activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), qwe));
+        }
+
+        for (int i=0;i<activities.size();i++) {
+            Activity a = activities.get(i);
+            a.changeVisibilityTo(VisibilityType.PUBLIC);
+            a.setName("act" + i +" "+ qwe.getName() + " ("+a.getVisibility().getType().getShortName()+")");
+            a.setOwner(qwe);
+            activityService.save(a);
+            i++;
+        }
+        //</editor-fold>
+        System.out.println("Activities initialized");
+        //<editor-fold desc="Routes">
+        Route route = routeService.newRoute(activityService.findByUser(qwe).get(0));
+        route.changeVisibilityTo(VisibilityType.PRIVATE);
+        route.setName("Qwe's Usual 10k");
+        for (int i = 0; i < 5; i++) {
+            Activity a = activities.get(i);
+            a.setRoute(route);
+            activityService.save(a);
+        }
+        routeService.save(route);
+
+        route = routeService.newRoute(activities.get(6));
+        route.changeVisibilityTo(VisibilityType.PUBLIC);
+        route.setName("Ir/Volver Soto");
+        routeService.save(route);
+        route = routeService.newRoute(activities.get(7));
+        route.changeVisibilityTo(VisibilityType.PUBLIC);
+        route.setName("Vuelta Soto");
+        routeService.save(route);
+        route = routeService.newRoute(activities.get(15));
+        route.changeVisibilityTo(VisibilityType.PUBLIC);
+        route.setName("Ruta Fartlek");
+        routeService.save(route);
+
+
+        //</editor-fold>
+        System.out.println("Routes initialized");
+        System.out.println("Initialization complete");
+    }
+
+    @Transactional
+    public void demoInit() throws IOException {
+        //<editor-fold desc="Users">
+        User angel = new User("angel", passwordEncoder.encode("angel"));
+        angel.setName("angel");
+        userService.save(angel);
+        User david = new User("david", passwordEncoder.encode("david"));
+        david.setName("david");
+        userService.save(david);
+        User ruben = new User("ruben", passwordEncoder.encode("ruben"));
+        ruben.setName("ruben");
+        userService.save(ruben);
+        User extra = new User("extra", passwordEncoder.encode("extra"));
+        extra.setName("extra");
+        userService.save(extra);
+        //</editor-fold>
+
+        System.out.println("Users initialized");
+
+        //<editor-fold desc="Murals">
+        Mural mural = new Mural("The Family", angel, List.of(david, ruben));
+        muralService.newMural(mural);
+        muralId = mural.getId();
+
+        mural = new Mural("Weekend Crew", extra, List.of());
+        muralService.newMural(mural);
+        mural = new Mural("The Usuals", extra, List.of());
+        muralService.newMural(mural);
+        mural = new Mural("Local Squad", extra, List.of());
+        muralService.newMural(mural);
+        mural = new Mural("Trail Pack", extra, List.of());
+        muralService.newMural(mural);
+        mural = new Mural("Casual Training", extra, List.of());
+        mural.setVisibility(VisibilityType.PUBLIC);
+        muralService.newMural(mural);
+        mural = new Mural("VIP", extra, List.of());
+        mural.setVisibility(VisibilityType.PRIVATE);
+        muralService.newMural(mural);
+        //</editor-fold>
+
+        System.out.println("Murals initialized");
+
+        //<editor-fold desc="Activities">
+        loadActivities("angel", angel);
+        loadActivities("david", david);
+        loadActivities("ruben", ruben);
+        //</editor-fold>
+
+        System.out.println("Activies initialized");
+
+        //<editor-fold desc="Routes">
+        createRoute("Mostoles 10k", angel, VisibilityType.MURAL_SPECIFIC, List.of(muralId));
+        createRoute("Hospital - Soto", angel, VisibilityType.PUBLIC, null);
+        createRoute("Vuelta Soto", angel, VisibilityType.PRIVATE, null);
+        createRoute("Parque Agustin", david, VisibilityType.PUBLIC, null);
+        createRoute("Forma L", david, VisibilityType.MURAL_SPECIFIC, List.of());
+        createRoute("Pista Valle", david, VisibilityType.PRIVATE, null);
+        createRoute("Laviana circular corta", ruben, VisibilityType.PUBLIC, null);
+        createRoute("Laviana circular Larga", ruben, VisibilityType.MURAL_SPECIFIC, List.of(muralId));
+        createRoute("Laviana Lineal", ruben, VisibilityType.PRIVATE, null);
+        //</editor-fold>
+
+        System.out.println("Routes initialized");
+        System.out.println("Initialization complete");
     }
 
     @Transactional
@@ -235,8 +373,6 @@ public class DatabaseInitializer {
 
         System.out.println("Routes initialized");
         System.out.println("Initialization complete");
-        System.out.println("App is ready");
-
     }
 
     private void setThumbnailAndBanner(Mural mural) throws IOException {
@@ -244,5 +380,55 @@ public class DatabaseInitializer {
         byte[] bannerBytes = new ClassPathResource("static/altBannerImage.png").getInputStream().readAllBytes();
         mural.setBanner(bannerBytes);
         mural.setThumbnail(thumbnailBytes);
+    }
+
+    private void loadActivities(String folder, User user) throws IOException {
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        Resource[] resources = resolver.getResources("classpath*:static/" + folder + "/*.gpx");
+
+        // process later
+        List.of(resources).forEach(resource -> {
+            List<String> parts = List.of(resource.getFilename().split("_"));
+            String number = parts.get(1).split("\\.")[0];
+            String name = parts.get(0);
+            try {
+                Activity act = activityService.newActivity(resource.getInputStream(), user);
+                act.setName(number + " - " + name);
+                act.setVisibility(randomVisibility());
+                activityService.save(act);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        System.out.println("Activities for user " + user.getName() + " loaded.");
+    }
+
+    private Visibility randomVisibility() {
+        int r = RANDOM.nextInt(100); // 0..99
+
+        if (r < 30) return new Visibility(VisibilityType.PRIVATE);          // 30%
+        if (r < 60) return new Visibility(VisibilityType.PUBLIC);           // 30%
+        if (r < 80) return new Visibility(VisibilityType.MURAL_PUBLIC);     // 20%
+        if (r < 90) return new Visibility(VisibilityType.MURAL_SPECIFIC, List.of(muralId));     // 10%
+        return new Visibility(VisibilityType.MURAL_SPECIFIC);               // 10%
+    }
+
+    private void createRoute(String routeName, User user, VisibilityType visibility, Collection<Long> ids) {
+        List<Activity> allInRoute = activityService.findByNameContains(routeName);
+        //find one by user
+        Activity activity = allInRoute.stream().filter(a -> a.getOwner().equals(user)).findFirst().orElseThrow(RuntimeException::new);
+        Route route = routeService.newRoute(activity);
+        route.setName(routeName);
+        if (ids==null) route.changeVisibilityTo(visibility);
+        else route.changeVisibilityTo(visibility, ids);
+
+
+        allInRoute.forEach(a-> {
+            a.setRoute(route);
+            activityService.save(a);
+        });
+        routeService.save(route);
+
+        System.out.println("Route '" + routeName + "' created.");
     }
 }

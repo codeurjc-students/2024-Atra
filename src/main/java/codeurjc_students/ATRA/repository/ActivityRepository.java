@@ -68,6 +68,9 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     Collection<Activity> findByRoute(Route route);
 
+    List<Activity> findByNameContains(String  name);
+
+
     List<Activity> findByOwner(User user);
 
     List<Activity> findByOwnerAndRouteIsNull(User user);
