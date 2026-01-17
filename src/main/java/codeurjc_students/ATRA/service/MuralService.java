@@ -84,7 +84,7 @@ public class MuralService {
     private void patch(Mural mural, MuralEditDTO newMural) {
 		String name = newMural.getName();
 		String description = newMural.getDescription();
-		Long newOwnerLong = newMural.getNewOwner();
+		Long newOwnerLong = newMural.getOwner();
 		if (newOwnerLong!=null) {
 			User newOwner = userRepository.findById(newOwnerLong).orElseThrow(() -> new EntityNotFoundException("User not found, can't change owner"));
 			if (!mural.getMembers().contains(newOwner)) throw new IncorrectParametersException("New owner is not a member of the mural. Cannot transfer ownership");

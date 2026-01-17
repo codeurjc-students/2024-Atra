@@ -12,6 +12,6 @@ import lombok.Setter;
 public class MuralEditDTO implements ActivityDtoInterface {
 	private String name;
 	private String description;
-	private Long newOwner;
+	private Long owner;
 
 }

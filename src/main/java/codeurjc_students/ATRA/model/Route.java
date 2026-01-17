@@ -53,7 +53,11 @@ public class Route implements NamedId {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof Route route)) return false;
-        return Objects.equals(id, route.id) && Objects.equals(totalDistance, route.totalDistance) && Objects.equals(elevationGain, route.elevationGain) && Objects.equals(name, route.name) && Objects.equals(description, route.description);
+		return Objects.equals(getId(), route.getId())
+				&& Objects.equals(getTotalDistance(), route.getTotalDistance())
+				&& Objects.equals(getElevationGain(), route.getElevationGain())
+				&& Objects.equals(getName(), route.getName())
+				&& Objects.equals(getDescription(), route.getDescription());
 	}
 
 	@Override

@@ -90,8 +90,11 @@ public class UserService {
 		activityRepository.deleteAll(activityRepository.findByOwner(user));
 
 		for (Route r : routeRepository.findAllByCreatedBy(user)) {
-			if (r.getVisibility().isMuralSpecific() || r.getVisibility().isMuralPublic()) { //in theory, routes can't be mural public, but just in case
+			if (r.getVisibility().isPrivate()) { //in theory, routes can't be mural public, but just in case
+				routeRepository.delete(r);
+			} else {
 				r.setVisibility(new Visibility(VisibilityType.PUBLIC));
+				r.setCreatedBy(userRepository.findByUsername("admin").get());
 				routeRepository.save(r);
 			}
 		}

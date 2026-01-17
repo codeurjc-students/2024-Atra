@@ -69,7 +69,14 @@ public class ActivityService implements ChangeVisibilityInterface{
 		activity.setOwner(user);
 
 		//process the metadata
-		gpx.getMetadata().ifPresent(metadata -> activity.setStartTime(metadata.getTime().get()));
+		gpx.getMetadata().ifPresent(metadata -> {
+			Optional<Instant> optTime = metadata.getTime();
+			if (optTime.isPresent()){
+				activity.setStartTime(optTime.get());
+			} else {
+				activity.setStartTime(pts.get(0).getTime().orElseThrow(()-> new IncorrectParametersException("Uploaded activity is invalid")));
+			}
+		});
 		activity.setName(track.getName().isPresent() ? track.getName().get():"No Name");
 		activity.setType(track.getType().isPresent() ? track.getType().get():"No Type");
 		//process the waypoints
