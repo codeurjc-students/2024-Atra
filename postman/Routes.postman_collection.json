@@ -1,0 +1,213 @@
+{
+  "info": {
+    "name": "Routes API",
+    "description": "Route management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get route by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/routes/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "1"]
+        },
+        "description": "Retrieve a route's information by its ID"
+      }
+    },
+    {
+      "name": "Get all routes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/routes",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes"]
+        },
+        "description": "Retrieve routes with optional filtering by type, visibility, and source"
+      }
+    },
+    {
+      "name": "Get activities in route",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/routes/1/activities?mural=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "1", "activities"],
+          "query": [
+            {
+              "key": "mural",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Retrieve all activities assigned to a specific route"
+      }
+    },
+    {
+      "name": "Get owned routes in mural",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/routes/OwnedInMural?muralId=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "OwnedInMural"],
+          "query": [
+            {
+              "key": "muralId",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Retrieve routes owned by the current user in a specific mural"
+      }
+    },
+    {
+      "name": "Create new route",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 1,\n  \"name\": \"New Route\",\n  \"description\": \"A simple route\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/routes",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes"]
+        },
+        "description": "Create a new route from an existing activity. Pass the activity ID in the route object's id field"
+      }
+    },
+    {
+      "name": "Add activities to route",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[1, 2, 3]"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/routes/1/activities/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "1", "activities", ""]
+        },
+        "description": "Add multiple activities to a route"
+      }
+    },
+    {
+      "name": "Remove activity from route",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/routes/1/activities/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "1", "activities", "1"]
+        },
+        "description": "Remove an activity from a route"
+      }
+    },
+    {
+      "name": "Change route visibility",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"visibility\": \"PUBLIC\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/routes/1/visibility",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "1", "visibility"]
+        },
+        "description": "Update the visibility settings of a route"
+      }
+    },
+    {
+      "name": "Hide routes from mural",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[1, 2, 3]"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/routes/visibility/mural?id=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "visibility", "mural"],
+          "query": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Make routes not visible to a specific mural"
+      }
+    },
+    {
+      "name": "Delete route",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/routes/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "routes", "1"]
+        },
+        "description": "Delete a route by its ID"
+      }
+    }
+  ]
+}

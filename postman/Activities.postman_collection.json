@@ -1,0 +1,235 @@
+{
+  "info": {
+    "name": "Activities API",
+    "description": "Activity management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get activity by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/activities/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "1"]
+        },
+        "description": "Retrieve an activity's information by its ID"
+      }
+    },
+    {
+      "name": "Get multiple activities by IDs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/activities/byIds?ids=1&ids=2&ids=3",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "byIds"],
+          "query": [
+            {
+              "key": "ids",
+              "value": "1"
+            },
+            {
+              "key": "ids",
+              "value": "2"
+            },
+            {
+              "key": "ids",
+              "value": "3"
+            }
+          ]
+        },
+        "description": "Retrieve multiple activities by their IDs"
+      }
+    },
+    {
+      "name": "Get activities with pagination",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/activities?fetchAll=false&startPage=0&pagesToFetch=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities"],
+          "query": [
+            {
+              "key": "fetchAll",
+              "value": "false"
+            },
+            {
+              "key": "startPage",
+              "value": "0"
+            },
+            {
+              "key": "pagesToFetch",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Retrieve activities with optional filtering and pagination"
+      }
+    },
+    {
+      "name": "Get owned activities in mural",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/activities/OwnedInMural?muralId=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "OwnedInMural"],
+          "query": [
+            {
+              "key": "muralId",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Retrieve activities owned by the current user in a specific mural"
+      }
+    },
+    {
+      "name": "Delete activity",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/activities/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "1"]
+        },
+        "description": "Delete an activity by its ID"
+      }
+    },
+    {
+      "name": "Add route to activity",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "1"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/activities/1/route",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "1", "route"]
+        },
+        "description": "Associate a route with an activity"
+      }
+    },
+    {
+      "name": "Remove route from activity",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/activities/1/route",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "1", "route"]
+        },
+        "description": "Remove an associated route from an activity"
+      }
+    },
+    {
+      "name": "Change activity visibility",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"visibility\": \"PUBLIC\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/activities/1/visibility",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "1", "visibility"]
+        },
+        "description": "Update the visibility settings of an activity"
+      }
+    },
+    {
+      "name": "Hide activities from mural",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[1, 2, 3]"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/activities/visibility/mural?id=1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "visibility", "mural"],
+          "query": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "Make selected activities not visible to a specific mural"
+      }
+    },
+    {
+      "name": "Edit activity",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Activity\",\n  \"description\": \"Updated description\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/activities/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "activities", "1"]
+        },
+        "description": "Update activity details"
+      }
+    }
+  ]
+}

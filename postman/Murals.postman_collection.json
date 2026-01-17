@@ -1,0 +1,213 @@
+{
+  "info": {
+    "name": "Murals API",
+    "description": "Mural management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get mural by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1"]
+        },
+        "description": "Retrieve a mural's information by its ID"
+      }
+    },
+    {
+      "name": "Get murals",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals?type=owned",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals"],
+          "query": [
+            {
+              "key": "type",
+              "value": "owned"
+            }
+          ]
+        },
+        "description": "Retrieve murals of a specific type"
+      }
+    },
+    {
+      "name": "Get mural thumbnail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/thumbnail",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "thumbnail"]
+        },
+        "description": "Retrieve the thumbnail image of a mural"
+      }
+    },
+    {
+      "name": "Get mural banner",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/banner",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "banner"]
+        },
+        "description": "Retrieve the banner image of a mural"
+      }
+    },
+    {
+      "name": "Check mural visibility",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/isVisible",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "isVisible"]
+        },
+        "description": "Check if a mural is visible to the authenticated user"
+      }
+    },
+    {
+      "name": "Join mural",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"mural-code-1234\" "
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/murals/join",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "join"]
+        },
+        "description": "Join a mural using a code or mural ID"
+      }
+    },
+    {
+      "name": "Leave mural",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/users/me",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "users", "me"]
+        },
+        "description": "Remove the current user from a mural"
+      }
+    },
+    {
+      "name": "Remove user from mural",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/users/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "users", "2"]
+        },
+        "description": "Remove a specified user from a mural"
+      }
+    },
+    {
+      "name": "Ban user from mural",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/users/2/ban",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "users", "2", "ban"]
+        },
+        "description": "Ban a user from a mural"
+      }
+    },
+    {
+      "name": "Unban user from mural",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1/users/2/unban",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1", "users", "2", "unban"]
+        },
+        "description": "Remove a ban for a user from a mural"
+      }
+    },
+    {
+      "name": "Delete mural",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1"]
+        },
+        "description": "Delete a mural and all its contents"
+      }
+    },
+    {
+      "name": "Edit mural",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Mural Name\",\n  \"description\": \"Updated description\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/murals/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "murals", "1"]
+        },
+        "description": "Update mural information"
+      }
+    }
+  ]
+}
