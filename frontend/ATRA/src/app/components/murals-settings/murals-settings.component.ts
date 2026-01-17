@@ -23,7 +23,7 @@ import { Mural } from '../../models/mural.model';
 })
 export class MuralsSettingsComponent implements OnInit {
   manageMembers(membersModal: TemplateRef<any>) {
-    if (this.userList.length == 0) {
+    if (this.userList.length == 0 && this.bannedUserList.length == 0) {
       this.alertService.toastInfo("Use the code to invite people!", "The mural has no members");
     } else this.open(membersModal)
   }

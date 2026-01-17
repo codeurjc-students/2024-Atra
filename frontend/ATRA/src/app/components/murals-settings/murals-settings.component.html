@@ -96,15 +96,13 @@
     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body d-flex flex-column align-items-center">
-    <table class="table table-striped">
+    <div *ngIf="this.userList.length<=0">There are no users to manage. You can invite users to join by giving them the mural code. </div>
+    <table class="table table-striped" *ngIf="this.userList.length>0">
       <thead>
         <tr>
           <th>Name</th>
           <th><i class="fa-solid fa-ban"></i></th>
           <th><i class="fa-solid fa-trash"></i></th>
-          <!--<th>Total Time</th>
-          <th>Total Distance</th>
-          <th>Activity Count</th>-->
         </tr>
       </thead>
       <tbody>
@@ -112,9 +110,6 @@
           <td>{{ user.name }}</td>
           <td><button class="btn btn-danger" (click)="banUser(user.id)"><i class="fa-solid fa-ban"></i></button></td>
           <td><button class="btn btn-danger" (click)="kickUser(user.id)"><i class="fa-solid fa-trash"></i></button></td>
-          <!--<td>{{ user.totalTime }}</td>
-          <td>{{ user.totalDistance }}</td>
-          <td>{{ user.activityCount }}</td>-->
         </tr>
       </tbody>
     </table>

@@ -109,7 +109,7 @@
 
   <div class="modal-body">
     <select [(ngModel)]="selectedRoute" #selectForRoute class="form-select" (change)="selectedRouteChange()">
-      <option value="-1">-- Select a route --</option>
+      <option value="-1">-- No Route --</option>
       <option *ngFor="let x of routes" [value]="x.id">
         {{ x.name }} ({{ formatDistanceExtender(x.totalDistance) }})
       </option>

@@ -137,7 +137,7 @@ export class GridItemService {
 
          if (Number.isNaN(previousValue)) throw new Error(`Previous value for key ${key} is NaN (${records[key][0]}). This should not happen.`);
 
-         if ((key.includes("km") || key.includes("mile")) && currentValue!=-1 && currentValue < previousValue) {
+         if (previousValue==-1 || ((key.includes("km") || key.includes("mile")) && currentValue!=-1 && currentValue < previousValue)) {
            records[key] = [value, activity.user.name,activity.name, activity.id]; // Update if the current record is better (lower time)
          } else if ((key.includes("min") || key.includes("hour")) && currentValue > previousValue) {
            records[key] = [value, activity.user.name,activity.name, activity.id]; // Update if the current record is better (longer distance)

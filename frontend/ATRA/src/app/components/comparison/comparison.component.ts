@@ -321,7 +321,7 @@ export class ComparisonComponent implements OnInit {
   calcMetrics:Map<number,MetricArray> = new Map()
   lowerCalcBound:number|undefined;
   higherCalcBound:number|undefined;
-  calculatorPercentages:{name:string,percent:number}[]=[]
+  calculatorPercentages:{name:string,percent:string}[]=[]
 
   currentSplitDistance: number = 1;
   customSplits:boolean = false;
@@ -341,7 +341,8 @@ export class ComparisonComponent implements OnInit {
       const stream = act.streams[this.selectedMetric as keyof ActivityStreams].map(x => parseFloat(x));
       for (const key of Object.keys(li) as (keyof MetricArray)[]) {
         if (key=="dist" || key=="time") continue
-        li[key] = this.graphService.calc(key, stream);
+        if (this.selectedMetric=="pace" && (key=="p25" || key=="p50" || key=="p75" || key=="avg")) li[key] = FormattingService.formatPace(this.graphService.calc(key, stream));
+        else li[key] = this.graphService.calc(key, stream).toFixed(2);
       }
 
       this.calcMetrics.set(act.id, li)
@@ -350,13 +351,14 @@ export class ComparisonComponent implements OnInit {
 
   calcPercentForCalculator(){
     if (!this.lowerCalcBound || !this.higherCalcBound) return
+    this.calculatorPercentages = []
     const low = this.lowerCalcBound<this.higherCalcBound?this.lowerCalcBound:this.higherCalcBound
     const high = this.higherCalcBound>this.lowerCalcBound?this.higherCalcBound:this.lowerCalcBound
 
     this.activities.forEach(act=>{
       const stream = act.streams[this.selectedMetric as keyof ActivityStreams]
       const filteredStream = stream.filter(v=>parseFloat(v)>=low! && parseFloat(v)<=high!)
-      this.calculatorPercentages.push({name:act.name, percent:filteredStream.length/stream.length*100})
+      this.calculatorPercentages.push({name:act.name, percent:(filteredStream.length/stream.length*100).toFixed(2) + "%"})
     })
   }
   clearPercents(){
@@ -401,28 +403,28 @@ export class ComparisonComponent implements OnInit {
   export type MetricArray = {
     dist:string;
     time:string;
-    p25:number;
-    p50:number;
-    p75:number;
-    avg:number;
-    dev:number
-    IQR:number;
-    NormIQR:number;
-    pOut:number;
+    p25:string;
+    p50:string;
+    p75:string;
+    avg:string;
+    dev:string
+    IQR:string;
+    NormIQR:string;
+    pOut:string;
   }
 
   export function defaultMetricArray():MetricArray {
     return {
       dist: "N/A",
       time: "N/A",
-      p25: -1,
-      p50: -1,
-      p75: -1,
-      avg: -1,
-      dev: -1,
-      IQR: -1,
-      NormIQR: -1,
-      pOut: -1,
+      p25: "-1",
+      p50: "-1",
+      p75: "-1",
+      avg: "-1",
+      dev: "-1",
+      IQR: "-1",
+      NormIQR: "-1",
+      pOut: "-1",
   };
   }
 
