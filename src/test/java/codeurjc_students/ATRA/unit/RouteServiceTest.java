@@ -600,7 +600,7 @@ public class RouteServiceTest {
         Route r = routeService.createRoute(user,1L, null);
 
         assertEquals("Route from Activity 1", r.getName());
-        assertEquals("This route has no description. Feel free to add one!", r.getDescription());
+        assertEquals("This route has no description.", r.getDescription());
         assertEquals(user, r.getCreatedBy());
         assertNull(r.getTotalDistance());
         assertNull(r.getElevationGain());
@@ -630,7 +630,7 @@ public class RouteServiceTest {
         Route r = routeService.createRoute(user,1L, new Route());
 
         assertEquals("Route from Activity 1", r.getName());
-        assertEquals("This route has no description. Feel free to add one!", r.getDescription());
+        assertEquals("This route has no description.", r.getDescription());
         assertEquals(user, r.getCreatedBy());
         assertNull(r.getTotalDistance());
         assertNull(r.getElevationGain());
@@ -665,7 +665,7 @@ public class RouteServiceTest {
         Route r = routeService.createRoute(user,1L, new Route());
 
         assertEquals("Route from Activity 1", r.getName());
-        assertEquals("This route has no description. Feel free to add one!", r.getDescription());
+        assertEquals("This route has no description.", r.getDescription());
         assertEquals(user, r.getCreatedBy());
         assertNull(r.getTotalDistance());
         assertNull(r.getElevationGain());
