@@ -17,8 +17,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install project dependencies using npm ci (ensures a clean, reproducible install)
-RUN --mount=type=cache,target=/root/.npm npm install
-# ^^^^use npm install instead of npm ci if it gives problems. Args cache the instalation to be faster on successive executions
+#RUN --mount=type=cache,target=/root/.npm npm install
+RUN npm install
+# The instruction above requires buildkit to be enabled. It makes rebuilds quicker by caching npm modules.
+# The instruction below can be used if buildkit is not enabled, but it will be slower on rebuilds
 
 # Copy the rest of the application source code into the container
 COPY . .
