@@ -45,8 +45,8 @@
     </table>
     <div class="d-flex justify-content-center align-items-center">
       <span class="fw-bold me-1">{{minShownHTML}}-{{maxShownHTML}}</span> of {{total}}
-      <button class="btn btn-sm btn-light ms-2 clickable" [disabled]="currentPage==0" (click)="goPrevious()"><i class="fa-solid fa-arrow-left"></i></button>
-      <button class="btn btn-sm btn-light ms-1 clickable" [disabled]="currentPage==lastPage" (click)="goNext()"><i class="fa-solid fa-arrow-right"></i></button>
+      <button id="goPrevious" class="btn btn-sm btn-light ms-2 clickable" [disabled]="currentPage==0" (click)="goPrevious()"><i class="fa-solid fa-arrow-left"></i></button>
+      <button id="goNext" class="btn btn-sm btn-light ms-1 clickable" [disabled]="currentPage==lastPage" (click)="goNext()"><i class="fa-solid fa-arrow-right"></i></button>
     </div>
   </div>
 
