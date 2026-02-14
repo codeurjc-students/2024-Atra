@@ -105,36 +105,31 @@ public class ActivitySummary {
      * @return (meters) best distance covered in the specified time.
      */
     private Double timeGoal(List<String> positionStream, List<String> timeStream, int mins) {
+
+        //preprocess streams
+        List<Double[]> latlon = parseLatLon(positionStream);
+        List<Double> segmentDistances = calcSegmentDistances(latlon);
+        List<Instant> times = timeStream.stream().map(Instant::parse).toList();
+
         int i = 0;
-        int j = 1;
         double bestDistance = 0 ; //km
         double accumulatedDistance = 0; //km
-        Instant startTime = Instant.parse(timeStream.get(i));
-        for (j = 1; j < positionStream.size(); j++) {
-            double distance = ActivityService.totalDistance(
-                    Double.parseDouble(positionStream.get(j).split(";")[0]),
-                    Double.parseDouble(positionStream.get(j).split(";")[1]),
-                    Double.parseDouble(positionStream.get(j-1).split(";")[0]),
-                    Double.parseDouble(positionStream.get(j-1).split(";")[1])
-            );
-            accumulatedDistance += distance;
-            Instant currentTime = Instant.parse(timeStream.get(j));
+        Instant startTime = times.get(i);
+        for (int j = 1; j < latlon.size(); j++) {
+            accumulatedDistance += segmentDistances.get(j-1);
+            Instant currentTime = times.get(j);
             long deltaT = Duration.between(startTime, currentTime).toMinutes();
-            if (deltaT>= mins) {
+            while (deltaT>= mins) {
                 if (accumulatedDistance>bestDistance) {
                     bestDistance = accumulatedDistance;
                 }
+                accumulatedDistance -= segmentDistances.get(i);
                 i++;
-                startTime = Instant.parse(timeStream.get(i));
-                accumulatedDistance -= ActivityService.totalDistance(
-                        Double.parseDouble(positionStream.get(i).split(";")[0]),
-                        Double.parseDouble(positionStream.get(i).split(";")[1]),
-                        Double.parseDouble(positionStream.get(i-1).split(";")[0]),
-                        Double.parseDouble(positionStream.get(i-1).split(";")[1])
-                );
+                startTime = times.get(i);
+                deltaT = Duration.between(startTime, currentTime).toMinutes();
             }
         }
-        return bestDistance==Long.MAX_VALUE ? -1:bestDistance; //km
+        return bestDistance==0 ? -1:bestDistance; //km
     }
 
     //this one alongside timeGoal should go in some service or be static or otherwise be accessible by others.
@@ -147,37 +142,55 @@ public class ActivitySummary {
      * @return (seconds) best time in which the given distance is covered.
      */
     private Long distanceGoal(List<String> positionStream, List<String> timeStream, int goal) {
+        //preprocess streams
+        List<Double[]> latlon = parseLatLon(positionStream);
+        List<Double> segmentDistances = calcSegmentDistances(latlon);
+        List<Instant> times = timeStream.stream().map(Instant::parse).toList();
+
         //goal *= 1000;
         int i = 0;
-        int j = 1;
         long bestTime = Long.MAX_VALUE ; //seconds
         double accumulatedDistance = 0; //meters
-        for (j = 1; j < positionStream.size(); j++) {
-            double distance = ActivityService.totalDistance(
-                    Double.parseDouble(positionStream.get(j).split(";")[0]),
-                    Double.parseDouble(positionStream.get(j).split(";")[1]),
-                    Double.parseDouble(positionStream.get(j-1).split(";")[0]),
-                    Double.parseDouble(positionStream.get(j-1).split(";")[1])
-            );
-            accumulatedDistance += distance;
+        for (int j = 1; j < latlon.size(); j++) {
+            accumulatedDistance += segmentDistances.get(j-1);
             while (accumulatedDistance>=goal) {
-                Instant i1 = Instant.parse(timeStream.get(i));
-                Instant i2 = Instant.parse(timeStream.get(j));
+                Instant i1 = times.get(i);
+                Instant i2 = times.get(j);
 
                 long currentTime = Duration.between(i1, i2).getSeconds();
                 bestTime = Math.min(bestTime, currentTime);
 
                 if (i + 1 >= j) break;
+                accumulatedDistance -= segmentDistances.get(i);
                 i++;
-                accumulatedDistance -= ActivityService.totalDistance(
-                        Double.parseDouble(positionStream.get(i).split(";")[0]),
-                        Double.parseDouble(positionStream.get(i).split(";")[1]),
-                        Double.parseDouble(positionStream.get(i-1).split(";")[0]),
-                        Double.parseDouble(positionStream.get(i-1).split(";")[1])
-                );
             }
         }
         return bestTime==Long.MAX_VALUE ? -1:bestTime; //seconds
+    }
+
+    private List<Double[]> parseLatLon(List<String> positionStream) {
+        return positionStream.stream()
+                .map(item -> {
+                    String[] latLon = item.split(";");
+                    return new Double[] {
+                            Double.parseDouble(latLon[0]),
+                            Double.parseDouble(latLon[1])
+                    };
+                })
+                .toList();
+    }
+
+    private List<Double> calcSegmentDistances(List<Double[]> latlon) {
+        List<Double> segmentDistances = new ArrayList<>();
+        for (int k = 1; k < latlon.size(); k++) {
+            segmentDistances.add(
+                    ActivityService.totalDistance(
+                            latlon.get(k)[0], latlon.get(k)[1],
+                            latlon.get(k-1)[0], latlon.get(k-1)[1]
+                    )
+            );
+        }
+        return segmentDistances;
     }
 
     private Map<String, Double> setUpAverages(Map<String, List<String>> streams) {
@@ -201,6 +214,7 @@ public class ActivitySummary {
         }
         return averages;
     }
+
 
     private long calcTotalTime(Instant start, List<DataPoint> dataPoints) {
         Instant end = dataPoints.get(dataPoints.size()-1).getTime();
