@@ -179,7 +179,7 @@ export class ComparisonComponent implements OnInit {
   overviewPaths: L.Polyline[] = [];
   maps: L.Map[] = [];
   paths : L.Polyline[] = [];
-  colors = ['blue', 'orange', 'green', 'red', 'purple']
+  colors = ['blue', 'orange', 'green', 'red', 'purple', 'black']
   mapsToShow: number = 1;
   showOnePerMap: boolean = false;
   options:number[] = [];

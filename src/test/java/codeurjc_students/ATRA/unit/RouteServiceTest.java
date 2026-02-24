@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 
-public class RouteServiceTest {
+class RouteServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -730,7 +730,8 @@ public class RouteServiceTest {
         lenient().when(activityRepository.findAllById(any())).thenReturn(List.of(new Activity()));
 
         //then
-        assertThrows(IncorrectParametersException.class, ()->routeService.addActivitiesToRoute(user,null, new ArrayList<>()));
+        List<Long> emptyList = new ArrayList<>();
+        assertThrows(IncorrectParametersException.class, ()->routeService.addActivitiesToRoute(user,null, emptyList));
         assertThrows(IncorrectParametersException.class, ()->routeService.addActivitiesToRoute(user,1L, null));
 
         verify(routeRepository, never()).findById(1L);
@@ -750,7 +751,8 @@ public class RouteServiceTest {
 
 
         //then
-        assertThrows(VisibilityException.class, ()->routeService.addActivitiesToRoute(user,1L, List.of(1L)));
+        List<Long> longs = List.of(1L);
+        assertThrows(VisibilityException.class, ()->routeService.addActivitiesToRoute(user,1L, longs));
 
         verify(routeRepository).findById(1L);
         verify(activityRepository, never()).save(any());
@@ -767,7 +769,8 @@ public class RouteServiceTest {
         when(activityRepository.findAllById(anyIterable())).thenReturn(List.of());
 
         //then
-        assertThrows(EntityNotFoundException.class, ()->routeService.addActivitiesToRoute(user,1L, List.of(1L)));
+        List<Long> longs = List.of(1L);
+        assertThrows(EntityNotFoundException.class, ()->routeService.addActivitiesToRoute(user,1L, longs));
 
         verify(routeRepository).findById(1L);
         verify(activityRepository).findAllById(anyIterable());
@@ -782,15 +785,18 @@ public class RouteServiceTest {
         Activity activity = new Activity();activity.setOwner(user);
         Activity activity2 = new Activity();
 
+        List<Long> ids = List.of(1L, 2L);
+
+
         //when
         when(routeRepository.findById(1L)).thenReturn(Optional.of(route));
-        when(activityRepository.findAllById(List.of(1L,2L))).thenReturn(List.of(activity,activity2));
+        when(activityRepository.findAllById(ids)).thenReturn(List.of(activity,activity2));
 
         //then
-        assertThrows(PermissionException.class, ()->routeService.addActivitiesToRoute(user,1L, List.of(1L,2L)));
+        assertThrows(PermissionException.class, ()->routeService.addActivitiesToRoute(user,1L, ids));
 
         verify(routeRepository).findById(1L);
-        verify(activityRepository).findAllById(List.of(1L,2L));
+        verify(activityRepository).findAllById(ids);
         verify(activityRepository, never()).save(any());
     }
 

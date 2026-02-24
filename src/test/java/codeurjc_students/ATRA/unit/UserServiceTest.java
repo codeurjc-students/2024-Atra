@@ -17,6 +17,8 @@ import codeurjc_students.atra.repository.UserRepository;
 import codeurjc_students.atra.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -97,68 +99,20 @@ public class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
-    @Test
-    void createUserNullUsernameThrowsIncorrectParametersException() {
+    @ParameterizedTest
+    @CsvSource({
+            "null,pass,juan,francisco@gmail.com",
+            "'',pass,juan,francisco@gmail.com",
+            "pepe,null,juan,francisco@gmail.com",
+            "pepe,'',juan,francisco@gmail.com"
+    })
+    void createUserInvalidFieldsThrowsIncorrectParametersException(String username, String password, String name, String email) {
         //given
         NewUserDTO user = new NewUserDTO();
-        user.setUsername(null);
-        user.setPassword("pass");
-        user.setName("juan");
-        user.setEmail("francisco@gmail.com");
-
-        //when
-
-        //then
-        assertThrows(IncorrectParametersException.class, () -> userService.createUser(user));
-
-        verify(userRepository, never()).existsByUsername(anyString());
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void createUserEmptyUsernameThrowsIncorrectParametersException() {
-        //given
-        NewUserDTO user = new NewUserDTO();
-        user.setUsername("");
-        user.setPassword("pass");
-        user.setName("juan");
-        user.setEmail("francisco@gmail.com");
-
-        //when
-
-        //then
-        assertThrows(IncorrectParametersException.class, () -> userService.createUser(user));
-
-        verify(userRepository, never()).existsByUsername(anyString());
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void createUserNullPasswordThrowsIncorrectParametersException() {
-        //given
-        NewUserDTO user = new NewUserDTO();
-        user.setUsername("pepe");
-        user.setPassword(null);
-        user.setName("juan");
-        user.setEmail("francisco@gmail.com");
-
-        //when
-
-        //then
-        assertThrows(IncorrectParametersException.class, () -> userService.createUser(user));
-
-        verify(userRepository, never()).existsByUsername(anyString());
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void createUserEmptyPasswordThrowsIncorrectParametersException() {
-        //given
-        NewUserDTO user = new NewUserDTO();
-        user.setUsername("pepe");
-        user.setPassword("");
-        user.setName("juan");
-        user.setEmail("francisco@gmail.com");
+        user.setUsername("null".equals(username) ? null : username);
+        user.setPassword("null".equals(password) ? null : password);
+        user.setName(name);
+        user.setEmail(email);
 
         //when
 
@@ -351,7 +305,11 @@ public class UserServiceTest {
         Route routeMP = mock(Route.class);
         Route routePU = mock(Route.class);
 
+        User admin = new User();
+        admin.setUsername("admin");
+
         User user = new User();
+        user.setId(1L);
         user.setMemberMurals(List.of(muralOwned, mural2, mural3));
 
         //when
@@ -362,6 +320,7 @@ public class UserServiceTest {
 
         when(routeRepository.findAllByCreatedBy(user)).thenReturn(List.of(routePR, routeMS, routeMP, routePU));
         when(muralRepository.findByOwner(user)).thenReturn(List.of(muralOwned));
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
 
         //then
         userService.deleteUser(user);
@@ -369,11 +328,15 @@ public class UserServiceTest {
         verify(routePR, never()).setVisibility(any());
         verify(routeMS).setVisibility(new Visibility(VisibilityType.PUBLIC));
         verify(routeMP).setVisibility(new Visibility(VisibilityType.PUBLIC));
-        verify(routePU, never()).setVisibility(any());
+        verify(routePU).setVisibility(new Visibility(VisibilityType.PUBLIC));
 
         verify(muralOwned).removeOwner();
         verify(mural2).removeMember(user);
         verify(mural3).removeMember(user);
+
+        verify(routeMS).setCreatedBy(admin);
+        verify(routeMP).setCreatedBy(admin);
+        verify(routePU).setCreatedBy(admin);
 
         verify(activityRepository).deleteAll(anyCollection()); //does this just test that it was called at least once with any params?
         verify(routeRepository).findAllByCreatedBy(user);

@@ -71,7 +71,7 @@ public class RouteService implements ChangeVisibilityInterface{
 
 	@Transactional
 	void addRouteToActivity(Route route, Activity activity, ActivityService activityService) {
-		if (route==null) throw new RuntimeException("Can't add nonexistent route to activity");
+		if (route==null) throw new IncorrectParametersException("Can't add nonexistent route to activity");
 		if (route.getCoordinates()==null || route.getCoordinates().isEmpty()) {
 			route.setCoordinates(Coordinates.fromActivity(activity));
 			routeRepository.save(route);

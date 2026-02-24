@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-public class MuralServiceTest {
+class MuralServiceTest {
 
     @Mock
     private ActivityRepository activityRepository;

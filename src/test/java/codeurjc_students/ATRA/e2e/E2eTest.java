@@ -16,6 +16,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
 @EntityScan(basePackages = "codeurjc_students.ATRA.model")
-public class E2eTest {
+class E2eTest {
 
     @Autowired
     private UserService userService;
@@ -78,12 +80,21 @@ public class E2eTest {
 
     private WebDriver driver;
     private WebDriverWait wait;
-    private String BASE_URL;
+    private static final String BASE_URL = "http://localhost:4200";
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(E2eTest.class);
 
     @BeforeAll
     void databaseInit() throws IOException {
-        //<editor-fold desc="Users">
+        activitySummaryRepository.deleteAll();
+        activityRepository.deleteAll();
+        muralRepository.deleteAll();
+        routeRepository.deleteAll();
         userRepository.deleteAll();
+
+
+        //<editor-fold desc="Users">
         User asd = new User("asd", passwordEncoder.encode("asd"));
         asd.setName("asd");
         userService.save(asd);
@@ -95,10 +106,9 @@ public class E2eTest {
         userService.save(zxc);
         //</editor-fold>
 
-        System.out.println("Users initialized");
+        logger.info("Users initialized");
 
         //<editor-fold desc="Murals">
-        muralRepository.deleteAll();
         Mural asdMural1 = new Mural("Mural1 asd", asd, new ArrayList<>());
         Mural asdMural2 = new Mural("Mural2 asd", asd, new ArrayList<>());
 
@@ -112,17 +122,15 @@ public class E2eTest {
         }
         //</editor-fold>
 
-        System.out.println("Murals initialized");
+        logger.info("Murals initialized");
 
         //<editor-fold desc="Activities">
-        activityRepository.deleteAll();
-        activitySummaryRepository.deleteAll();
         List<Activity> activities = new ArrayList<>();
         for (int i=0;i<8;i++) {//19
             activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), asd));
         }        //all activities are initially created as property of asd, though asd does not know this
 
-        System.out.println("Activities created");
+        logger.info("Activities created");
 
         //<editor-fold desc="set asd activities">
         activities.get(0).changeVisibilityTo(VisibilityType.PUBLIC);
@@ -131,33 +139,32 @@ public class E2eTest {
         activities.get(3).changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
         activities.get(4).changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, new ArrayList<>());
         activities.get(5).changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId()));//, qweMural.getId(), zxcMural.getId()
-        //activity.get(6) //también va para este pero como queda privada nos la ahorramos
+        //también va para el 6 pero como queda privada nos la ahorramos
         for (int i=0;i<7;i++) {
             Activity activity = activities.get(i);
             activity.setName("act" + i +" "+ asd.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
             activity.setOwner(asd);
             activityService.save(activity);
         }
-        System.out.println("asd Activities set");
+        logger.info("asd Activities set");
         //</editor-fold>
 
         //<editor-fold desc="set qwe and zxc activities">
-        System.out.println("qwe Activities set");
-        activities.get(7).changeVisibilityTo(VisibilityType.PUBLIC);//13
+        logger.info("qwe Activities set");
 
         Activity activity = activities.get(7);//i
+        activity.changeVisibilityTo(VisibilityType.PUBLIC);//13
         activity.setName("act " + 7 + zxc.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
         activity.setOwner(zxc);
         activityService.save(activity);
 
-        System.out.println("zxc Activities set");
+        logger.info("zxc Activities set");
         //</editor-fold>
 
-        System.out.println("Activities initialized");
+        logger.info("Activities initialized");
         //</editor-fold>
 
         //<editor-fold desc="Routes">
-        routeRepository.deleteAll();
         Route route = routeService.newRoute(activityService.findByUser(asd).get(0));
         route.changeVisibilityTo(VisibilityType.PUBLIC);
         route.setName("r1 asd (PU)");
@@ -169,6 +176,9 @@ public class E2eTest {
         activity.setRoute(route);
         activityService.save(activity);
         activity = activityService.findByUser(asd).get(1);
+        activity.setRoute(route);
+        activityService.save(activity);
+        activity = activityService.findByUser(zxc).get(0);
         activity.setRoute(route);
         activityService.save(activity);
         routeService.save(route);
@@ -185,15 +195,14 @@ public class E2eTest {
         activityService.save(extraActivity);
         routeService.save(route);
 
-        System.out.println("Routes initialized");
+        logger.info("Routes initialized");
         //</editor-fold>
-        System.out.println("Initialization complete");
+        logger.info("Initialization complete");
+
     }
 
     @BeforeEach
     void setUp()  {
-        BASE_URL = "http://localhost:4200";
-
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
 
@@ -336,7 +345,7 @@ public class E2eTest {
     }
 
     @Test
-    void deleteRoute() throws InterruptedException {
+    void deleteRoute() {
         // clicar en rutas
         // seleccionar r1.
         // confirmar que no hay botón
@@ -387,6 +396,7 @@ public class E2eTest {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+
 
             //check the alert is correct
             String cantDeleteMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-alert"))).getText();
@@ -451,15 +461,10 @@ public class E2eTest {
     }
 
     @Test
-    void selectMuralTest() throws InterruptedException {
+    void selectMuralTest() {
         flaky(()-> {
             login("asd");
             wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class,'thumbnail-container')][1]"))).click();
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-mural-Info")));
 
@@ -478,7 +483,7 @@ public class E2eTest {
         });
     }
     @Test
-    void deleteMural() throws InterruptedException {
+    void deleteMural() {
         //seleccionar mural1 asd
         //ir a settings
         //pasar gauntlet de delete
@@ -491,13 +496,7 @@ public class E2eTest {
             login("asd");
             //Select the mural
             wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][1]")));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            driver.findElement(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][1]")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][1]"))).click();
             //save the id for later
             wait.until(ExpectedConditions.urlContains("/dashboard"));
             String[] urlParts = driver.getCurrentUrl().split("/");
@@ -514,11 +513,6 @@ public class E2eTest {
             int size = driver.findElements(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")).size();
             assertEquals(1, size);
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             driver.get(BASE_URL + "/murals/" + muralId + "/dashboard");
             String alertHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-alert"))).getText();
             assertTrue(alertHeader.contains("404 Not found"));
@@ -526,7 +520,7 @@ public class E2eTest {
     }
 
     @Test
-    void createMural() throws IOException {
+    void createMural() {
         //dar al +
         //        introducir datos
         //dar a crear mural
@@ -561,9 +555,7 @@ public class E2eTest {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-new-mural")));
 
             driver.findElement(By.id("input-mural-name")).sendKeys(name);
-            //driver.findElement(By.id("input-mural-name")).sendKeys(Keys.TAB);
             driver.findElement(By.id("input-mural-desc")).sendKeys(desc);
-            //driver.findElement(By.id("input-mural-desc")).sendKeys(Keys.TAB);
             driver.findElement(By.id("input-mural-banner")).sendKeys(banner);
             driver.findElement(By.id("input-mural-thumbnail")).sendKeys(thumbnail);
 
@@ -604,9 +596,7 @@ public class E2eTest {
 
             //check it's in the list and the thumbnail is good. if image checking works badly just remove the image check
             driver.get(BASE_URL + "/murals");
-            //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")));
             WebElement container = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][./div/span[text()='" + name + "']]")));
-            //String src = container.findElement(By.xpath(".//img")).getAttribute("src");
             img = container.findElement(By.xpath(".//img"));
             try {
                 imageUrl = new URL(img.getAttribute("src").replace("4200", "8080"));
@@ -626,7 +616,6 @@ public class E2eTest {
     void verifyTable(WebElement table, String target, String expected) {
         String actual = table.findElement(By.xpath("./tbody/tr[td[1][contains(text(), '"+target+"')]]/td[2]")).getText();
         assertEquals(expected, actual);
-        //System.out.println(actual);
     }
 
     private void login(String username) {
@@ -653,7 +642,6 @@ public class E2eTest {
         }
         if (elements.isEmpty()) fail("Activity '" + name + "' not found");
         elements.get(0).click();
-        //wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//table/tbody/tr[td[2]/div[text()='"+name+"']]/td[1]/input[@type='checkbox']"))).click();
         driver.findElement(By.id("btn-submit-activities")).click();
 
 

@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -41,15 +43,20 @@ public class ActivitySummary {
     @JsonIgnore
     private Activity activity;
 
+    private static final String DISTANCE = "distance";
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ActivitySummary.class);
+
+
 
     public ActivitySummary(Activity activity) {
-        //this.id = activity.getId();
         startTime = activity.getStartTime();
 
         if (activity.getDataPoints().isEmpty()) throw new IllegalArgumentException("Activity datapoints can't be empty");
         Map<String, List<String>> streams = ActivityDTO.setUpStreams(activity.getDataPoints());
 
-        totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
+        totalDistance = Double.valueOf(streams.get(DISTANCE).get(streams.get(DISTANCE).size()-1));
         elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
         totalTime = calcTotalTime(activity.getStartTime(), activity.getDataPoints());
 
@@ -64,7 +71,7 @@ public class ActivitySummary {
 
         Map<String, List<String>> streams = activity.getStreams();
 
-        totalDistance = Double.valueOf(streams.get("distance").get(streams.get("distance").size()-1));
+        totalDistance = Double.valueOf(streams.get(DISTANCE).get(streams.get(DISTANCE).size()-1));
         elevationGain = streams.get("elevation_gain").stream().map(Double::valueOf).filter(v -> v>=0).reduce(0.0, Double::sum);
         totalTime = calcTotalTime(activity.getStartTime(), activity.getDataPoints());
 
@@ -78,21 +85,21 @@ public class ActivitySummary {
 
         List<String> distanceRecordTitles = Arrays.asList("1km", "5km", "10km", "21km", "42km");
         List<String> timeRecordTitles = Arrays.asList("1min", "5min", "10min", "30min", "1hour");
-        Map<String, String> records = new HashMap<>();
+        Map<String, String> recordsMap = new HashMap<>();
 
-        records.put(distanceRecordTitles.get(0), distanceGoal(positionStream, timeStream, 1).toString());
-        records.put(distanceRecordTitles.get(1), distanceGoal(positionStream, timeStream, 5).toString());
-        records.put(distanceRecordTitles.get(2), distanceGoal(positionStream, timeStream, 10).toString());
-        records.put(distanceRecordTitles.get(3), distanceGoal(positionStream, timeStream, 21).toString());
-        records.put(distanceRecordTitles.get(4), distanceGoal(positionStream, timeStream, 42).toString());
+        recordsMap.put(distanceRecordTitles.get(0), distanceGoal(positionStream, timeStream, 1).toString());
+        recordsMap.put(distanceRecordTitles.get(1), distanceGoal(positionStream, timeStream, 5).toString());
+        recordsMap.put(distanceRecordTitles.get(2), distanceGoal(positionStream, timeStream, 10).toString());
+        recordsMap.put(distanceRecordTitles.get(3), distanceGoal(positionStream, timeStream, 21).toString());
+        recordsMap.put(distanceRecordTitles.get(4), distanceGoal(positionStream, timeStream, 42).toString());
 
-        records.put(timeRecordTitles.get(0), timeGoal(positionStream, timeStream, 1).toString());
-        records.put(timeRecordTitles.get(1), timeGoal(positionStream, timeStream, 5).toString());
-        records.put(timeRecordTitles.get(2), timeGoal(positionStream, timeStream, 10).toString());
-        records.put(timeRecordTitles.get(3), timeGoal(positionStream, timeStream, 30).toString());
-        records.put(timeRecordTitles.get(4), timeGoal(positionStream, timeStream, 60).toString());
+        recordsMap.put(timeRecordTitles.get(0), timeGoal(positionStream, timeStream, 1).toString());
+        recordsMap.put(timeRecordTitles.get(1), timeGoal(positionStream, timeStream, 5).toString());
+        recordsMap.put(timeRecordTitles.get(2), timeGoal(positionStream, timeStream, 10).toString());
+        recordsMap.put(timeRecordTitles.get(3), timeGoal(positionStream, timeStream, 30).toString());
+        recordsMap.put(timeRecordTitles.get(4), timeGoal(positionStream, timeStream, 60).toString());
 
-        return records;
+        return recordsMap;
     }
 
     //this one alongside distanceGoal should go in some service or be static or otherwise be accessible by others.
@@ -147,7 +154,6 @@ public class ActivitySummary {
         List<Double> segmentDistances = calcSegmentDistances(latlon);
         List<Instant> times = timeStream.stream().map(Instant::parse).toList();
 
-        //goal *= 1000;
         int i = 0;
         long bestTime = Long.MAX_VALUE ; //seconds
         double accumulatedDistance = 0; //meters
@@ -196,23 +202,23 @@ public class ActivitySummary {
     private Map<String, Double> setUpAverages(Map<String, List<String>> streams) {
         List<String> averageableMetrics = Arrays.asList("altitude", "heartrate", "cadence", "pace");
 
-        Map<String, Double> averages = new HashMap<>();
+        Map<String, Double> averagesMap = new HashMap<>();
 
         for (String metric : averageableMetrics) {
             if (metric.equals("pace")) { //cause "ratio of averages != average of ratios"
-                averages.put("pace", totalTime/totalDistance);
+                averagesMap.put("pace", totalTime/totalDistance);
                 continue;
             }
             List<String> values = streams.get(metric);
             if (values==null || values.isEmpty()) {
-                System.out.println("Empty/missing averageable metric: " + metric);
+                logger.debug("Empty/missing averageable metric: {}", metric);
                 continue;
             }
             double runningTotal = 0.0;
             for (var v : values) runningTotal += Double.parseDouble(v);
-            averages.put(metric, runningTotal/values.size());
+            averagesMap.put(metric, runningTotal/values.size());
         }
-        return averages;
+        return averagesMap;
     }
 
 

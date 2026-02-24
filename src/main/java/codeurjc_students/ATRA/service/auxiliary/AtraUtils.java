@@ -38,4 +38,6 @@ public final class AtraUtils {
         }
         return new Visibility(visibilityType, allowedMuralsIds);
     }
+
+    private AtraUtils(){}
 }

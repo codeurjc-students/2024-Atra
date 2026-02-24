@@ -1,5 +1,8 @@
 package codeurjc_students.atra.security.jwt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +20,10 @@ public class SecurityCipher {
 	private static SecretKeySpec secretKey;
 	private static byte[] key;
 
+	private static final Logger logger =
+			LoggerFactory.getLogger(SecurityCipher.class);
+
+
 	private SecurityCipher() {
 		throw new AssertionError("Static!");
 	}
@@ -30,7 +37,7 @@ public class SecurityCipher {
 			key = Arrays.copyOf(key, 16);
 			secretKey = new SecretKeySpec(key, "AES");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			logger.error("An exception setting the key for encryption/decryption: {}", e.getMessage());
 		}
 	}
 
@@ -45,7 +52,7 @@ public class SecurityCipher {
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An exception ocurred during JWT encryption: {}", e.getMessage());
 		}
 		return null;
 	}
@@ -60,10 +67,9 @@ public class SecurityCipher {
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
-		//} catch (BadPaddingException e) {
-		//	decrypt(strToDecrypt);
  		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An exception ocurred during JWT decryption: {}", e.getMessage());
+
 		}
 		return null;
 	}

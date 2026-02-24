@@ -50,7 +50,7 @@ public class JwtTokenProvider {
 	 */
 	@PostConstruct
 	public void setSigningKey() {
-		byte[] keyBytes = jwtSecret.getBytes(); //Base64.getDecoder().decode(jwtSecret);
+		byte[] keyBytes = jwtSecret.getBytes();
 		secretKey = Keys.hmacShaKeyFor(keyBytes);  // Generate HMAC key
 	}
 

@@ -8,6 +8,8 @@ import codeurjc_students.atra.model.auxiliary.Visibility;
 import codeurjc_students.atra.model.auxiliary.VisibilityType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.context.event.EventListener;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -33,26 +36,35 @@ public class DatabaseInitializer {
     private final RouteService routeService;
     private final PasswordEncoder passwordEncoder;
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(DatabaseInitializer.class);
+
+
     @Value("${initialize-database:off}")
     private String initializationType;
     private static final Random RANDOM = new Random();
     private Long muralId = 1L;
 
+    private static final String ADMIN = "admin";
+    private static final String PATH_START = "static/track";
+
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void init() throws IOException {
-        System.out.println("Initializing database with the following configuration: "+ initializationType);
-        User admin = new User("admin", passwordEncoder.encode("admin"));
-        admin.setName("admin");
+        logger.info("Initializing database with the following configuration: {}", initializationType);
+        User admin = new User(ADMIN, passwordEncoder.encode(ADMIN));
+        admin.setName(ADMIN);
         admin.setRoles(List.of("ADMIN"));
         userService.save(admin);
         switch (initializationType) {
             case "demo1" -> emptyDemoInit();
             case "demo2" -> demoInit();
             case "demo3" -> beegInit();
-            case "off"   -> {} // do nothing
+            default -> {
+                //intentionally do nothing
+            } //either 'off', or an invalid type. Either way, ignore it
         }
-        System.out.println("App is ready");
+        logger.info("App is ready");
     }
 
     @Transactional
@@ -64,7 +76,7 @@ public class DatabaseInitializer {
         //<editor-fold desc="Activities">
         List<Activity> activities = new ArrayList<>();
         for (int i=0;i<=16;i++) {
-            activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), qwe));
+            activities.add(activityService.newActivity(new ClassPathResource(PATH_START + i + ".gpx").getInputStream(), qwe));
         }
 
         for (int i=0;i<activities.size();i++) {
@@ -73,10 +85,9 @@ public class DatabaseInitializer {
             a.setName("act" + i +" "+ qwe.getName() + " ("+a.getVisibility().getType().getShortName()+")");
             a.setOwner(qwe);
             activityService.save(a);
-            i++;
         }
         //</editor-fold>
-        System.out.println("Activities initialized");
+        logger.info("Activities initialized");
         //<editor-fold desc="Routes">
         Route route = routeService.newRoute(activityService.findByUser(qwe).get(0));
         route.changeVisibilityTo(VisibilityType.PRIVATE);
@@ -103,28 +114,33 @@ public class DatabaseInitializer {
 
 
         //</editor-fold>
-        System.out.println("Routes initialized");
-        System.out.println("Initialization complete");
+        logger.info("Routes initialized");
+        logger.info("Initialization complete");
     }
 
     @Transactional
     public void demoInit() throws IOException {
+        final String DAVID = "david";
+        final String ANGEL = "angel";
+        final String RUBEN = "ruben";
+        final String EXTRA = "extra";
         //<editor-fold desc="Users">
-        User angel = new User("angel", passwordEncoder.encode("angel"));
-        angel.setName("angel");
+
+        User angel = new User(ANGEL, passwordEncoder.encode(ANGEL));
+        User david = new User(DAVID, passwordEncoder.encode(DAVID));
+        User ruben = new User(RUBEN, passwordEncoder.encode(RUBEN));
+        User extra = new User(EXTRA, passwordEncoder.encode(EXTRA));
+        angel.setName(ANGEL);
+        david.setName(DAVID);
+        ruben.setName(RUBEN);
+        extra.setName(EXTRA);
         userService.save(angel);
-        User david = new User("david", passwordEncoder.encode("david"));
-        david.setName("david");
         userService.save(david);
-        User ruben = new User("ruben", passwordEncoder.encode("ruben"));
-        ruben.setName("ruben");
         userService.save(ruben);
-        User extra = new User("extra", passwordEncoder.encode("extra"));
-        extra.setName("extra");
         userService.save(extra);
         //</editor-fold>
 
-        System.out.println("Users initialized");
+        logger.info("Users initialized");
 
         //<editor-fold desc="Murals">
         Mural mural = new Mural("The Family", angel, List.of(david, ruben));
@@ -147,15 +163,15 @@ public class DatabaseInitializer {
         muralService.newMural(mural);
         //</editor-fold>
 
-        System.out.println("Murals initialized");
+        logger.info("Murals initialized");
 
         //<editor-fold desc="Activities">
-        loadActivities("angel", angel);
-        loadActivities("david", david);
-        loadActivities("ruben", ruben);
+        loadActivities(ANGEL, angel);
+        loadActivities(DAVID, david);
+        loadActivities(RUBEN, ruben);
         //</editor-fold>
 
-        System.out.println("Activies initialized");
+        logger.info("Activies initialized");
 
         //<editor-fold desc="Routes">
         createRoute("Mostoles 10k", angel, VisibilityType.MURAL_SPECIFIC, List.of(muralId));
@@ -169,15 +185,15 @@ public class DatabaseInitializer {
         createRoute("Laviana Lineal", ruben, VisibilityType.PRIVATE, null);
         //</editor-fold>
 
-        System.out.println("Routes initialized");
-        System.out.println("Initialization complete");
+        logger.info("Routes initialized");
+        logger.info("Initialization complete");
     }
 
     @Transactional
     public void beegInit() throws IOException {
 
         //<editor-fold desc="Users">
-        User admin = new User("admin", passwordEncoder.encode("admin"));
+        User admin = new User(ADMIN, passwordEncoder.encode(ADMIN));
         admin.setName("asd");
         admin.setRoles(List.of("ADMIN"));
         userService.save(admin);
@@ -199,7 +215,7 @@ public class DatabaseInitializer {
         }
         //</editor-fold>
 
-        System.out.println("Users initialized");
+        logger.info("Users initialized");
 
         //<editor-fold desc="Murals">
         Mural asdMural1 = new Mural("Mural1 asd", asd, new ArrayList<>());
@@ -222,21 +238,21 @@ public class DatabaseInitializer {
             try {
                 setThumbnailAndBanner(mural);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
             muralService.newMural(mural);
         }
         //</editor-fold>
 
-        System.out.println("Murals initialized");
+        logger.info("Murals initialized");
 
         //<editor-fold desc="Activities">
         List<Activity> activities = new ArrayList<>();
         for (int i=0;i<19;i++) {
-            activities.add(activityService.newActivity(new ClassPathResource("static/track" + i + ".gpx").getInputStream(), asd));
+            activities.add(activityService.newActivity(new ClassPathResource(PATH_START + i + ".gpx").getInputStream(), asd));
         }        //all activities are initially created as property of asd, though asd does not know this
 
-        System.out.println("Activities created");
+        logger.info("Activities created");
 
         //<editor-fold desc="set asd activities">
         activities.get(0).changeVisibilityTo(VisibilityType.PUBLIC);
@@ -253,7 +269,7 @@ public class DatabaseInitializer {
             activityService.save(activity);
         }
         //</editor-fold>
-        System.out.println("asd Activities set");
+        logger.info("asd Activities set");
         //<editor-fold desc="set qwe activities">
         activities.get(7).changeVisibilityTo(VisibilityType.PUBLIC);
         activities.get(8).changeVisibilityTo(VisibilityType.PUBLIC);
@@ -267,7 +283,7 @@ public class DatabaseInitializer {
             activityService.save(activity);
         }
         //</editor-fold>
-        System.out.println("qwe Activities set");
+        logger.info("qwe Activities set");
         //<editor-fold desc="set zxc activities">
         activities.get(13).changeVisibilityTo(VisibilityType.PUBLIC);
         activities.get(14).changeVisibilityTo(VisibilityType.PUBLIC);
@@ -281,11 +297,11 @@ public class DatabaseInitializer {
             activityService.save(activity);
         }
         //</editor-fold>
-        System.out.println("zxc Activities set");
+        logger.info("zxc Activities set");
         //<editor-fold desc="set userx activities">
         for (int i=0; i<users.size();i++) {
             User user = users.get(i);
-            Activity activity = activityService.newActivity(new ClassPathResource("static/track" + 19 + ".gpx").getInputStream(), user);
+            Activity activity = activityService.newActivity(new ClassPathResource(PATH_START + 19 + ".gpx").getInputStream(), user);
             switch (i % 4) {
                 case 0 -> activity.changeVisibilityTo(VisibilityType.PUBLIC);
                 case 1 -> activity.changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
@@ -298,13 +314,12 @@ public class DatabaseInitializer {
         //</editor-fold>
         //</editor-fold>
 
-        System.out.println("Activities initialized");
+        logger.info("Activities initialized");
 
         //<editor-fold desc="Routes">
         //<editor-fold desc="asd routes>
         Route route = routeService.newRoute(activityService.findByUser(asd).get(0));
         route.changeVisibilityTo(VisibilityType.PUBLIC);
-        //route.setOwner(null);
         route.setName("r1 asd (PU)");
         Activity extraActivity = activityService.findByUser(zxc).get(2);
         extraActivity.setRoute(route);
@@ -338,7 +353,6 @@ public class DatabaseInitializer {
         //<editor-fold desc = qwe routes>
         route = routeService.newRoute(activityService.findByUser(qwe).get(0));
         route.changeVisibilityTo(VisibilityType.PUBLIC);
-        //route.setOwner(null);
         route.setName("r1 qwe (PU)");
         extraActivity = activityService.findByUser(zxc).get(0);
         extraActivity.setRoute(route);
@@ -371,8 +385,8 @@ public class DatabaseInitializer {
         //</editor-fold>
         //</editor-fold>
 
-        System.out.println("Routes initialized");
-        System.out.println("Initialization complete");
+        logger.info("Routes initialized");
+        logger.info("Initialization complete");
     }
 
     private void setThumbnailAndBanner(Mural mural) throws IOException {
@@ -397,10 +411,10 @@ public class DatabaseInitializer {
                 act.setVisibility(randomVisibility());
                 activityService.save(act);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         });
-        System.out.println("Activities for user " + user.getName() + " loaded.");
+        logger.info("Activities for user {} loaded.", user.getName());
     }
 
     private Visibility randomVisibility() {
@@ -429,6 +443,6 @@ public class DatabaseInitializer {
         });
         routeService.save(route);
 
-        System.out.println("Route '" + routeName + "' created.");
+        logger.info("Route '{}' created.", routeName);
     }
 }

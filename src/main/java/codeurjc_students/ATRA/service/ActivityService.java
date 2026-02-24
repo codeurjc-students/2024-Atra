@@ -11,6 +11,8 @@ import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +24,7 @@ import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.*;
 
@@ -37,6 +40,12 @@ public class ActivityService implements ChangeVisibilityInterface{
 	private final UserRepository userRepository;
 	private final MuralRepository muralRepository;
 
+	private static final String AUTH_USER = "authUser";
+	private static final String NULL_ROUTE = "nullRoute";
+
+	private static final Logger logger =
+			LoggerFactory.getLogger(ActivityService.class);
+
 	public void save(Activity activity) {
 		activityRepository.save(activity);
 	}
@@ -45,7 +54,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 		final GPX gpx;
         try {
 			gpx = GPX.Reader.DEFAULT.read(file.getInputStream());
-        } catch (IOException e) {throw new RuntimeException(e);}
+        } catch (IOException e) {throw new UncheckedIOException(e);}
 
 		return newActivity(gpx, user);
     }
@@ -56,7 +65,7 @@ public class ActivityService implements ChangeVisibilityInterface{
         try {
 			gpx = GPX.Reader.DEFAULT.read(path);
 		} catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
 		return newActivity(gpx, user);
     }
@@ -85,7 +94,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 			addWayPoint(activity, pt);
 		}
 		if (activity.getDataPoints().size()==0) {
-			System.out.println("Activity has no datapoints, it will not be saved");
+			logger.info("Activity has no datapoints, it will not be saved");
 			return null;
 		}
 		if (activity.getStartTime()==null) activity.setStartTime(activity.getDataPoints().get(0).getTime());
@@ -131,7 +140,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 			String metricValue = currentMetric.getFirstChild().getNodeValue();
 
 			if (metric.startsWith("gpxtpx:")) metric = metric.substring(7);
-			//else System.out.println("Found a metric that does not start with 'gpxtcx:'"); //ideally throw an exception or sth but for now this works
+			//else logger.info("Found a metric that does not start with 'gpxtcx:'"); //ideally throw an exception or sth but for now this works
 
 			dataPoint.put(metric, metricValue);
 			currentMetric = currentMetric.getNextSibling();
@@ -311,7 +320,7 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 	public List<List<Activity>> getActivitiesFromRoutes(List<Route> routes, User user, String from, Long targetId) {
 		List<List<Activity>> activityList = new ArrayList<>();
-		if (from==null || "authUser".equals(from)) routes.forEach(route -> activityList.add(this.findByRouteAndUser(route, user)));
+		if (from==null || AUTH_USER.equals(from)) routes.forEach(route -> activityList.add(this.findByRouteAndUser(route, user)));
 		else if ("user".equals(from)){
 			User targetUser = userRepository.findById(targetId).orElseThrow(()-> new HttpException(404, "Target user not found"));
 			if (!user.equals(targetUser) && !user.isAdmin()) {//return public activities
@@ -385,13 +394,13 @@ public class ActivityService implements ChangeVisibilityInterface{
 
 		if (pageSize==null) pageSize=Constants.PAGE_SIZE;
 
-		boolean shouldFetchRoutes = "nullRoute".equals(cond);
+		boolean shouldFetchRoutes = NULL_ROUTE.equals(cond);
 
 		PagedActivities activities = new PagedActivities();
 		Page<Activity> firstPage;
 		int pagesSent;
 
-		if (from == null || "authUser".equals(from)) {
+		if (from == null || AUTH_USER.equals(from)) {
 			firstPage = this.findByUser(user, startPage, pageSize, shouldFetchRoutes);
 			activities.addAll(firstPage.getContent());
 			for (pagesSent = 1; pagesSent < pagesToFetch; pagesSent++) {
@@ -431,20 +440,20 @@ public class ActivityService implements ChangeVisibilityInterface{
 		String visibility = params.getVisibility();
 		Collection<Activity> activities;
 
-		if (from==null || "authUser".equals(from))
-			activities = this.findByUser(user, "nullRoute".equals(cond));
+		if (from==null || AUTH_USER.equals(from))
+			activities = this.findByUser(user, NULL_ROUTE.equals(cond));
 		else if (id==null) throw new IncorrectParametersException("Requested activities from a specific user/mural without providing their id");
 		else if ("mural".equals(from)) {
 			Mural mural = muralRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(MURAL_NOT_FOUND));
 			if (!mural.getMembers().contains(user) && !user.isAdmin()) throw new VisibilityException("Authenticated user is not a member of requested mural");
-			activities = this.findVisibleTo(mural, "nullRoute".equals(cond));
+			activities = this.findVisibleTo(mural, NULL_ROUTE.equals(cond));
 		}
 		else if ("user".equals(from)) {
 			User targetUser = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
 			if (!user.equals(targetUser) && !user.isAdmin()) {//return public activities
 				activities = this.findByUserAndVisibilityType(user, VisibilityType.PUBLIC);
 			} else if (user.equals(targetUser)) {
-				if (visibility==null) activities = this.findByUser(user, "nullRoute".equals(cond));
+				if (visibility==null) activities = this.findByUser(user, NULL_ROUTE.equals(cond));
 				else activities = this.findByUserAndVisibilityType(user, visibility);
 			} else if (user.isAdmin()) {
 				if (visibility==null) activities = this.findByUserAndVisibilityNonPrivate(targetUser);

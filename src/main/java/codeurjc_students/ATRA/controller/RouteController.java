@@ -66,7 +66,7 @@ public class RouteController {
         @ApiResponse(responseCode = "400", description = "Invalid visibility type"),
         @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    public ResponseEntity<List<? extends RouteDtoInterface>> getAllRoutes(
+    public ResponseEntity<List<RouteDtoInterface>> getAllRoutes(
             Principal principal,
             @Parameter(description = "Type of routes: noActivities, withActivities") @RequestParam(name="type", required = false) String type,
             @Parameter(description = "Filter by source (user, mural, etc)") @RequestParam(name="from", required = false) String from,
@@ -80,10 +80,10 @@ public class RouteController {
         catch (IllegalArgumentException e) {throw new IncorrectParametersException("Visibility was either not specified or not a valid VisibilityType. Valid values are PUBLIC, PRIVATE, MURAL_PUBLIC, MURAL_SPECIFIC. \"");		}
 
         List<Route> routes = routeService.getAllRoutes(user, type, from, id, visibilityType);
-        if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes));
+        if ("noActivities".equals(type))  return ResponseEntity.ok(RouteWithoutActivityDTO.toDto(routes).stream().map(r->(RouteDtoInterface) r).toList());
         List<List<Activity>> activityList = activityService.getActivitiesFromRoutes(routes, user, from, id);
 
-        return ResponseEntity.ok(RouteWithActivityDTO.toDto(routes, activityList.stream().map(ActivityOfRouteDTO::toDto).toList()));
+        return ResponseEntity.ok(RouteWithActivityDTO.toDto(routes, activityList.stream().map(ActivityOfRouteDTO::toDto).toList()).stream().map(r->(RouteDtoInterface) r).toList());
     }
 
     @PostMapping

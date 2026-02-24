@@ -45,11 +45,13 @@ public class Mural implements NamedId {
 	@Lob
 	private byte[] banner;
 
+	private static final String DEFAULT_DESC = "A mural created by ";
+
 	public Mural(User owner) {
 		this.owner = owner;
 		this.members.add(owner);
 		this.name = owner.getName() + "'s Mural";
-		this.description = "A mural created by " + owner.getName();
+		this.description = DEFAULT_DESC + owner.getName();
 	}
 
 	public Mural(User owner, Collection<User> members) {
@@ -59,7 +61,7 @@ public class Mural implements NamedId {
 		});
 		this.members.add(owner);
 		this.name = owner.getName() + "'s Mural";
-		this.description = "A mural created by " + owner.getName();
+		this.description = DEFAULT_DESC + owner.getName();
 	}
 
 	public Mural(String name, User owner, Collection<User> members) {
@@ -69,7 +71,7 @@ public class Mural implements NamedId {
 			if (!user.equals(owner)) this.members.add(user);
 		});
 		this.members.add(owner);
-		this.description = "A mural created by " + owner.getName();
+		this.description = DEFAULT_DESC + owner.getName();
 	}
 
 	public Mural(String name, String description, User owner, VisibilityType visibility, byte[] thumbnail, byte[] banner) {

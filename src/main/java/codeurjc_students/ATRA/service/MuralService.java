@@ -19,6 +19,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 import static codeurjc_students.atra.service.Constants.MURAL_NOT_FOUND;
@@ -70,14 +71,14 @@ public class MuralService {
 		try {
 			return new ClassPathResource("static/defaultThumbnailImage.png").getInputStream().readAllBytes();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 	public static byte[] getDefaultBannerBytes() {
 		try {
 			return new ClassPathResource("static/defaultBannerImage.png").getInputStream().readAllBytes();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 

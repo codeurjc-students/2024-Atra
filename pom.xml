@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>codeurjc-students</groupId>
 	<artifactId>ATRA</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>ATRA</name>
 	<description>ATRA is a Web Application where users will be able to upload their activities to analyze them in depth, and compare them with friend&apos;s activities.</description>
 	<url/>

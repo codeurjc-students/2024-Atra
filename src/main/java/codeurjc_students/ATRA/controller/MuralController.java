@@ -154,7 +154,7 @@ public class MuralController {
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
         @ApiResponse(responseCode = "404", description = "Mural not found")
     })
-    public ResponseEntity<List<? extends NamedId>> removeCurrentUserFromMural(
+    public ResponseEntity<List<NamedId>> removeCurrentUserFromMural(
         Principal principal, 
         @Parameter(description = "Mural ID") @PathVariable Long id, 
         @Parameter(description = "New owner ID if current owner is leaving") @RequestParam(value="inheritor", required=false) Long inheritorId) {

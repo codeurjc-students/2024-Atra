@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class RouteRepositoryIntegrationTest {
+class RouteRepositoryIntegrationTest {
 
     @Autowired
     private RouteRepository routeRepository;
