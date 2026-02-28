@@ -163,27 +163,24 @@ export class ProfileComponent implements OnInit {
 
   changePassword(){
     const oldPassword = this.passwordForm.get('oldPassword')?.value;
-    this.userService.confirmPassword(oldPassword).subscribe({
-      next: (isSame:boolean) => {
-        if (isSame) {
-          //apparently the user is not automatically logged out when changing password.
-          //We can manually log them out with servletRequest.getSession().invalidate(); or maybe SecurityContextHolder.clearContext();
-          //or we could just ignore this and not tell the user they'll be logged out or redirect them.
-          this.alertService.confirm("This will log you out. Are you sure you want to continue?", "You're about to be logged out").subscribe({
-            next:(accepted) => {
-              if (accepted) {
-                this.userService.updatePassword(this.passwordForm.get('newPassword')?.value).subscribe({
-                  next:()=>{this.modalService.dismissAll(); this.authService.logout(); this.router.navigate(["/"])},
-                  error:(error:any) => {this.alertService.alert("An error ocurred. Your password could not be changed.", "Something went wrong", this.modalService.dismissAll)} //left as alert since it's a direct consequence of user's actions. I seem to have insisted on closing the modals when errors happen. Not sure why, it's a pain to have to re-enter all the
-                })
-              } else {
-                this.passwordForm.reset()
-                this.modalService.dismissAll()
-              }
-            }
+    const newPassword = this.passwordForm.get('newPassword')?.value;
+    //apparently the user is not automatically logged out when changing password.
+    //We can manually log them out with servletRequest.getSession().invalidate(); or maybe SecurityContextHolder.clearContext();
+    //or we could just ignore this and not tell the user they'll be logged out or redirect them.
+    this.alertService.confirm("This will log you out. Are you sure you want to continue?", "You're about to be logged out").subscribe({
+      next:(accepted) => {
+        if (accepted) {
+          this.userService.updatePassword(oldPassword, newPassword).subscribe({
+            next:()=>{this.modalService.dismissAll(); this.authService.logout(); this.router.navigate(["/"])},
+            error:(error:any) => {
+              //maybe read error to know if it's 400
+              if (error.status == 400) this.alertService.toastError("Wrong password")
+              else this.alertService.alert("An error ocurred. Your password could not be changed.", "Something went wrong", this.modalService.dismissAll)
+            } //left as alert since it's a direct consequence of user's actions. I seem to have insisted on closing the modals when errors happen. Not sure why, it's a pain to have to re-enter all the
           })
         } else {
-          this.alertService.toastError("The password provided does not match your current password", "Wrong Password")
+          this.passwordForm.reset()
+          this.modalService.dismissAll()
         }
       }
     })

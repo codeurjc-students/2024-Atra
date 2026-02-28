@@ -46,8 +46,8 @@ export class UserService {
     return this.http.post<boolean>("/api/users/verify-password", password)
   }
 
-  updatePassword(newPassword: string) {
-    return this.http.post("/api/users/password", newPassword)
+  updatePassword(oldPassword: string, newPassword: string) {
+    return this.http.post("/api/users/password", {newPassword:newPassword, oldPassword:oldPassword})
   }
 
   delete() {

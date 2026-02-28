@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-
+import java.util.Map;
 
 
 @RestController
@@ -77,30 +77,21 @@ public class UserController {
         return ResponseEntity.ok(userService.existsByUsername(username));
     }
 
-    @PostMapping("/verify-password")
-    @Operation(summary = "Verify password", description = "Verify if the provided password matches the authenticated user's password")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Password verification result returned"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required")
-    })
-    public ResponseEntity<Boolean> verifyPassword(
-        Principal principal, 
-        @RequestBody String password){
-        User user = principalVerification(principal);
-        return ResponseEntity.ok(userService.verifyPassword(password, user.getPassword()));
-    }
-
     @PostMapping("/password")
     @Operation(summary = "Change password", description = "Change the authenticated user's password")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Password changed successfully"),
+        @ApiResponse(responseCode = "400", description = "Incorrect Parameters. Either a field was not included, or Old password doesn't match user's password"),
         @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required")
     })
     public ResponseEntity<String> changePassword(
-        @RequestBody String password, 
+        @RequestBody Map<String, String> body,
         Principal principal){
         User user = principalVerification(principal);
-        userService.changePassword(user, password);
+        String oldPass = body.get("oldPassword");
+        String newPass = body.get("newPassword");
+        if (oldPass==null || newPass==null) throw new HttpException(400, "Body must be JSON containing the fields oldPassword and newPassword");
+        userService.changePassword(user, oldPass, newPass);
         return ResponseEntity.noContent().build();
     }
 

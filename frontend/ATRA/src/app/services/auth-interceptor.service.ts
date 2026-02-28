@@ -29,8 +29,11 @@ export class AuthInterceptorService {
 
     return next.handle(req).pipe(
       catchError(err => {
+        let msg:string = "Try again later";
+        let title:string = "Something went wrong";
         if (err.status === 400) {
-          this.alertService.alert("Something is wrong with your request, we can't process it.", '400 Bad Request'); //Should be toast
+          msg = "Something is wrong with your request, we can't process it."
+          title = '400 Bad Request'
         } else if (err.status === 401) {
           this.alertService.toastError("Your session might have expired. If the error persists, please log in again.", "Something went wrong");
           //check that the user is actually logged out and it's not an error
@@ -50,12 +53,19 @@ export class AuthInterceptorService {
 
           //});
         } else if (err.status === 403) {
-          this.alertService.alert('You do not have permission to access this resource.', '403 Forbidden'); //Should be toast
+          msg = "You do not have permission to access this resource."
+          title = "403 Forbidden"
         } else if (err.status === 404) {
-          this.alertService.alert("We could not find the resource you're looking for, it may have been deleted", '404 Not found'); //Should be toast
+          msg = "We could not find the resource you're looking for, it may have been deleted."
+          title = "404 Not found"
         } else if (err.status === 500) {
-          this.alertService.alert("Something went wrong on our side. Try again later.", '500 Internal server error'); //Should be toast
+          msg = "Something went wrong on our side. Try again later."
+          title = "500 Internal server error"
         }
+        if (err.error.message) {
+          msg += " " + err.error.message
+        }
+        this.alertService.alert(msg, title)
         return throwError(() => err);
       })
     );

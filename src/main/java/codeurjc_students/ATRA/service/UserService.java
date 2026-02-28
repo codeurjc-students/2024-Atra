@@ -62,8 +62,9 @@ public class UserService {
 		return user;
 	}
 
-	public void changePassword(User user, String password) {
-		user.setPassword(passwordEncoder.encode(password));
+	public void changePassword(User user, String oldPass, String newPass) {
+		if (!passwordEncoder.matches(oldPass, user.getPassword())) throw new IncorrectParametersException("Old password doesn't match current password");
+		user.setPassword(passwordEncoder.encode(newPass));
 		userRepository.save(user);
 	}
 
