@@ -465,6 +465,11 @@ class E2eTest {
         flaky(()-> {
             login("asd");
             wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class,'thumbnail-container')][1]"))).click();
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-mural-Info")));
 
