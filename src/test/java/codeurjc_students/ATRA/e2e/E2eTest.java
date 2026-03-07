@@ -28,8 +28,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -573,13 +573,13 @@ class E2eTest {
             assertTrue(driver.getCurrentUrl().contains("/murals/"));
 
             WebElement img = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("img-mural-banner")));
-            URL imageUrl = null;
+            URI imageUrl = null;
             try {
-                imageUrl = new URL(img.getAttribute("src").replace("4200", "8080"));
-            } catch (MalformedURLException e) {
+                imageUrl = new URI(img.getAttribute("src").replace("4200", "8080"));
+            } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            try (InputStream in = imageUrl.openStream()) {
+            try (InputStream in = imageUrl.toURL().openStream()) {
                 byte[] actualBytes = in.readAllBytes();
                 assertArrayEquals(expectedBannerBytes, actualBytes);
             } catch (IOException e) {
@@ -604,11 +604,11 @@ class E2eTest {
             WebElement container = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][./div/span[text()='" + name + "']]")));
             img = container.findElement(By.xpath(".//img"));
             try {
-                imageUrl = new URL(img.getAttribute("src").replace("4200", "8080"));
-            } catch (MalformedURLException e) {
+                imageUrl = new URI(img.getAttribute("src").replace("4200", "8080"));
+            } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            try (InputStream in = imageUrl.openStream()) {
+            try (InputStream in = imageUrl.toURL().openStream()) {
                 byte[] actualBytes = in.readAllBytes();
                 assertArrayEquals(expectedThumbnailBytes, actualBytes);
             } catch (IOException e) {
