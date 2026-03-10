@@ -31,13 +31,6 @@ export class AuthGuard implements CanActivate {
           const muralId = route.paramMap.get('id') ?? route.paramMap.get('muralId') ?? route.paramMap.get('category');
 
           if (isNaN(Number(muralId))) return of(true) //skip if id is not a number (other,owned...)
-          return this.muralService.isVisible(Number(muralId)).pipe(map(
-            isVisible => {
-              if (isVisible) return true
-              this.alertService.toastInfo("You don't have access to this mural");
-              return this.router.createUrlTree(['/murals']); // stay on current page
-            }
-          ))
         }
 
       return of(true);

@@ -245,20 +245,6 @@ public class MuralController {
         return ResponseEntity.ok(new MuralDTO(mural));
     }
 
-    @GetMapping("/{id}/isVisible")
-    @Operation(summary = "Check mural visibility", description = "Check if a mural is visible to the authenticated user")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Visibility status retrieved"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "404", description = "Mural not found")
-    })
-    public ResponseEntity<Boolean> isVisibleByAuthUser(
-        Principal principal, 
-        @Parameter(description = "Mural ID") @PathVariable Long id) {
-        User user = principalVerification(principal);
-        return ResponseEntity.ok(muralService.isVisibleByUser(user, id));
-    }
-
     @PutMapping("/{id}/thumbnail")
     @Operation(summary = "Update mural thumbnail", description = "Replace the mural's thumbnail image")
     @ApiResponses(value = {

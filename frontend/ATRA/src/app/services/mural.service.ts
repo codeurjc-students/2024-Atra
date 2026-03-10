@@ -184,8 +184,4 @@ export class MuralService {
     });
   }
 
-  isVisible(muralId: number) {
-    return this.http.get<boolean>("/api/murals/"+muralId+"/isVisible")
-  }
-
 }

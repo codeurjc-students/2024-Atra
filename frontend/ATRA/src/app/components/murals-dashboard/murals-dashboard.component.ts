@@ -1,6 +1,6 @@
 import { GridItemService } from '../../services/grid-item.service';
 import { GridTableComponent } from '../stat-components/records/grid-table.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Mural } from '../../models/mural.model';
 import { MuralService } from '../../services/mural.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -16,7 +16,7 @@ import { AlertService } from '../../services/alert.service';
 export class MuralsDashboardComponent implements OnInit, OnDestroy{
   mural: Mural | null = null;
 
-  constructor(private muralService:MuralService, private route: ActivatedRoute, private alertService:AlertService, private gridItemService:GridItemService){}
+  constructor(private muralService:MuralService, private route: ActivatedRoute, private router: Router, private alertService:AlertService, private gridItemService:GridItemService){}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -28,7 +28,14 @@ export class MuralsDashboardComponent implements OnInit, OnDestroy{
         this.mural=mural
         this.gridItemService.setEntity(mural, null)
       },
-      error:(err)=>this.alertService.alert("Something went wrong fetching the Mural. Try reloading the page. If the error persists, try again later", "Something went wrong!") //could reload the page on dismiss
+      error:(err)=>{
+        if (err.status==403){
+          this.alertService.toastInfo("You don't have access to this mural");
+          this.router.navigate(['/murals']); // stay on current page
+        } else {
+          this.alertService.alert("Something went wrong fetching the Mural. Try reloading the page. If the error persists, try again later", "Something went wrong!") //could reload the page on dismiss
+        }
+      }
     })
     setTimeout(() => {
       // Allows scrolling. On a timeout, to avoid ngOnDestroy of another component from overwriting it
