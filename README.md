@@ -15,11 +15,12 @@ This project is my (Ángel Marqués) TFG. As such, it is guided by a professor f
 	4. [Graphs](#graphs)
 	5. [Complimentary Technologies](#complimentary-technologies)
 	6. [Algorithm or Advanced Query](#algorithm-or-advanced-query)
-2. [Phase 1](#phase-1)
-3. [Phase 2](#phase-2)
-4. [Phase 3](#phase-3)
-5. [Phase 4](#phase-4)
-6. [Phase 5](#phase-5)
+2. [Phase 1](#phase-1-feature-definition-and-initial-designs)
+3. [Phase 2](#phase-2-feature-implementation-by-entity)
+4. [Phase 3](#phase-3-quality-assurance)
+5. [Phase 4](#phase-4-dockerization-cicd-and-deployment)
+6. [Phase 5](#phase-5-documentation-writing)
+7. [Phase 6](#phase-6-presentation-preparation)
 
 # Phase 0
 This is the planning phase. It records information about the project, like its entities and functionalities.
@@ -107,17 +108,25 @@ The format of the TFG requires the use of some advanced algorithm or query. Give
 Lastly, what follows is a sketch showing the design of the main windows the users will navigate, as well as indications on how to traverse through them, and some notes indicating how the app is expected to behave.
 
 
-# Phase 1
-This phase covers the implementation of the webpage with, at minimum, all functionalities listed as "basic" in phase 0. It should have:
-- backend with an API REST
-- frontend with SPA technology
-- Automatic testing
-- Packaging using Docker and Docker Compose
-# Phase 2
-Phase 2 is centered around integration and continuous delivery. It will be implemented through GitHub Actions. When this phase is over, testing and packaging should happen automatically.
-# Phase 3
-In this phase the final version will be developed. A subset of the "advanced" functionalities will be implemented, and testing will be increased subsequently.
-# Phase 4
-In this phase no new progress will be made on the app itself; it should already be completed. Instead, it is dedicated to writing the report.
-# Phase 5
-Phase 5 consists of presenting the project before a tribunal and conducting its defense.
+
+# Phase 1: Feature definition and initial designs
+A list of functionalities required for the application to deliver the desired experience was created. These functionalities were classified into basic, essential advanced, and optional advanced. Additionally, they were grouped according to the main entity they operate on. After defining the features, mockups were created to outline the different screens and the layout of elements within them.
+
+# Phase 2: Feature implementation by entity
+The defined functionalities were developed by implementing all basic features of a given entity before moving on to another. Once all basic features were completed, a second iteration focused on implementing essential and optional advanced features.
+
+# Phase 3: Quality assurance
+Automated tests were developed, and analyses were performed using SonarQube to identify and address vulnerabilities, as well as maintainability and complexity issues.
+
+# Phase 4: Dockerization, CI/CD, and deployment
+The Azure environment was configured to enable deployment, along with the CI/CD workflows responsible for it, and the necessary Docker configurations for packaging the application.
+
+# Phase 5: Documentation writing
+The report for the project was written to capture the entire development process of the project.
+
+# Phase 6: Presentation preparation
+A PowerPoint presentation was created, along with other necessary preparations for the project defense before a committee.
+
+---
+# Report
+The redacted report can be found in this repository under /docs/thesis/tfg_2024_Atra.pdf. The source code used to generate the pdf can be found under /docs/thesis/latex. In order to generate the pdf yourself, you'll need to compress the files in this folder, and upload them to overleaf or some other LaTex editor, then download the built pdf from there. 
