@@ -1,0 +1,46 @@
+Este anexo describe los pasos y herramientas necesarias para poder ejecutar la aplicación a partir de las imágenes publicadas en DockerHub. Dado que se está trabajando con imágenes que se comunican a través de un Docker Compose, será necesario tener Docker desktop instalado en ordenadores Windows y Mac, o Docker y Docker Compose en ordenadores Linux. 
+
+Los pasos para ejecutar la aplicación son los siguientes:
+\begin{enumerate}
+    \item Descargar el motor de Docker y la herramienta Docker Compose. Para ello, en ordenadores Windows y Mac, es necesario descargar la aplicación Docker Desktop desde su \href{https://www.docker.com/products/docker-desktop/}{\uline{página principal}\footnote{\url{https://www.docker.com/products/docker-desktop/}}}. Para ordenadores Linux, se deben seguir las instrucciones incluidas en la documentación para instalar el motor de Docker y la herramienta Docker Compose. Instrucciones de instalación del \href{https://docs.docker.com/engine/install/ubuntu/}{\uline{motor de Docker}\footnote{\url{https://docs.docker.com/engine/install/ubuntu/}}}. Instrucciones de instalación de \href{https://docs.docker.com/compose/install/linux/}{\uline{Docker Compose}\footnote{\url{https://docs.docker.com/compose/install/linux/}}}
+    \item Descargar el archivo docker-compose.yml del \href{https://github.com/codeurjc-students/2024-Atra}{\uline{repositorio de la aplicación}\footnote{\url{https://github.com/codeurjc-students/2024-Atra}}}.
+    \item Asegurarse que el motor de Docker está en ejecución. En Windows y Mac, con Docker Desktop abierto, en la esquina inferior izquierda indica el estado del motor. Debe estar en ejecución. En Linux, podemos comprobar el estado ejecutando \texttt{sudo systemctl status docker}. Si no está activo, debemos iniciarlo con \texttt{sudo systemctl start docker}.
+    \item Con el motor en ejecución, podremos lanzar la aplicación ejecutando el comando docker-compose up.
+    \item La aplicación está en ejecución. Podemos acceder a ella a través de localhost:80. La base de datos está disponible en localhost:3307, podemos utilizar herramientas como MySQL Workbench para conectarnos a la base de datos y monitorizar su estado. El \textit{backend} está disponible en http://localhost:8080, y se puede interactuar con él mediante herramientas como postman.
+\end{enumerate}
+
+Una vez ejecutada la aplicación, podremos iniciar sesión con una de las cuentas creadas, o crear una nueva. En los datos de ejemplo que se cargan por defecto existen tres usuarios: "angel", "david", y "ruben". Las contraseñas de cada usuario son el nombre de usuario. Cada una de esas cuentas tiene una serie de actividades y rutas definidas. La siguiente tabla describe las rutas, indicando su visibilidad, a qué usuario pertenecen, y cuantas actividades de cada usuario hay en cada ruta:
+\begin{table}[H]
+\centering
+\begin{tabular}{l l c c c}
+\hline
+\textbf{Ruta} & \textbf{Visibilidad} & \textbf{Angel} & \textbf{David} & \textbf{Ruben} \\
+\hline
+Laviana circular corta & Pública & 2 & 2 & 3* \\
+Laviana circular larga & Mural Specific & 0 & 2 & 3* \\
+Laviana lineal & Privada & 0 & 0 & 3* \\
+Mostoles 10k & Mural Specific & 5* & 2 & 1 \\
+Hospital - Soto & Pública & 3* & 4 & 0 \\
+Soto Vuelta & Privada & 2* & 0 & 0 \\
+Parque Agustin & Pública & 2 & 4* & 0 \\
+Forma L & Mural Specific* & 0 & 2* & 0 \\
+Pista Valle & Privada & 0 & 1* & 0 \\
+\hline
+\end{tabular}
+\caption{Listado de rutas y actividades por usuario}
+\end{table}
+Algunas anotaciones adicionales sobre los datos de ejemplo:
+\begin{itemize}
+    \item Los asteriscos en el número de actividades en la ruta indican el propietario de la ruta.
+    \item La ruta "Forma L" tiene su visibilidad marcada con un asterisco ya que, aunque es mural specific, no especifica ningún mural, por lo que es funcionalmente privada.
+    \item Existe un mural creado por el usuario "angel". Todos los miembros forman parte del mural.
+    \item Existe un usuario adicional, "extra". Este usuario no tiene actividades ni rutas. Simplemente es propietario de una serie de murales, para que aparezcan murales en la sección discover y los usuarios reales se puedan unir a ellos. Este usuario no forma parte del mural creado por "angel", y los otros usuarios no forman parte de ninguno de los murales creados por este usuario.
+\end{itemize}
+
+Adicionalmente, existen otros dos sets de datos de ejemplo, aunque para acceder a ellos será necesario modificar el docker-compose.yml. Concretamente, se deberá modificar la variable de entorno \texttt{INIT\_DB} de la sección \texttt{environment} del servicio \texttt{backend}. Por defecto está fijado a "demo2", que corresponde a los datos descritos. Adicionalmente existen:
+\begin{itemize}
+    \item \textbf{demo1}: inicializa la aplicación con un único usuario "qwe", que contiene una serie de actividades y rutas.
+    \item \textbf{demo3}: inicializa la aplicación con tres usuarios, asd, qwe, y zcx. Cada uno tiene una serie de actividades, rutas y murales con distintas visibilidades. Sin embargo, las agrupaciones realizadas son totalmente arbitrarias; se agrupa en una misma ruta actividades que ocurren en rutas distintas. Es el dataset utilizado durante el desarrollo.
+    \item \textbf{off}: desactiva la inicialización, de forma que la aplicación carga vacía.
+\end{itemize}
+

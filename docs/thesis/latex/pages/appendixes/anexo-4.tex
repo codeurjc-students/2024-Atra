@@ -1,0 +1,141 @@
+Esta sección enumera los distintos endpoints de la API desarrollada, aportando una pequeña descripción del uso que se le da a cada uno. Adicionalmente, incluye una representación de los objetos devueltos por la API en formato JSON. Debido al uso de DTOs, no siempre que se devuelva un recurso este tendrá los mismos campos especificados en esta sección, podría tener menos en algunos casos donde sólo parte de la información es relevante.
+\subsubsection{Recurso User}
+\begin{lstlisting}[basicstyle=\jsonbasicfont,frame=single,backgroundcolor=\color{white},rulecolor=\color{black},framerule=0.5pt,numbers=none]
+{
+  "id": 1,
+  "username": "AtraUser",
+  "password": "*********",
+  "name": "Best User",
+  "email":"atrauser@gmail.com",
+  "memberMurals":[1,2,3],
+  "roles":[USER]
+}
+\end{lstlisting}
+
+\textbf{DTOs}
+\begin{itemize}
+    \item UserDTO: objeto devuelto cuando se pide un usuario. Incluye todos los campos del usuario con la excepción de la contraseña y member murals.
+    \item NewUserDTO: objeto recibido al crear un nuevo usuario.
+\end{itemize}
+
+\textbf{Operaciones}
+\begin{itemize}
+    \item \textbf{GET /api/users/\{id\}} - Obtiene la información de un usuario específico por su identificador. Devuelve un \texttt{UserDTO}.
+    \item \textbf{GET /api/users/me} - Obtiene la información del usuario que está realizando la petición.  Devuelve un \texttt{UserDTO}.
+    \item \textbf{GET /api/users/IsUsernameTaken} - Recibe un nombre de usuario como parámetro y devuelve true si ya existe un usuario que tenga ese nombre de usuario.
+    \item \textbf{POST /api/users} - Crea un usuario nuevo a partir de los datos proporcionados.
+    \item \textbf{POST /api/users/password} - Actualiza la contraseña asociada al usuario. El cuerpo debe contener los campos \texttt{"oldPassword"} y \texttt{"newPassword"}.
+    \item \textbf{PATCH /api/users/\{id\}} - Permite actualizar datos del usuario, a excepción de la contraseña y los roles.
+    \item \textbf{DELETE /api/users} - Elimina el usuario que realiza la petición del sistema.
+\end{itemize}
+
+\subsubsection{Recurso Activity}
+\begin{lstlisting}[basicstyle=\jsonbasicfont,frame=single,backgroundcolor=\color{white},rulecolor=\color{black},framerule=0.5pt,numbers=none]
+{
+  "id": 1,
+  "name": "Morning Run",
+  "type": "Running",
+  "startTime": "2025-02-14T10:23:45.123456Z",
+  "visibility":"PUBLIC",
+  "dataPoints":[...],
+  "owner":{"username":"AtraUser", ...},
+  "route":null,
+  "summary":{"totalDistance":"10.43km", ...}
+}
+\end{lstlisting}
+\textbf{DTOs}
+\begin{itemize}
+    \item ActivityDTO: objeto devuelto cuando se pide una actividad. Contiene todos los campos.
+    \item ActivityEditDTO: utilizado para editar actividades, sólo incluye los campos editables.
+    \item ActivityOfRouteDTO: utilizado cuando se devuelve la actividad como parte de una ruta. Incluye identificadores y el resumen de la actividad.
+\end{itemize}
+\textbf{Operaciones}
+\begin{itemize}
+    \item \textbf{GET /api/activities/\{id\}} - Obtiene la información de una actividad específica por su identificador.
+    \item \textbf{GET /api/activities} - Obtiene la información de las actividades asociadas a un usuario o mural de forma paginada.
+    \item \textbf{GET /api/activities/byIds} - Obtiene la información de una lista de actividades especificadas mediante id los ids deben ir en los parámetros de la petición).
+    \item \textbf{GET /api/activities/OwnedInMural} - Obtiene la información de las actividades creadas por el usuario que realiza la petición que son visibles por un Mural especificado en los parámetros de la petición.
+    \item \textbf{POST /api/activities} - Crea una actividad a partir del archivo proporcionado.
+    \item \textbf{POST /api/activities/\{id\}/route} - Selecciona una actividad por su id y le asigna la ruta especificada en el cuerpo.
+    \item \textbf{PATCH /api/activities/\{id\}/visibility} - Selecciona una actividad por su id y fija su visibilidad a la especificada en el cuerpo.
+    \item \textbf{PATCH /api/activities/\{id\}/visibility/mural} - Cambia la visibilidad de las actividades seleccionadas para que dejen de ser visibles al mural especificado en los parámetros.
+    \item \textbf{PATCH /api/activities/\{id\}} - Modifica la actividad especificada. Sólo permite modificar el nombre y el tipo de actividad.
+    \item \textbf{DELETE /api/activities/\{id\}/route} - Elimina la asociación entre la actividad especificada y su ruta; fija la ruta de la actividad especificada a null.
+    \item \textbf{DELETE /api/activities/\{id\}} - Borra la actividad especificada por id.
+\end{itemize}
+
+\subsubsection{Recurso Route}
+\begin{lstlisting}[basicstyle=\jsonbasicfont,frame=single,backgroundcolor=\color{white},rulecolor=\color{black},framerule=0.5pt,numbers=none]
+{
+  "id": 1,
+  "totalDistance": "10.43km",
+  "elevationGain": "53m",
+  "coordinates": [...],
+  "name":"The usual 10k",
+  "description":"A very cool 10k route!",
+  "visibility":"PUBLIC",
+  "createdBy":{...}
+}
+\end{lstlisting}
+\textbf{DTOs}
+\begin{itemize}
+    \item RouteWithActivityDTO: incluye datos de la ruta, así como una lista de ActivityOfRouteDTO con las actividades.
+    \item RouteWithoutActivityDTO: incluye datos de la ruta, omitiendo el listado de actividades.
+\end{itemize}
+
+\textbf{Operaciones}
+\begin{itemize}
+    \item \textbf{GET /api/routes/\{id\}} - Obtiene la información de una ruta específica por su identificador.
+    \item \textbf{GET /api/routes/\{id\}/activities} - Obtiene la lista de actividades asignadas a la ruta especificada.
+    \item \textbf{GET /api/routes} - Obtiene una lista de rutas creadas por un usuario concreto o visibles por un mural concreto. Permite especificar la visibilidad de las rutas a obtener.
+    \item \textbf{GET /api/routes/OwnedInMural} - Obtiene una lista de rutas creadas por el usuario que realiza la petición que son visibles por el mural especificado por id en los parámetros.
+    \item \textbf{POST /api/routes} - Crea una ruta nueva a partir de datos proporcionados y la actividad especificada.
+    \item \textbf{POST /api/routes/\{id\}/actividades} - Añade una serie de actividades especificadas en los parámetros a la ruta especificada.
+    
+    \item \textbf{PATCH /api/routes/\{id\}/visibility} - Fija la visibilidad de la ruta especificada al valor especificado en el cuerpo.
+    \item \textbf{PATCH /api/routes/visibility/mural} - Cambia la visibilidad de las rutas seleccionadas para que dejen de ser visibles al mural especificado.
+    \item \textbf{DELETE /api/routes/\{id\}/activities/\{id\}} - Quita la actividad especificada de la lista de actividades de la ruta. Fija la ruta de la actividad a null.
+    \item \textbf{DELETE /api/routes/\{id\}} - Elimina la ruta especificada del sistema.
+\end{itemize}
+
+
+
+\subsubsection{Recurso Mural}
+\begin{lstlisting}[basicstyle=\jsonbasicfont,frame=single,backgroundcolor=\color{white},rulecolor=\color{black},framerule=0.5pt,numbers=none]
+{
+  "id": 1,
+  "name": "Los Pepitos",
+  "description": "El mejor grupo de amigos",
+  "code": "1234-abcd-6789",
+  "visibility":"PUBLIC",
+  "owner":{...},
+  "members":[...],
+  "bannedUsers":[...],
+  "thumbnail":byte[...],
+  "banner":byte[...]
+}
+\end{lstlisting}
+
+\textbf{DTOs}
+\begin{itemize}
+    \item MuralDTO: objeto devuelto al pedir un mural. Incluye todos los campos.
+    \item MuralEditDTO: objeto recibido al editar un mural, incluye únicamente los campos modificables.
+\end{itemize}
+
+\textbf{Operaciones}
+\begin{itemize}
+    \item \textbf{GET /api/murals/\{id\}} - Obtiene la información de un mural específico por su identificador.
+    \item \textbf{GET /api/murals/\{id\}/thumbnail} - Obtiene la imagen miniatura de un mural especificado.
+    \item \textbf{GET /api/murals/\{id\}/banner} - Obtiene la imagen de cabecera de un mural especificado.
+    \item \textbf{GET /api/murals} - Obtiene una lista de murales en función de su relación con un usuario especificado. Permite filtrar según tres condiciones: murales en propiedad, murales en los que es miembro, y murales en los que no es miembro.
+    \item \textbf{POST /api/murals} - Crea un nuevo mural con los datos incluidos en el cuerpo.
+    \item \textbf{POST /api/murals/join} - Añade al usuario que realiza la petición a la lista de miembros del mural con el código especificado en el cuerpo
+    \item \textbf{POST /api/murals/\{id\}/users/\{id\}/ban} - Banea al usuario especificado del mural especificado. 
+    \item \textbf{POST /api/murals/\{id\}/users/\{id\}/unban} - Quita el baneo de un usuario especificado en un mural especificado
+    \item \textbf{PATCH /api/murals/\{id\}} - Modifica características del mural especificado.
+    \item \textbf{PUT /api/murals/\{id\}/thumbnail} - Actualiza la imagen de miniatura del mural especificado.
+    \item \textbf{PUT /api/murals/\{id\}/banner} - Actualiza la imagen de cabecera del mural especificado.
+    \item \textbf{DELETE /api/murals/\{id\}/users/me} - Elimina al usuario que realiza la petición del mural especificado.
+    \item \textbf{DELETE /api/murals/\{id\}/users/\{id\}} - Borra al usuario especificado de la lista de usuarios del mural especificado.
+    \item \textbf{DELETE /api/murals/\{id\}} - Borra el mural especificado.
+\end{itemize}

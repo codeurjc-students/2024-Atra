@@ -1,0 +1,148 @@
+Este anexo contiene un listado de funcionalidades. Se dividen en secciones en función de la entidad a la que "pertenecen", con la que más estén relacionadas, o la que afecten principalmente. Cada funcionalidad tiene:
+\begin{itemize}
+    \item Identificador con el formato REQ-X, donde X es un número único a cada funcionalidad
+    \item Nivel: 0 para funcionalidades básicas, 1 para funcionalidades avanzadas esenciales, 2 para funcionalidades avanzadas opcionales
+    \item Descripción de la funcionalidad
+\end{itemize}
+Respecto a qué tipo de usuario puede acceder a qué funcionalidades, se describe a continuación:
+\begin{itemize}
+    \item \textbf{Usuario Anónimo}: únicamente puede acceder a las funcionalidades REQ-0 y REQ-3, creación de cuenta e inicio de sesión
+    \item \textbf{Usuario Autenticado}: puede acceder a todas las demás funcionalidades. Las funcionalidades de edición y eliminación de una entidad tienen como prerrequisito que el usuario sea propietario.
+    \item \textbf{Usuario Administrador}: puede acceder las mismas funcionalidades que el Usuario Autenticado, y puede eliminar recursos de los que no es propietario (actividades, rutas, murales) únicamente cuando estos NO tengan visibilidad privada. Esto no se extiende a la modificación; el usuario administrador únicamente puede modificar recursos de los que sea propietario.
+\end{itemize}
+
+\section{Usuario}
+
+\begin{longtable}{p{2cm} p{1cm} p{11cm}}
+\toprule
+\textbf{REQ-X} & \textbf{Nivel} & \textbf{Descripción} \\
+\midrule
+\endhead
+
+REQ-1 & 0 & Crear cuenta \\
+REQ-2 & 0 & Eliminar cuenta \\
+REQ-3 & 0 & Iniciar sesión \\
+REQ-4 & 0 & Cerrar sesión \\
+REQ-5 & 0 & Visualizar información de una cuenta (Nombre de usuario, Nombre público, Correo electrónico) \\
+REQ-6 & 0 & Editar datos de una cuenta \\
+REQ-7 & 0 & Visualizar datos sobre las actividades y rutas creadas:
+\begin{itemize}
+    \item Panel de información general (Nombre de usuario, Número de rutas y actividades, Distancia total, Tiempo total de entrenamiento, Ritmo medio,  Máxima distancia en una actividad, Máximo tiempo en una actividad)
+    \item Panel de actividades recientes
+    \item Panel de rutas creadas
+\end{itemize} \\
+REQ-8 & 1 & Visualizar récords:
+\begin{itemize}
+    \item Mínimo tiempo en recorrer distancias fijas (1km, 5km, 10km, 21km, 42km)
+    \item Máxima distancia recorrida en periodos fijos (1, 5, 10, 30, 60 minutos)
+\end{itemize} \\
+
+\bottomrule
+\end{longtable}
+
+\section{Actividad}
+\subsection{Individual}
+
+\begin{longtable}{p{2cm} p{1cm} p{11cm}}
+\toprule
+\textbf{REQ-X} & \textbf{Nivel} & \textbf{Descripción} \\
+\midrule
+\endhead
+
+REQ-9 & 0 & Importar una actividad en formato GPX \\
+REQ-10 & 0 & Eliminar una actividad \\
+REQ-11 & 0 & Editar visibilidad de una actividad \\
+REQ-12 & 0 & Editar el nombre de una actividad \\
+REQ-13 & 0 & Cambiar la ruta asignada a una actividad \\
+REQ-14 & 0 & Visualizar un resumen de la actividad (Nombre, Fecha y hora de inicio, Duración, Distancia, Elevación ganada/perdida, Ritmo medio) \\
+REQ-15 & 0 & Visualizar métricas en un gráfico de líneas (Altitud, Ritmo) \\
+REQ-16 & 2 & Cambiar el valor del eje X (Tiempo transcurrido, Distancia) \\
+REQ-17 & 0 & Visualizar métricas en histogramas (Altitud, Ritmo) \\
+REQ-18 & 2 & Modificar el número de secciones del histograma \\
+REQ-19 & 0 & Visualizar percentiles, media, IQR, porcentaje de valores anómalos y desviación media \\
+REQ-20 & 0 & Establecer valor objetivo, límite superior e inferior para una métrica \\
+REQ-21 & 0 & Visualizar el porcentaje de valores en cada área definida \\
+REQ-22 & 0 & Visualizar límites y valor objetivo en el gráfico \\
+REQ-23 & 0 & Visualizar la actividad en un mapa \\
+REQ-24 & 0 & Estudiar métricas:
+(Pulsaciones, Cadencia, Ritmo) \\
+REQ-25 & 2 & Miniatura del mapa al hacer \textit{hover} sobre listas \\
+
+\bottomrule
+\end{longtable}
+
+\subsection{Comparación}
+
+\begin{longtable}{p{2cm} p{1cm} p{11cm}}
+\toprule
+\textbf{REQ-X} & \textbf{Nivel} & \textbf{Descripción} \\
+\midrule
+\endhead
+
+REQ-26 & 1 & Visualizar resumen comparativo de métricas (distancia, tiempo, elevación, ritmo) \\
+REQ-27 & 1 & Visualizar tabla comparativa con métricas estadísticas \\
+REQ-28 & 1 & Calcular porcentaje de valores entre dos límites definidos por el usuario \\
+REQ-29 & 1 & Visualizar tabla de récords de tiempo y distancia \\
+REQ-30 & 2 & Visualizar divisiones de distancia configurables \\
+REQ-31 & 1 & Visualizar métricas en gráficos de líneas para varias actividades \\
+REQ-32 & 2 & Visualizar métricas en histogramas para varias actividades \\
+REQ-33 & 1 & Visualizar varias actividades en un mismo mapa \\
+REQ-34 & 1 & Visualizar varias actividades en mapas distintos \\
+REQ-35 & 2 & Cambiar qué actividades se muestran \\
+REQ-36 & 2 & Cambiar estrategia de resolución de duplicados \\
+
+\bottomrule
+\end{longtable}
+
+\section{Ruta}
+
+\begin{longtable}{p{2cm} p{1cm} p{11cm}}
+\toprule
+\textbf{REQ-X} & \textbf{Nivel} & \textbf{Descripción} \\
+\midrule
+\endhead
+
+REQ-37 & 0 & Crear una ruta a partir de una actividad \\
+REQ-38 & 0 & Eliminar una ruta \\
+REQ-39 & 0 & Añadir actividad a una ruta \\
+REQ-40 & 0 & Eliminar actividad de una ruta \\
+REQ-41 & 1 & Comparar actividades en una ruta \\
+REQ-42 & 0 & Editar visibilidad de una ruta \\
+REQ-43 & 2 & Filtrar rutas por visibilidad \\
+REQ-44 & 0 & Visualizar listado de rutas \\
+REQ-45 & 0 & Visualizar actividades de una ruta \\
+REQ-46 & 0 & Visualizar información de una ruta:
+(Nombre, Distancia total, Descripción, Elevación ganada/perdida, Mapa) \\
+REQ-47 & 2 & Visualizar datos acumulativos \\
+REQ-48 & 2 & Visualizar mejor actividad \\
+REQ-49 & 2 & Visualizar récords \\
+
+\bottomrule
+\end{longtable}
+
+\section{Mural}
+
+\begin{longtable}{p{2cm} p{1cm} p{11cm}}
+\toprule
+\textbf{REQ-X} & \textbf{Nivel} & \textbf{Descripción} \\
+\midrule
+\endhead
+
+REQ-50 & 0 & Crear mural \\
+REQ-51 & 0 & Borrar mural \\
+REQ-52 & 0 & Editar mural \\
+REQ-53 & 2 & Traspasar propiedad \\
+REQ-54 & 0 & Unirse a un mural mediante código \\
+REQ-55 & 0 & Expulsar usuario \\
+REQ-56 & 1 & Banear usuario \\
+REQ-57 & 0 & Visualizar y comparar actividades visibles para el mural \\
+REQ-58 & 0 & Visualizar rutas visibles para el mural \\
+REQ-59 & 0 & Visualizar dashboard del mural con panel de miembros \\
+REQ-60 & 0 & Listar murales creados \\
+REQ-61 & 0 & Listar murales en los que se es miembro \\
+REQ-62 & 0 & Listar murales disponibles \\
+REQ-63 & 2 & Invitar usuarios a un mural \\
+REQ-64 & 0 & Abandonar mural \\
+
+\bottomrule
+\end{longtable}

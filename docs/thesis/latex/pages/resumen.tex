@@ -1,0 +1,10 @@
+Este documento redacta el ciclo de vida de la aplicación ATRA, desde su diseño y requisitos iniciales, hasta el despliegue de la aplicación, detallando el proceso de desarrollo, los problemas encontrados, y las tecnologías utilizadas. El documento cierra con una reflexión sobre el trabajo realizado y un análisis de posibles funcionalidades futuras y caminos a seguir para expandir y seguir desarrollando la aplicación. 
+
+ATRA es una aplicación de análisis de actividades de carrera a partir de archivos GPX que permite a los usuarios visualizar información sobre su desempeño en actividades concretas, agrupar actividades según la ruta en la que se realicen, y conectar con amigos mediante la creación de murales. 
+
+Este espacio de aplicaciones de análisis de actividades ya presenta muchas soluciones distintas ofreciento funcionalidades similares a ATRA. Sin embargo, el objetivo de ATRA es ofrecer una serie de funcionalidades avanzadas, que suelen estar disponibles sólo en las versiones de pago de estas aplicaciones, de forma gratuita. Ejemplos de estas funcionalidades serían el análisis de la distribución del ritmo en una actividad, y la comparación de varias actividades.
+
+Profundizando en los aspectos técnicos, es una aplicación web \textit{Single Page Application} (SPA), desarrollada en Angular, que se comunica con una API REST desarrollada con Spring. La aplicación se prueba y despliega automáticamente en Azure mediante Workflows de GitHub Actions. Para garantizar la calidad del código y la corrección de las funcionalidades, se han implementado pruebas unitarias, de integración, y de extremo a extremo (abreviado e2e) con tecnologías como Selenium y Mockito, y se han realizado pruebas estáticas con SonarQube para mejorar la calidad del código.
+
+
+
