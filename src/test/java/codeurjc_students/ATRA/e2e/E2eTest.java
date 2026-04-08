@@ -248,7 +248,7 @@ class E2eTest {
     }
 
     @Test
-    void selectActivityTest() {
+    void selectActivity() {
         //clicar en selector de actividades
         //seleccionar primera
         //dar submit
@@ -461,7 +461,7 @@ class E2eTest {
     }
 
     @Test
-    void selectMuralTest() {
+    void selectMural() {
         flaky(()-> {
             login("asd");
             wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
@@ -472,6 +472,12 @@ class E2eTest {
             }
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class,'thumbnail-container')][1]"))).click();
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-mural-Info")));
+
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
             WebElement table = driver.findElement(By.id("table-Info"));
             verifyTable(table, "Name", "Mural1 asd");
@@ -501,6 +507,11 @@ class E2eTest {
             login("asd");
             //Select the mural
             wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][1]"))).click();
             //save the id for later
             wait.until(ExpectedConditions.urlContains("/dashboard"));
@@ -511,6 +522,11 @@ class E2eTest {
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-mural-delete"))).click();
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-confirm"))).click();
             wait.until(ExpectedConditions.elementToBeClickable(By.id("input-alert-text"))).sendKeys(muralName);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-confirm"))).click();
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-dismiss-alert"))).click();
             //check it's not in the list
@@ -518,6 +534,11 @@ class E2eTest {
             int size = driver.findElements(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")).size();
             assertEquals(1, size);
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             driver.get(BASE_URL + "/murals/" + muralId + "/dashboard");
             String alertHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-alert"))).getText();
             assertTrue(alertHeader.contains("404 Not found"));
