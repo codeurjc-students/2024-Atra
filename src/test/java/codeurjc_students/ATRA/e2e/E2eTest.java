@@ -41,9 +41,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
- * Clase de pruebas end-to-end (e2e) para la gestión de películas en la aplicación web.
- * Se realizan pruebas para la creación, edición, eliminación y validación de películas en la aplicación.
- * Utiliza Selenium para interactuar con la interfaz web y verificar su comportamiento.
+ * End-to-end (e2e) test class for managing activities in the web application.
+ * Tests are performed for the creation, editing, deletion and validation of activities in the application.
+ * Uses Selenium to interact with the web interface and verify its behavior.
  */
 @SpringBootTest(
         classes = AtraApplication.class,
@@ -85,7 +85,6 @@ class E2eTest {
     private static final Logger logger =
             LoggerFactory.getLogger(E2eTest.class);
 
-    @BeforeAll
     void databaseInit() throws IOException {
         activitySummaryRepository.deleteAll();
         activityRepository.deleteAll();
@@ -139,7 +138,7 @@ class E2eTest {
         activities.get(3).changeVisibilityTo(VisibilityType.MURAL_PUBLIC);
         activities.get(4).changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, new ArrayList<>());
         activities.get(5).changeVisibilityTo(VisibilityType.MURAL_SPECIFIC, List.of(asdMural2.getId()));//, qweMural.getId(), zxcMural.getId()
-        //también va para el 6 pero como queda privada nos la ahorramos
+        //it also applies to 6 but since it remains private we skip it
         for (int i=0;i<7;i++) {
             Activity activity = activities.get(i);
             activity.setName("act" + i +" "+ asd.getName() + " ("+activity.getVisibility().getType().getShortName()+")");
@@ -203,6 +202,11 @@ class E2eTest {
 
     @BeforeEach
     void setUp()  {
+        try {
+            databaseInit();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
 
@@ -249,13 +253,13 @@ class E2eTest {
 
     @Test
     void selectActivity() {
-        //clicar en selector de actividades
-        //seleccionar primera
-        //dar submit
-        //confirmar datos de overview (nombre, fecha, duration...)
+        //click on activity selector
+        //select first
+        //submit
+        //confirm overview data (name, date, duration...)
         flaky(()-> {
         login("asd");
-        //seleccionar actividad
+        //select activity
         String name = "act1 asd (MP)";
         selectActivity(name);
 
@@ -276,12 +280,12 @@ class E2eTest {
 
     @Test
     void deleteActivity() {
-        //    seleccionar actividad
-        //    dar delete
-        //    checkear que se borra
-        //    checkear que te lleva al selector
-        //    checkear que no está en la lista
-        //    intentar ir a /activities/deletedActivityId y confirmar error
+        //    select activity
+        //    click delete
+        //    check that it is deleted
+        //    check that it takes you to the selector
+        //    check that it's not in the list
+        //    try to go to /activities/deletedActivityId and confirm error
         flaky(()-> {
             String activity = "act1 asd (MP)";
             login("asd");
@@ -304,8 +308,8 @@ class E2eTest {
             //check we can't go to it
             driver.get(BASE_URL + "/me/activities/" + activityId);
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-dismiss-alert-1"))).click();
-            //puede dar problemas porque el alert que quitamos con la línea de arriba también tiene ese id. Aunque al haber hecho click debería no haber problema
-            //podría también ser que por alguna razón el click haga click a ambos, habrá que ver cómo va la cosa
+            //it might cause problems because the alert we removed with the line above also has that id. Although after clicking it shouldn't be a problem
+            //it could also be that for some reason the click clicks both, we'll have to see how things go
             String header404 = driver.findElement(By.id("header-alert")).getText();
             assertEquals("404 Not found", header404);
         });
@@ -313,11 +317,11 @@ class E2eTest {
 
     @Test
     void createActivity() {
-        //3. subir actividad
-        //clicar en subir actividad
-        //subir actividad
-        //darle a sí
-        //comprobar datos de overview (nombre, fecha, duration...)
+        //3. upload activity
+        //click on upload activity
+        //upload activity
+        //click yes
+        //verify overview data (name, date, duration...)
         flaky(()-> {
             String name = "Morning Run";
 
@@ -346,17 +350,17 @@ class E2eTest {
 
     @Test
     void deleteRoute() {
-        // clicar en rutas
-        // seleccionar r1.
-        // confirmar que no hay botón
-        // seleccionar r2
-        // intentar borrar
-        // confirmar que da error
-        // seleccionar r3
-        // borrar
-        // confirmar que la borra
-        // confirmar que deselecciona
-        // confirmar que no está en la lista
+        // click on routes
+        // select r1.
+        // confirm that there is no button
+        // select r2
+        // try to delete
+        // confirm that it gives an error
+        // select r3
+        // delete
+        // confirm that it deletes it
+        // confirm that it deselects it
+        // confirm that it's not in the list
 
         //check deleting a route that can be deleted deletes the route
         flaky(()-> {
@@ -409,15 +413,15 @@ class E2eTest {
 
     @Test
     void createRoute() {
-        //seleccionar actividad
-        //dar a create route
-        //cambiar nombre
-        //poner desc
-        //dar a create
-        //aceptar que te lleve
-        //confirmar que carga /routes?selected=9
-        //confirmar que está seleccionada
-        //Confirmar nombre desc y distance
+        //select activity
+        //click create route
+        //change name
+        //add description
+        //click create
+        //accept that it takes you there
+        //confirm that it loads /routes?selected=9
+        //confirm that it is selected
+        //Confirm name, description and distance
         flaky(()-> {
             String routeName = "New Route Test";
             String routeDesc = "New Route Description";
@@ -445,7 +449,7 @@ class E2eTest {
 
             WebElement row = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//table/tbody/tr[td[2][text()='" + routeName + "']]")));
             List<WebElement> cells = row.findElements(By.tagName("td"));
-            assertTrue(cells.get(0).findElement(By.tagName("input")).isSelected()); //Cuidao
+            assertTrue(cells.get(0).findElement(By.tagName("input")).isSelected()); //Careful
             assertEquals(routeName, cells.get(1).getText());
             assertEquals(routeDesc, cells.get(2).getText());
             assertEquals(routeDist + "km", cells.get(3).getText());
@@ -493,64 +497,13 @@ class E2eTest {
             verifyTable(table, "Owner", "asd");
         });
     }
-    @Test
-    void deleteMural() {
-        //seleccionar mural1 asd
-        //ir a settings
-        //pasar gauntlet de delete
-        //confirmar que se borra
-        //confirmar que no se muestra en el listado
-        //intentar ir a /murals/deletedMuralId y comprobar que da error
-        flaky(()-> {
-            String muralName = "Mural1 asd";
-
-            login("asd");
-            //Select the mural
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][1]"))).click();
-            //save the id for later
-            wait.until(ExpectedConditions.urlContains("/dashboard"));
-            String[] urlParts = driver.getCurrentUrl().split("/");
-            String muralId = urlParts[urlParts.length - 2];
-            //delete mural
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-mural-settings"))).click();
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-mural-delete"))).click();
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-confirm"))).click();
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("input-alert-text"))).sendKeys(muralName);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-confirm"))).click();
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-dismiss-alert"))).click();
-            //check it's not in the list
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")));
-            int size = driver.findElements(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")).size();
-            assertEquals(1, size);
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            driver.get(BASE_URL + "/murals/" + muralId + "/dashboard");
-            String alertHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-alert"))).getText();
-            assertTrue(alertHeader.contains("404 Not found"));
-        });
-    }
 
     @Test
     void createMural() {
-        //dar al +
-        //        introducir datos
-        //dar a crear mural
-        //confirmar que tiene los datos introducidos (como comprobamos las imagenes?)
+        //click the +
+        //        enter data
+        //click create mural
+        //confirm that it has the entered data (how do we verify the images?)
         flaky(()-> {
             String name = "New Mural Name Test";
             String desc = "New Mural Desc Test";
@@ -635,6 +588,58 @@ class E2eTest {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        });
+    }
+
+    @Test
+    void deleteMural() {
+        //seleccionar mural1 asd
+        //ir a settings
+        //pasar gauntlet de delete
+        //confirmar que se borra
+        //confirmar que no se muestra en el listado
+        //intentar ir a /murals/deletedMuralId y comprobar que da error
+        flaky(()-> {
+            String muralName = "Mural1 asd";
+
+            login("asd");
+            //Select the mural
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-mural"))).click();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')][1]"))).click();
+            //save the id for later
+            wait.until(ExpectedConditions.urlContains("/dashboard"));
+            String[] urlParts = driver.getCurrentUrl().split("/");
+            String muralId = urlParts[urlParts.length - 2];
+            //delete mural
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-mural-settings"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-mural-delete"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-confirm"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("input-alert-text"))).sendKeys(muralName);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-confirm"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-dismiss-alert"))).click();
+            //check it's not in the list
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")));
+            int size = driver.findElements(By.xpath("//div[@id='owned-murals-container']/div[contains(@class, 'thumbnail-container')]")).size();
+            assertEquals(1, size);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            driver.get(BASE_URL + "/murals/" + muralId + "/dashboard");
+            String alertHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("header-alert"))).getText();
+            assertTrue(alertHeader.contains("404 Not found"));
         });
     }
 

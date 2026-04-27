@@ -16,29 +16,26 @@ import java.util.Base64;
  */
 public class SecurityCipher {
 
-	private static final String KEYVALUE = "secureCDCKey";
-	private static SecretKeySpec secretKey;
-	private static byte[] key;
-
 	private static final Logger logger =
 			LoggerFactory.getLogger(SecurityCipher.class);
 
+	private static final SecretKeySpec secretKey;
 
-	private SecurityCipher() {
-		throw new AssertionError("Static!");
-	}
-
-	public static void setKey() {
-		MessageDigest sha;
+	static {
 		try {
-			key = KEYVALUE.getBytes(StandardCharsets.UTF_8);
-			sha = MessageDigest.getInstance("SHA-1");
+			byte[] key = "secureCDCKey".getBytes(StandardCharsets.UTF_8);
+			MessageDigest sha = MessageDigest.getInstance("SHA-1");
 			key = sha.digest(key);
 			key = Arrays.copyOf(key, 16);
 			secretKey = new SecretKeySpec(key, "AES");
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("An exception setting the key for encryption/decryption: {}", e.getMessage());
+			logger.error("Failed to initialize encryption key: {}", e.getMessage());
+			throw new RuntimeException("Failed to initialize SecurityCipher", e);
 		}
+	}
+
+	private SecurityCipher() {
+		throw new AssertionError("Static!");
 	}
 
 	public static String encrypt(String strToEncrypt) {
@@ -47,7 +44,6 @@ public class SecurityCipher {
 		}
 
 		try {
-			setKey();
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
@@ -63,12 +59,12 @@ public class SecurityCipher {
 		}
 
 		try {
-			setKey();
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
  		} catch (Exception e) {
 			logger.error("An exception ocurred during JWT decryption: {}", e.getMessage());
+			logger.error("Decryption failed for input: '{}' (length: {}, decoded bytes length: {})", strToDecrypt, strToDecrypt.length(), Base64.getDecoder().decode(strToDecrypt).length, e);
 
 		}
 		return null;
