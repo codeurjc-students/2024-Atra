@@ -144,21 +144,28 @@ public class DatabaseInitializer {
 
         //<editor-fold desc="Murals">
         Mural mural = new Mural("The Family", angel, List.of(david, ruben));
+        setThumbnailAndBanner(mural);
         muralService.newMural(mural);
         muralId = mural.getId();
 
         mural = new Mural("Weekend Crew", extra, List.of());
+        setThumbnailAndBanner(mural);
         muralService.newMural(mural);
         mural = new Mural("The Usuals", extra, List.of());
+        setThumbnailAndBanner(mural);
         muralService.newMural(mural);
         mural = new Mural("Local Squad", extra, List.of());
+        setThumbnailAndBanner(mural);
         muralService.newMural(mural);
         mural = new Mural("Trail Pack", extra, List.of());
+        setThumbnailAndBanner(mural);
         muralService.newMural(mural);
         mural = new Mural("Casual Training", extra, List.of());
+        setThumbnailAndBanner(mural);
         mural.setVisibility(VisibilityType.PUBLIC);
         muralService.newMural(mural);
         mural = new Mural("VIP", extra, List.of());
+        setThumbnailAndBanner(mural);
         mural.setVisibility(VisibilityType.PRIVATE);
         muralService.newMural(mural);
         //</editor-fold>
@@ -391,7 +398,7 @@ public class DatabaseInitializer {
 
     private void setThumbnailAndBanner(Mural mural) throws IOException {
         byte[] thumbnailBytes = new ClassPathResource("static/defaultThumbnailImage.png").getInputStream().readAllBytes();
-        byte[] bannerBytes = new ClassPathResource("static/altBannerImage.png").getInputStream().readAllBytes();
+        byte[] bannerBytes = new ClassPathResource("static/demo-banner.png").getInputStream().readAllBytes();
         mural.setBanner(bannerBytes);
         mural.setThumbnail(thumbnailBytes);
     }
